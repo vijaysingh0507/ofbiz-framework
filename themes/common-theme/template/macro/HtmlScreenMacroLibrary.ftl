@@ -16,7 +16,6 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 -->
-
 <#macro renderScreenBegin>
 <!DOCTYPE html>
 </#macro>
@@ -36,13 +35,14 @@ under the License.
 </#if>
 </#macro>
 
-<#macro renderContainerBegin id autoUpdateInterval style="" autoUpdateLink="">
+<#macro renderContainerBegin id autoUpdateInterval type="" style="" autoUpdateLink="">
 <#if autoUpdateLink?has_content>
-<script type="text/javascript">ajaxUpdateAreaPeriodic('${id}', '${autoUpdateLink}', '', '${autoUpdateInterval}');</script>
+<script type="application/javascript">ajaxUpdateAreaPeriodic('${id}', '${autoUpdateLink}', '', '${autoUpdateInterval}');</script>
 </#if>
-<div<#if id?has_content> id="${id}"</#if><#if style?has_content> class="${style}"</#if>>
+<#if !type?has_content><#local type="div"/> </#if>
+<${type}<#if id?has_content> id="${id}"</#if><#if style?has_content> class="${style}"</#if>>
 </#macro>
-<#macro renderContainerEnd></div></#macro>
+<#macro renderContainerEnd type=""><#if !type?has_content><#local type="div"/> </#if></${type}></#macro>
 <#macro renderContentBegin enableEditValue editContainerStyle  editRequest=""><#if editRequest?has_content && "true" == enableEditValue><div class=${editContainerStyle}></#if></#macro>
 <#macro renderContentBody></#macro>
 <#macro renderContentEnd editMode editContainerStyle  enableEditValue editRequest="" urlString="" >
@@ -66,8 +66,8 @@ under the License.
   <#if text?has_content>
     <#-- If a label widget has one of the h1-h6 styles, then it is considered block level element.
          Otherwise it is considered an inline element. -->
-    <#assign idText = ""/>
-    <#if id?has_content><#assign idText = " id=\"${id}\""/></#if>
+    <#local idText = ""/>
+    <#if id?has_content><#local idText = " id=&quot;${id}&quot;"/></#if>
     <#if style?has_content>
       <#if style=="h1">
         <h1${idText}>${text}</h1>
@@ -95,7 +95,7 @@ under the License.
         <#if "hidden-form" == linkType>
             <form method="post" action="${actionUrl}" <#if targetWindow?has_content>target="${targetWindow}"</#if> onsubmit="javascript:submitFormDisableSubmits(this)" name="${uniqueItemName}"><#rt/>
                 <#list parameterList as parameter>
-                <input name="${parameter.name}" value="${parameter.value}" type="hidden"/><#rt/>
+                <input name="${parameter.name}" value="${parameter.value?html}" type="hidden"/><#rt/>
                 </#list>
             </form><#rt/>
         </#if>
@@ -108,15 +108,15 @@ under the License.
             <#if imgStr?has_content>${imgStr}</#if><#if text?has_content>${text}</#if>
         </a>
     <#else>
-        <#local params = "{ 'presentation': 'layer'">
+        <#local params = "{&quot;presentation&quot;:&quot;layer&quot; ">
         <#if parameterList?has_content>
           <#list parameterList as parameter>
-            <#local params += ",'${parameter.name}': '${parameter.value}'">
+            <#local params += ",&quot;${parameter.name}&quot;: &quot;${parameter.value?html}&quot;">
           </#list>
         </#if>
-        <#local params += " }">
+        <#local params += "}">
         <a href="javascript:void(0);" id="${uniqueItemName}_link"
-           data-dialog-params="${params}"
+           data-dialog-params='${params}'
            data-dialog-width="${width}"
            data-dialog-height="${height}"
            data-dialog-url="${target}"
@@ -183,9 +183,9 @@ ${menuString}
 </#macro>
 
 <#macro renderPortalPageColumnBegin originalPortalPageId portalPageId columnSeqId confMode="false" width="auto" delColumnLabel="Delete column" delColumnHint="Delete this column" addPortletLabel="Add portlet" addPortletHint="Add a new portlet to this column" colWidthLabel="Col. width:" setColumnSizeHint="Set column size">
-  <#assign columnKey = portalPageId+columnSeqId>
-  <#assign columnKeyFields = '<input name="portalPageId" value="' + portalPageId + '" type="hidden"/><input name="columnSeqId" value="' + columnSeqId + '" type="hidden"/>'>
-  <script type="text/javascript">
+  <#local columnKey = portalPageId+columnSeqId>
+  <#local columnKeyFields = '<input name="portalPageId" value="' + portalPageId + '" type="hidden"/><input name="columnSeqId" value="' + columnSeqId + '" type="hidden"/>'>
+  <script type="application/javascript">
     if (typeof SORTABLE_COLUMN_LIST != "undefined") {
       if (SORTABLE_COLUMN_LIST == null) {
         SORTABLE_COLUMN_LIST = "#portalColumn_${columnSeqId}";
@@ -227,8 +227,8 @@ ${menuString}
 </#macro>
 
 <#macro renderPortalPagePortletBegin originalPortalPageId portalPageId portalPortletId portletSeqId prevPortletId="" prevPortletSeqId="" nextPortletId="" nextPortletSeqId="" columnSeqId="" prevColumnSeqId="" nextColumnSeqId="" confMode="false" delPortletHint="Remove this portlet" editAttribute="false" editAttributeHint="Edit portlet parameters">
-  <#assign portletKey = portalPageId+portalPortletId+portletSeqId>
-  <#assign portletKeyFields = '<input name="portalPageId" value="' + portalPageId + '" type="hidden"/><input name="portalPortletId" value="' + portalPortletId + '" type="hidden"/><input name="portletSeqId" value="' + portletSeqId  + '" type="hidden"/>'>
+  <#local portletKey = portalPageId+portalPortletId+portletSeqId>
+  <#local portletKeyFields = '<input name="portalPageId" value="' + portalPageId + '" type="hidden"/><input name="portalPortletId" value="' + portalPortletId + '" type="hidden"/><input name="portletSeqId" value="' + portletSeqId  + '" type="hidden"/>'>
   <div id="PP_${portletKey}" name="portalPortlet" class="noClass" portalPageId="${portalPageId}" portalPortletId="${portalPortletId}" columnSeqId="${columnSeqId}" portletSeqId="${portletSeqId}">
     <#if "true" == confMode>
       <div class="portlet-config" id="PPCFG_${portletKey}">

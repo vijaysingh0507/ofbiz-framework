@@ -81,7 +81,7 @@ public class VisitHandler {
             if (modelUserLogin.isField("partyId")) {
                 visit.set("partyId", userLogin.get("partyId"));
             }
-            visit.set("userCreated", Boolean.valueOf(userCreated));
+            visit.set("userCreated", userCreated);
 
             // make sure the visitorId is still in place
             if (visitor != null) {
@@ -147,8 +147,8 @@ public class VisitHandler {
                             visit.set("fromDate", new Timestamp(session.getCreationTime()));
 
                             visit.set("initialLocale", initialLocale);
-                            if (initialRequest != null) visit.set("initialRequest", initialRequest.length() > 250 ? initialRequest.substring(0, 250) : initialRequest);
-                            if (initialReferrer != null) visit.set("initialReferrer", initialReferrer.length() > 250 ? initialReferrer.substring(0, 250) : initialReferrer);
+                            visit.set("initialRequest", initialRequest);
+                            visit.set("initialReferrer", initialReferrer);
                             if (initialUserAgent != null) visit.set("initialUserAgent", initialUserAgent.length() > 250 ? initialUserAgent.substring(0, 250) : initialUserAgent);
                             visit.set("webappName", webappName);
                             if (UtilProperties.propertyValueEquals("serverstats", "stats.proxy.enabled", "true")) {

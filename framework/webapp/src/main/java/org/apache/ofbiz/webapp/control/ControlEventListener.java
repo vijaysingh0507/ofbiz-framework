@@ -50,9 +50,9 @@ public class ControlEventListener implements HttpSessionListener {
 
     public ControlEventListener() {}
 
+    @Override
     public void sessionCreated(HttpSessionEvent event) {
         HttpSession session = event.getSession();
-        session.setMaxInactiveInterval(60*60); //in seconds
 
         // get/create the visit
         // NOTE: don't create the visit here, just let the control servlet do it; GenericValue visit = VisitHandler.getVisit(session);
@@ -67,6 +67,7 @@ public class ControlEventListener implements HttpSessionListener {
         Debug.logInfo("Creating session: " + ControlActivationEventListener.showSessionId(session), module);
     }
 
+    @Override
     public void sessionDestroyed(HttpSessionEvent event) {
         HttpSession session = event.getSession();
 
@@ -85,7 +86,7 @@ public class ControlEventListener implements HttpSessionListener {
                     visit.store();
                 }
             } else {
-                Debug.logWarning("Could not find visit value object in session [" + ControlActivationEventListener.showSessionId(session) + "] that is being destroyed", module);
+                Debug.logInfo("Could not find visit value object in session [" + ControlActivationEventListener.showSessionId(session) + "] that is being destroyed", module);
             }
 
             // Store the UserLoginSession
@@ -201,7 +202,7 @@ public class ControlEventListener implements HttpSessionListener {
         totalPassiveSessions--;
     }
 
-    private String getUserLoginSession(HttpSession session) {
+    private static String getUserLoginSession(HttpSession session) {
         Map<String, ?> userLoginSession = UtilGenerics.cast(session.getAttribute("userLoginSession"));
 
         String sessionData = null;

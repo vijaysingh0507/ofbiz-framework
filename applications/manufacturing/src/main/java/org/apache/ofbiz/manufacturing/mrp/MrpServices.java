@@ -21,6 +21,7 @@ package org.apache.ofbiz.manufacturing.mrp;
 
 import java.math.BigDecimal;
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -88,8 +89,7 @@ public class MrpServices {
         }
 
         // Proposed requirements are deleted
-        listResult = null;
-        List<GenericValue> listResultRoles = new LinkedList<GenericValue>();
+        List<GenericValue> listResultRoles = new LinkedList<>();
         try {
             listResult = EntityQuery.use(delegator).from("Requirement")
                     .where("requirementTypeId", "PRODUCT_REQUIREMENT","facilityId", facilityId,
@@ -98,18 +98,20 @@ public class MrpServices {
         } catch (GenericEntityException e) {
             return ServiceUtil.returnError(UtilProperties.getMessage(resource, "ManufacturingMrpEventFindError", locale));
         }
+        List<GenericValue> requirementStatus = new ArrayList<>();
         if (listResult != null) {
             try {
                 for (GenericValue tmpRequirement : listResult) {
                     listResultRoles.addAll(tmpRequirement.getRelated("RequirementRole", null, null, false));
+                    requirementStatus.addAll(tmpRequirement.getRelated("RequirementStatus", null, null, false));
                 }
                 delegator.removeAll(listResultRoles);
+                delegator.removeAll(requirementStatus);
                 delegator.removeAll(listResult);
             } catch (GenericEntityException e) {
                 return ServiceUtil.returnError(UtilProperties.getMessage(resource, "ManufacturingMrpEventRemoveError", locale));
             }
         }
-        listResult = null;
         try {
             listResult = EntityQuery.use(delegator).from("Requirement")
                     .where("requirementTypeId", "INTERNAL_REQUIREMENT","facilityId", facilityId,
@@ -120,6 +122,10 @@ public class MrpServices {
         }
         if (listResult != null) {
             try {
+                for (GenericValue tempRequirement: listResult) {
+                    requirementStatus.addAll(tempRequirement.getRelated("RequirementStatus", null, null, false));
+                }
+                delegator.removeAll(requirementStatus);
                 delegator.removeAll(listResult);
             } catch (GenericEntityException e) {
                 return ServiceUtil.returnError(UtilProperties.getMessage(resource, "ManufacturingMrpEventRemoveError", locale));
@@ -138,10 +144,9 @@ public class MrpServices {
             notAssignedDate = now;
         } else {
             Calendar calendar = UtilDateTime.toCalendar(now);
-            calendar.add(Calendar.YEAR, defaultYearsOffset.intValue());
+            calendar.add(Calendar.YEAR, defaultYearsOffset);
             notAssignedDate = new Timestamp(calendar.getTimeInMillis());
         }
-        resultList = null;
         try {
             resultList = EntityQuery.use(delegator).from("OrderHeaderItemAndShipGroup")
                     .where("orderTypeId", "SALES_ORDER",
@@ -202,7 +207,6 @@ public class MrpServices {
         // ----------------------------------------
         // Loads all the approved product requirements (po requirements)
         // ----------------------------------------
-        resultList = null;
         try {
             resultList = EntityQuery.use(delegator).from("Requirement")
                     .where("requirementTypeId", "PRODUCT_REQUIREMENT",
@@ -234,7 +238,6 @@ public class MrpServices {
         // ----------------------------------------
         // Loads all the approved purchase order items
         // ----------------------------------------
-        resultList = null;
         String orderId = null;
         GenericValue orderDeliverySchedule = null;
         try {
@@ -308,7 +311,6 @@ public class MrpServices {
         // ----------------------------------------
         // PRODUCTION Run: components
         // ----------------------------------------
-        resultList = null;
         try {
             resultList = EntityQuery.use(delegator).from("WorkEffortAndGoods")
                     .where("workEffortGoodStdTypeId", "PRUNT_PROD_NEEDED",
@@ -347,7 +349,6 @@ public class MrpServices {
         // ----------------------------------------
         // PRODUCTION Run: product produced
         // ----------------------------------------
-        resultList = null;
         try {
             resultList = EntityQuery.use(delegator).from("WorkEffortAndGoods")
                     .where("workEffortGoodStdTypeId", "PRUN_PROD_DELIV",
@@ -390,8 +391,6 @@ public class MrpServices {
         // ----------------------------------------
         // Products without upcoming events but that are already under minimum quantity in warehouse
         // ----------------------------------------
-        resultList = null;
-        parameters = UtilMisc.<String, Object>toMap("facilityId", facilityId);
         try {
             resultList = EntityQuery.use(delegator).from("ProductFacility")
                     .where("facilityId", facilityId)
@@ -432,7 +431,6 @@ public class MrpServices {
         // ----------------------------------------
         // SALES FORECASTS
         // ----------------------------------------
-        resultList = null;
         GenericValue facility = null;
         try {
             facility = EntityQuery.use(delegator).from("Facility").where("facilityId", facilityId).queryOne();
@@ -484,7 +482,7 @@ public class MrpServices {
                 }
             }
         }
-        Map<String, Object> result = new HashMap<String, Object>();
+        Map<String, Object> result = new HashMap<>();
         result.put(ModelService.RESPONSE_MESSAGE, ModelService.RESPOND_SUCCESS);
         Debug.logInfo("return from initMrpEvent", module);
         return result;
@@ -679,9 +677,9 @@ public class MrpServices {
             if (bomLevel == 0) {
                 filterByConditions = EntityCondition.makeCondition(EntityCondition.makeCondition("billOfMaterialLevel", EntityOperator.EQUALS, null),
                                             EntityOperator.OR,
-                                            EntityCondition.makeCondition("billOfMaterialLevel", EntityOperator.EQUALS, Long.valueOf(bomLevel)));
+                                            EntityCondition.makeCondition("billOfMaterialLevel", EntityOperator.EQUALS, bomLevel));
             } else {
-                filterByConditions = EntityCondition.makeCondition("billOfMaterialLevel", EntityOperator.EQUALS, Long.valueOf(bomLevel));
+                filterByConditions = EntityCondition.makeCondition("billOfMaterialLevel", EntityOperator.EQUALS, bomLevel);
             }
             try {
                 listInventoryEventForMRP = EntityQuery.use(delegator).from("MrpEventView")
@@ -689,7 +687,7 @@ public class MrpServices {
                         .orderBy("productId", "eventDate")
                         .queryList();
             } catch (GenericEntityException e) {
-                Long bomLevelToString = new Long(bomLevel);
+                Long bomLevelToString = bomLevel;
                 return ServiceUtil.returnError(UtilProperties.getMessage(resource, "ManufacturingMrpErrorForBomLevel", UtilMisc.toMap("bomLevel", bomLevelToString.toString(), "errorString", e.getMessage()), locale));
             }
 
@@ -749,7 +747,7 @@ public class MrpServices {
                         } catch (Exception e) {
                             return ServiceUtil.returnError(UtilProperties.getMessage(resource, "ManufacturingMrpErrorExplodingProduct", UtilMisc.toMap("productId", product.getString("productId")), locale));
                         }
-                        components = UtilGenerics.checkList(serviceResponse.get("components"));
+                        components = UtilGenerics.cast(serviceResponse.get("components"));
                         if (UtilValidate.isNotEmpty(components)) {
                             BOMNode node = (components.get(0)).getParentNode();
                             isBuilt = node.isManufactured();
@@ -786,7 +784,7 @@ public class MrpServices {
                         } catch (Exception e) {
                             return ServiceUtil.returnError(UtilProperties.getMessage(resource, "ManufacturingMrpErrorExplodingProduct", UtilMisc.toMap("productId", product.getString("productId")), locale));
                         }
-                        components = UtilGenerics.checkList(serviceResponse.get("components"));
+                        components = UtilGenerics.cast(serviceResponse.get("components"));
                         String routingId = (String)serviceResponse.get("workEffortId");
                         if (routingId != null) {
                             try {
@@ -844,8 +842,8 @@ public class MrpServices {
             // if there are 3 levels with no inventoryEvenPanned we stop
         } while (bomLevelWithNoEvent < 3);
 
-        result = new HashMap<String, Object>();
-        List<Object> msgResult = new LinkedList<Object>();
+        result = new HashMap<>();
+        List<Object> msgResult = new LinkedList<>();
         result.put("msgResult", msgResult);
         result.put(ModelService.RESPONSE_MESSAGE, ModelService.RESPOND_SUCCESS);
         Debug.logInfo("return from executeMrp", module);

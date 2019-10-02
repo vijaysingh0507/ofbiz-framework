@@ -17,7 +17,7 @@ specific language governing permissions and limitations
 under the License.
 -->
 
-<script language="JavaScript" type="text/javascript">
+<script type="application/javascript">
 <!-- //
 function lookupOrders(click) {
     orderIdValue = document.lookuporder.orderId.value;
@@ -414,10 +414,10 @@ function toggleOrderIdList() {
                     <#if requestParameters.countryGeoId?has_content>
                         <#assign countryGeoId = requestParameters.countryGeoId>
                         <#assign geo = delegator.findOne("Geo", Static["org.apache.ofbiz.base.util.UtilMisc"].toMap("geoId", countryGeoId), true)>
-                        <option value="${countryGeoId}">${geo.geoName!}</option>
-                        <option value="${countryGeoId}">---</option>
+                        <option value="${countryGeoId}" selected="selected">${geo.geoName!}</option>
+                        <option value="" >${uiLabelMap.CommonAny}</option>
                     <#else>
-                        <option value="">---</option>
+                        <option value="" selected="selected">${uiLabelMap.CommonAny}</option>
                     </#if>
                     ${screens.render("component://common/widget/CommonScreens.xml#countries")}
                   </select>
@@ -458,10 +458,9 @@ function toggleOrderIdList() {
     </div>
       </#if>
 </div>
-<input type="image" src="<@ofbizContentUrl>/images/spacer.gif</@ofbizContentUrl>" onclick="javascript:lookupOrders(true);"/>
 </form>
 <#if requestParameters.hideFields?default("N") != "Y">
-<script language="JavaScript" type="text/javascript">
+<script type="application/javascript">
 <!--//
 document.lookuporder.orderId.focus();
 //-->
@@ -508,18 +507,23 @@ document.lookuporder.orderId.focus();
       <div>&nbsp;</div>
       <div align="right">
         <input type="hidden" name="screenLocation" value="component://order/widget/ordermgr/OrderPrintScreens.xml#OrderPDF"/>
+        <#if paramList??>
+            <#assign ampersand = "&amp;">
+        <#else>
+            <#assign ampersand = "">
+        </#if>
         <select name="serviceName" onchange="javascript:setServiceName(this);">
            <option value="javascript:void(0);">&nbsp;</option>
-           <option value="<@ofbizUrl>massApproveOrders?hideFields=${requestParameters.hideFields?default("N")}${paramList}</@ofbizUrl>">${uiLabelMap.OrderApproveOrder}</option>
-           <option value="<@ofbizUrl>massHoldOrders?hideFields=${requestParameters.hideFields?default("N")}${paramList}</@ofbizUrl>">${uiLabelMap.OrderHold}</option>
-           <option value="<@ofbizUrl>massProcessOrders?hideFields=${requestParameters.hideFields?default("N")}${paramList}</@ofbizUrl>">${uiLabelMap.OrderProcessOrder}</option>
-           <option value="<@ofbizUrl>massCancelOrders?hideFields=${requestParameters.hideFields?default("N")}${paramList}</@ofbizUrl>">${uiLabelMap.OrderCancelOrder}</option>
-           <option value="<@ofbizUrl>massCancelRemainingPurchaseOrderItems?hideFields=${requestParameters.hideFields?default("N")}${paramList}</@ofbizUrl>">${uiLabelMap.OrderCancelRemainingPOItems}</option>
-           <option value="<@ofbizUrl>massRejectOrders?hideFields=${requestParameters.hideFields?default("N")}${paramList}</@ofbizUrl>">${uiLabelMap.OrderRejectOrder}</option>
-           <option value="<@ofbizUrl>massPickOrders?hideFields=${requestParameters.hideFields?default("N")}${paramList}</@ofbizUrl>">${uiLabelMap.OrderPickOrders}</option>
-           <option value="<@ofbizUrl>massQuickShipOrders?hideFields=${requestParameters.hideFields?default("N")}${paramList}</@ofbizUrl>">${uiLabelMap.OrderQuickShipEntireOrder}</option>
-           <option value="<@ofbizUrl>massPrintOrders?hideFields=${requestParameters.hideFields?default('N')}${paramList}</@ofbizUrl>">${uiLabelMap.CommonPrint}</option>
-           <option value="<@ofbizUrl>massCreateFileForOrders?hideFields=${requestParameters.hideFields?default('N')}${paramList}</@ofbizUrl>">${uiLabelMap.ContentCreateFile}</option>
+           <option value="<@ofbizUrl>massApproveOrders?hideFields=${requestParameters.hideFields?default("N")}${ampersand}${paramList}</@ofbizUrl>">${uiLabelMap.OrderApproveOrder}</option>
+           <option value="<@ofbizUrl>massHoldOrders?hideFields=${requestParameters.hideFields?default("N")}${ampersand}${paramList}</@ofbizUrl>">${uiLabelMap.OrderHold}</option>
+           <option value="<@ofbizUrl>massProcessOrders?hideFields=${requestParameters.hideFields?default("N")}${ampersand}${paramList}</@ofbizUrl>">${uiLabelMap.OrderProcessOrder}</option>
+           <option value="<@ofbizUrl>massCancelOrders?hideFields=${requestParameters.hideFields?default("N")}${ampersand}${paramList}</@ofbizUrl>">${uiLabelMap.OrderCancelOrder}</option>
+           <option value="<@ofbizUrl>massCancelRemainingPurchaseOrderItems?hideFields=${requestParameters.hideFields?default("N")}${ampersand}${paramList}</@ofbizUrl>">${uiLabelMap.OrderCancelRemainingPOItems}</option>
+           <option value="<@ofbizUrl>massRejectOrders?hideFields=${requestParameters.hideFields?default("N")}${ampersand}${paramList}</@ofbizUrl>">${uiLabelMap.OrderRejectOrder}</option>
+           <option value="<@ofbizUrl>massPickOrders?hideFields=${requestParameters.hideFields?default("N")}${ampersand}${paramList}</@ofbizUrl>">${uiLabelMap.OrderPickOrders}</option>
+           <option value="<@ofbizUrl>massQuickShipOrders?hideFields=${requestParameters.hideFields?default("N")}${ampersand}${paramList}</@ofbizUrl>">${uiLabelMap.OrderQuickShipEntireOrder}</option>
+           <option value="<@ofbizUrl>massPrintOrders?hideFields=${requestParameters.hideFields?default('N')}${ampersand}${paramList}</@ofbizUrl>">${uiLabelMap.CommonPrint}</option>
+           <option value="<@ofbizUrl>massCreateFileForOrders?hideFields=${requestParameters.hideFields?default('N')}${ampersand}${paramList}</@ofbizUrl>">${uiLabelMap.ContentCreateFile}</option>
         </select>
         <select name="printerName">
            <option value="javascript:void(0);">&nbsp;</option>
@@ -540,22 +544,22 @@ document.lookuporder.orderId.focus();
           <td >${uiLabelMap.OrderOrderId}</td>
           <td >${uiLabelMap.OrderOrderName}</td>
           <td >${uiLabelMap.PartyName}</td>
-          <td >${uiLabelMap.OrderSurvey}</td>
-          <td >${uiLabelMap.OrderItemsOrdered}</td>
-          <td >${uiLabelMap.OrderItemsBackOrdered}</td>
-          <td >${uiLabelMap.OrderItemsReturned}</td>
-          <td >${uiLabelMap.OrderRemainingSubTotal}</td>
-          <td >${uiLabelMap.OrderOrderTotal}</td>
+          <td align="right">${uiLabelMap.OrderSurvey}</td>
+          <td align="right">${uiLabelMap.OrderItemsOrdered}</td>
+          <td align="right">${uiLabelMap.OrderItemsBackOrdered}</td>
+          <td align="right">${uiLabelMap.OrderItemsReturned}</td>
+          <td align="right">${uiLabelMap.OrderRemainingSubTotal}</td>
+          <td align="right" >${uiLabelMap.OrderOrderTotal}
+
             <#if ("Y" == requestParameters.filterInventoryProblems?default("N")) || ("Y" == requestParameters.filterPOsOpenPastTheirETA?default("N")) || ("Y" == requestParameters.filterPOsWithRejectedItems?default("N")) || ("Y" == requestParameters.filterPartiallyReceivedPOs?default("N"))>
               <td>${uiLabelMap.CommonStatus}</td>
               <td>${uiLabelMap.CommonFilter}</td>
             <#else>
+              <td></td>
               <td>${uiLabelMap.CommonStatus}</td>
             </#if>
           <td>${uiLabelMap.OrderDate}</td>
           <td>${uiLabelMap.PartyPartyId}</td>
-          <td></td>
-          <td></td>
         </tr>
         <#if orderList?has_content>
           <#assign alt_row = false>

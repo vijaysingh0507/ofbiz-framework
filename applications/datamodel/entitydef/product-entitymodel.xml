@@ -657,6 +657,8 @@ under the License.
             title="Product Configuration Options">
         <field name="configItemId" type="id"></field>
         <field name="configOptionId" type="id"></field>
+        <field name="fromDate" type="date-time"></field>
+        <field name="thruDate" type="date-time"></field>
         <field name="configOptionName" type="name"></field>
         <field name="description" type="description"></field>
         <field name="sequenceNum" type="numeric"></field>
@@ -1010,6 +1012,7 @@ under the License.
         <field name="defaultDimensionUomId" type="id"><description>This field store the unit of measurement of dimension (length, width and height)</description></field>
         <field name="defaultWeightUomId" type="id"></field>
         <field name="geoPointId" type="id"></field>
+        <field name="facilityLevel" type="numeric"><description>This field will define the level of facility.</description></field>
         <prim-key field="facilityId"/>
         <relation type="one" fk-name="FACILITY_FCTYP" rel-entity-name="FacilityType">
             <key-map field-name="facilityTypeId"/>
@@ -1048,17 +1051,36 @@ under the License.
     </entity>
     <view-entity entity-name="FacilityAndContactMech" package-name="org.apache.ofbiz.product.facility" title="Facility and Contact Mech View">
         <member-entity entity-alias="FA" entity-name="Facility"/>
-        <member-entity entity-alias="CM" entity-name="FacilityContactMech"/>
-        <member-entity entity-alias="MC" entity-name="ContactMech"/>
+        <member-entity entity-alias="FCM" entity-name="FacilityContactMech"/>
+        <member-entity entity-alias="CMD" entity-name="ContactMechDetail"/>
         <alias-all entity-alias="FA"/>
-        <alias-all entity-alias="CM"/>
-        <alias-all entity-alias="MC"/>
-        <view-link entity-alias="FA" rel-entity-alias="CM">
+        <alias-all entity-alias="FCM"/>
+        <alias-all entity-alias="CMD"/>
+        <view-link entity-alias="FA" rel-entity-alias="FCM">
             <key-map field-name="facilityId"/>
         </view-link>
-        <view-link entity-alias="CM" rel-entity-alias="MC">
+        <view-link entity-alias="FCM" rel-entity-alias="CMD">
             <key-map field-name="contactMechId"/>
         </view-link>
+        <relation type="many" rel-entity-name="FacilityContactMech">
+            <key-map field-name="facilityId"/>
+            <key-map field-name="contactMechId"/>
+        </relation>
+        <relation type="one-nofk" rel-entity-name="Facility">
+            <key-map field-name="facilityId"/>
+        </relation>
+        <relation type="one-nofk" rel-entity-name="ContactMech">
+            <key-map field-name="contactMechId"/>
+        </relation>
+        <relation type="one-nofk" rel-entity-name="PostalAddress">
+            <key-map field-name="contactMechId"/>
+        </relation>
+        <relation type="one-nofk" rel-entity-name="TelecomNumber">
+            <key-map field-name="contactMechId"/>
+        </relation>
+        <relation type="one-nofk" rel-entity-name="FtpAddress">
+            <key-map field-name="contactMechId"/>
+        </relation>
     </view-entity>
     <entity entity-name="FacilityAttribute" package-name="org.apache.ofbiz.product.facility" title="Facility Attribute">
         <field name="facilityId" type="id"></field>
@@ -1408,13 +1430,19 @@ under the License.
         </relation>
     </entity>
     <entity entity-name="ProductFacility" package-name="org.apache.ofbiz.product.facility" title="Product Facility">
-        <field name="productId" type="id"></field>
-        <field name="facilityId" type="id"></field>
-        <field name="minimumStock" type="fixed-point"></field>
-        <field name="reorderQuantity" type="fixed-point"></field>
-        <field name="daysToShip" type="numeric"></field>
-        <field name="lastInventoryCount" type="fixed-point"><description>This field represents availableToPromiseTotal of a product at a certain point of time and is being updated regularly by a schedule service every hour</description></field>
-        <field name="requirementMethodEnumId" type="id"></field>
+        <field name="productId" type="id"/>
+        <field name="facilityId" type="id"/>
+        <field name="minimumStock" type="fixed-point"/>
+        <field name="reorderQuantity" type="fixed-point"/>
+        <field name="daysToShip" type="numeric"/>
+        <field name="replenishMethodEnumId" type="id"/>
+        <field name="lastInventoryCount" type="fixed-point">
+            <description>
+                This field represents availableToPromiseTotal of a product at a certain point of time and is
+                being updated regularly by a schedule service every hour
+            </description>
+        </field>
+        <field name="requirementMethodEnumId" type="id"/>
         <prim-key field="productId"/>
         <prim-key field="facilityId"/>
         <relation type="one" fk-name="PROD_FAC_PROD" rel-entity-name="Product">
@@ -1423,8 +1451,45 @@ under the License.
         <relation type="one" fk-name="PROD_FAC_FAC" rel-entity-name="Facility">
             <key-map field-name="facilityId"/>
         </relation>
-        <relation type="one" fk-name="PROD_FAC_ENUM" title="RequirementMethod" rel-entity-name="Enumeration">
+        <relation type="one" fk-name="PROD_FAC_REQ" title="RequirementMethod" rel-entity-name="Enumeration">
             <key-map field-name="requirementMethodEnumId" rel-field-name="enumId"/>
+        </relation>
+        <relation type="one" fk-name="PROD_FAC_REP" rel-entity-name="Enumeration">
+            <key-map field-name="replenishMethodEnumId" rel-field-name="enumId"/>
+        </relation>
+    </entity>
+
+    <entity entity-name="FacilityAssocType" package-name="org.apache.ofbiz.product.facility" title="Define associations between facilities">
+        <field name="facilityAssocTypeId" type="id"/>
+        <field name="description" type="description"/>
+        <prim-key field="facilityAssocTypeId"/>
+    </entity>
+    <entity entity-name="ProductFacilityAssoc" package-name="org.apache.ofbiz.product.facility" title="Define associations between Product facilities">
+        <field name="productId" type="id"/>
+        <field name="facilityId" type="id"/>
+        <field name="facilityIdTo" type="id"/>
+        <field name="facilityAssocTypeId" type="id"/>
+        <field name="fromDate" type="date-time"/>
+        <field name="thruDate" type="date-time"/>
+        <field name="sequenceNum" type="numeric"/>
+        <field name="transitTime" type="numeric"/>
+        <prim-key field="productId"/>
+        <prim-key field="facilityId"/>
+        <prim-key field="facilityIdTo"/>
+        <prim-key field="facilityAssocTypeId"/>
+        <prim-key field="fromDate"/>
+
+        <relation type="one" fk-name="PRFACASSOC_PRO" rel-entity-name="Product">
+            <key-map field-name="productId"/>
+        </relation>
+        <relation type="one" fk-name="PRFACASSOC_FAC" title="From" rel-entity-name="Facility">
+            <key-map field-name="facilityId"/>
+        </relation>
+        <relation type="one" fk-name="PRFACASSOC_FACTO" title="To" rel-entity-name="Facility">
+            <key-map field-name="facilityIdTo" rel-field-name="facilityId"/>
+        </relation>
+        <relation type="one" fk-name="PRFACASSOC_TYPE" rel-entity-name="FacilityAssocType">
+            <key-map field-name="facilityAssocTypeId"/>
         </relation>
     </entity>
   <view-entity entity-name="ProductFacilityAndPostalAddress"
@@ -3837,13 +3902,7 @@ under the License.
       <field name="showOutOfStockProducts" type="indicator"><description>Default Y. If N then out of stock products will not be displayed on site</description></field>
       <field name="orderDecimalQuantity" type="indicator"><description>use to indicate if decimal quantity can be ordered for this producStore. Default value is Y</description></field>
       <field name="allowComment" type="indicator"><description>Allow comments for order line items per store</description></field>
-        
-        <!-- old fields, deprecated -->
-        <field name="oldStyleSheet" col-name="STYLE_SHEET" type="url"></field>
-        <field name="oldHeaderLogo" col-name="HEADER_LOGO" type="url"></field>
-        <field name="oldHeaderMiddleBackground" col-name="HEADER_MIDDLE_BACKGROUND" type="url"></field>
-        <field name="oldHeaderRightBackground" col-name="HEADER_RIGHT_BACKGROUND" type="url"></field>
-        
+      <field name="allocateInventory" type="indicator"><description>Default N. If Y then allocation plans for the product will be created.</description></field>
       <prim-key field="productStoreId"/>
       <relation type="one" fk-name="PROD_STR_PRSTRGP" title="Primary" rel-entity-name="ProductStoreGroup">
         <key-map field-name="primaryStoreGroupId" rel-field-name="productStoreGroupId"/>
@@ -4787,7 +4846,7 @@ under the License.
       <field name="shippingPrice" type="currency-precise"></field>
       <field name="currencyUomId" type="id"></field>
       <field name="supplierProductName" type="name"></field>
-      <field name="supplierProductId" type="id"></field>
+      <field name="supplierProductId" type="id-long"></field>
       <field name="canDropShip" type="indicator"></field>
       <!-- field name="supplierCommissionPerc" type="fixed-point"><description>Unused field, better use commission run using agreements in accounting</description></field-->
       <field name="comments" type="comment"></field>
@@ -4906,5 +4965,33 @@ under the License.
       <relation type="one" fk-name="GROUP_ORDER_JOB" rel-entity-name="JobSandbox">
         <key-map field-name="jobId"/>
       </relation>
+    </entity>
+
+    <entity entity-name="ProductStoreTelecomSetting"
+            package-name="org.apache.ofbiz.product.store"
+            title="Product Store Telecom Settings">
+        <field name="productStoreId" type="id"></field>
+        <field name="telecomMethodTypeId" type="id"></field>
+        <field name="telecomMsgTypeEnumId" type="id"></field>
+        <field name="telecomCustomMethodId" type="id"></field>
+        <field name="telecomGatewayConfigId" type="id"></field>
+        <prim-key field="productStoreId"/>
+        <prim-key field="telecomMethodTypeId"/>
+        <prim-key field="telecomMsgTypeEnumId"/>
+        <relation type="one" fk-name="PRDS_TS_PRDS" rel-entity-name="ProductStore">
+            <key-map field-name="productStoreId"/>
+        </relation>
+        <relation type="one" fk-name="PRDS_TS_TELTP" rel-entity-name="TelecomMethodType">
+            <key-map field-name="telecomMethodTypeId"/>
+        </relation>
+        <relation type="one" fk-name="PRDS_TS_ENUM" rel-entity-name="Enumeration">
+            <key-map field-name="telecomMsgTypeEnumId" rel-field-name="enumId"/>
+        </relation>
+        <relation type="one" fk-name="PRDS_TS_PGC" rel-entity-name="TelecomGatewayConfig">
+            <key-map field-name="telecomGatewayConfigId"/>
+        </relation>
+        <relation type="one" fk-name="PRDS_TS_CUS_MET" rel-entity-name="CustomMethod">
+            <key-map field-name="telecomCustomMethodId" rel-field-name="customMethodId"/>
+        </relation>
     </entity>
 </entitymodel>

@@ -27,25 +27,18 @@ under the License.
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
   <title>${title!}</title>
-  <#-- the trick "<scr" + "ipt below is because browsers should not parse the contents of CDATA elements, but apparently they do. -->
-  <script language="JavaScript" type="text/javascript">//<![CDATA[
-      var jQueryLibLoaded = false;
-      function initJQuery() {
-          if (typeof(jQuery) == 'undefined') {
-              if (!jQueryLibLoaded) {
-                  jQueryLibLoaded = true;
-                  document.write("<scr" + "ipt type=\"text/javascript\" src=\"<@ofbizContentUrl>/common/js/jquery/jquery-3.2.1.min.js</@ofbizContentUrl>\"></scr" + "ipt>");
-                  document.write("<scr" + "ipt type=\"text/javascript\" src=\"<@ofbizContentUrl>/common/js/jquery/jquery-migrate-3.0.0.min.js</@ofbizContentUrl>\"></scr" + "ipt>");
-                document.write("<scr" + "ipt type=\"text/javascript\" src=\"<@ofbizContentUrl>/common/js/jquery/plugins/browser-plugin/jquery.browser-0.1.0.min.js</@ofbizContentUrl>\"></scr" + "ipt>");
-              }
-              setTimeout("initJQuery()", 50);
-          }
-      }
-      initJQuery();
-      //]]>
-  </script>
-  <script language="javascript" src="<@ofbizContentUrl>/common/js/util/OfbizUtil.js</@ofbizContentUrl>"
-          type="text/javascript"></script>
+  <#if layoutSettings.shortcutIcon?has_content>
+      <#assign shortcutIcon = layoutSettings.shortcutIcon/>
+  <#elseif layoutSettings.VT_SHORTCUT_ICON?has_content>
+      <#assign shortcutIcon = layoutSettings.VT_SHORTCUT_ICON   />
+  </#if>
+  <#if shortcutIcon?has_content>
+    <link rel="shortcut icon" href="<@ofbizContentUrl>${StringUtil.wrapString(shortcutIcon)+".ico"}</@ofbizContentUrl>" type="image/x-icon">
+    <link rel="icon" href="<@ofbizContentUrl>${StringUtil.wrapString(shortcutIcon)+".png"}</@ofbizContentUrl>" type="image/png">
+    <link rel="icon" sizes="32x32" href="<@ofbizContentUrl>${StringUtil.wrapString(shortcutIcon)+"-32.png"}</@ofbizContentUrl>" type="image/png">
+    <link rel="icon" sizes="64x64" href="<@ofbizContentUrl>${StringUtil.wrapString(shortcutIcon)+"-64.png"}</@ofbizContentUrl>" type="image/png">
+    <link rel="icon" sizes="96x96" href="<@ofbizContentUrl>${StringUtil.wrapString(shortcutIcon)+"-96.png"}</@ofbizContentUrl>" type="image/png">
+  </#if>
   <#if layoutSettings.javaScripts?has_content>
     <#--layoutSettings.javaScripts is a list of java scripts. -->
     <#-- use a Set to make sure each javascript is declared only once, but iterate the list to maintain the correct order -->
@@ -54,7 +47,7 @@ under the License.
       <#if javaScriptsSet.contains(javaScript)>
         <#assign nothing = javaScriptsSet.remove(javaScript)/>
           <script src="<@ofbizContentUrl>${StringUtil.wrapString(javaScript)}</@ofbizContentUrl>"
-                  type="text/javascript"></script>
+                  type="application/javascript"></script>
       </#if>
     </#list>
   </#if>
@@ -84,7 +77,7 @@ under the License.
     </#list>
   </#if>
 
-  <script language="JavaScript" type="text/javascript">
+  <script type="application/javascript">
       // This code inserts the value lookedup by a popup window back into the associated form element
       var re_id = new RegExp('id=(\\d+)');
       var num_id = (re_id.exec(String(window.location))

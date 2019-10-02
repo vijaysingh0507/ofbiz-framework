@@ -74,6 +74,7 @@ public class ModelTheme implements Serializable {
     //template rendering
     private final Map<String, ModelTemplate> modelTemplateMap;
     private final Map<String, String> modelCommonScreensMap;
+    private final Map<String, String> modelCommonMenusMap;
 
     /**
      * Only constructor to initialize a modelTheme from xml definition
@@ -86,6 +87,7 @@ public class ModelTheme implements Serializable {
         Map<String, Object> initThemePropertiesMap = new HashMap<>();
         Map<String, ModelTemplate> initModelTemplateMap = new HashMap<>();
         Map<String, String> initModelCommonScreensMap = new HashMap<>();
+        Map<String, String> initModelCommonMenusMap = new HashMap<>();
 
         // first resolve value from the origin theme
         Element originThemeElement = UtilXml.firstChildElement(themeElement, "extends");
@@ -121,6 +123,9 @@ public class ModelTheme implements Serializable {
             if (originTheme.modelCommonScreensMap != null) {
                 initModelCommonScreensMap = UtilMisc.makeMapWritable(originTheme.modelCommonScreensMap);
             }
+            if (originTheme.modelCommonMenusMap != null) {
+                initModelCommonMenusMap = UtilMisc.makeMapWritable(originTheme.modelCommonMenusMap);
+            }
         }
 
         //second collect value from XML and surcharge
@@ -133,6 +138,7 @@ public class ModelTheme implements Serializable {
                     for (Element visualTheme : UtilXml.childElementList(childElement)) {
                         initVisualThemes.put(visualTheme.getAttribute("id"), new VisualTheme(this, visualTheme));
                     }
+                    break;
                 case "theme-properties":
                     for (Element property : UtilXml.childElementList(childElement)) {
                         addThemeProperty(initThemePropertiesMap, property);
@@ -167,6 +173,23 @@ public class ModelTheme implements Serializable {
                         }
                     }
                     break;
+                case "common-menus":
+                    for (Element menuPurpose : UtilXml.childElementList(childElement)) {
+                        String defaultLocation = menuPurpose.getAttribute("default-location");
+                        for (Element menu : UtilXml.childElementList(menuPurpose)) {
+                            String name = menu.getAttribute("name");
+                            String location = menu.getAttribute("location");
+                            if (UtilValidate.isEmpty(location)) {
+                                location = defaultLocation;
+                            }
+                            if (UtilValidate.isEmpty(location)) {
+                                Debug.logWarning("We can resolve the menu location " + name + " in the theme " + this.name + " so no added it", module);
+                                continue;
+                            }
+                            initModelCommonMenusMap.put(name, location);
+                        }
+                    }
+                    break;
             }
         }
 
@@ -186,6 +209,7 @@ public class ModelTheme implements Serializable {
         this.themePropertiesMap = Collections.unmodifiableMap(initThemePropertiesMap);
         this.modelTemplateMap = Collections.unmodifiableMap(initModelTemplateMap);
         this.modelCommonScreensMap = Collections.unmodifiableMap(initModelCommonScreensMap);
+        this.modelCommonMenusMap = Collections.unmodifiableMap(initModelCommonMenusMap);
     }
 
     public String getName() {
@@ -241,7 +265,7 @@ public class ModelTheme implements Serializable {
      * @param initWidgetPropertiesMap
      * @param widgetProperties
      */
-    private void addWidgetProperties(Map<String, Object> initWidgetPropertiesMap, Element widgetProperties) {
+    private static void addWidgetProperties(Map<String, Object> initWidgetPropertiesMap, Element widgetProperties) {
         for (Element childElement : UtilXml.childElementList(widgetProperties)) {
             switch (childElement.getNodeName()) {
                 case "default-view-size":
@@ -280,7 +304,7 @@ public class ModelTheme implements Serializable {
             name.put(initThemePropertiesMap, value);
         } else {
             try {
-                name.put(initThemePropertiesMap, ObjectType.simpleTypeConvert(value, type, null, null));
+                name.put(initThemePropertiesMap, ObjectType.simpleTypeOrObjectConvert(value, type, null, null));
             } catch (GeneralException e) {
                 Debug.logError("Impossible to parse the value " + value + " to type " + type + " for the property " + name + " on theme " + this.name, module);
             }
@@ -366,10 +390,18 @@ public class ModelTheme implements Serializable {
         }
         return null;
     }
+    public String getErrorTemplateLocation(String name) {
+        ModelTemplate modelTemplate = modelTemplateMap.get(name);
+        if (modelTemplate != null) {
+            return modelTemplate.getErrorTemplateLocation();
+        }
+        return null;
+    }
 
     public Map<String,String> getModelCommonScreens() {
         return modelCommonScreensMap;
     }
+    public Map<String,String> getModelCommonMenus() { return modelCommonMenusMap; }
 
     /**
      * the ModelTemplate class, manage the complexity of macro library definition and the rendering technology
@@ -385,6 +417,7 @@ public class ModelTheme implements Serializable {
         private final String formRendererLocation;
         private final String menuRendererLocation;
         private final String treeRendererLocation;
+        private final String errorTemplateLocation;
 
         /**
          * Constructor to initialize a ModelTemplate class from xml definition
@@ -402,6 +435,7 @@ public class ModelTheme implements Serializable {
             String formRendererLocation = null;
             String menuRendererLocation = null;
             String treeRendererLocation = null;
+            String errorTemplateLocation = null;
             for (Element templateFile : UtilXml.childElementList(template)) {
                 switch (templateFile.getAttribute("widget")) {
                     case "screen":
@@ -416,12 +450,16 @@ public class ModelTheme implements Serializable {
                     case "menu":
                         menuRendererLocation = templateFile.getAttribute("location");
                         break;
+                    case "error":
+                        errorTemplateLocation = templateFile.getAttribute("location");
+                        break;
                 }
             }
             this.screenRendererLocation = screenRendererLocation;
             this.formRendererLocation = formRendererLocation;
             this.menuRendererLocation = menuRendererLocation;
             this.treeRendererLocation = treeRendererLocation;
+            this.errorTemplateLocation = errorTemplateLocation;
         }
 
         /**
@@ -441,9 +479,7 @@ public class ModelTheme implements Serializable {
             this.formRendererLocation = exist && currentModelTemplate.formRendererLocation != null ? currentModelTemplate.formRendererLocation : originModelTemplate.formRendererLocation;
             this.treeRendererLocation = exist && currentModelTemplate.treeRendererLocation != null ? currentModelTemplate.treeRendererLocation : originModelTemplate.treeRendererLocation;
             this.menuRendererLocation = exist && currentModelTemplate.menuRendererLocation != null ? currentModelTemplate.menuRendererLocation : originModelTemplate.menuRendererLocation;
-        }
-        public String getName() {
-            return name;
+            this.errorTemplateLocation = exist && currentModelTemplate.errorTemplateLocation != null ? currentModelTemplate.errorTemplateLocation : originModelTemplate.errorTemplateLocation;
         }
         public String getEncoder() {
             return encoder;
@@ -470,6 +506,9 @@ public class ModelTheme implements Serializable {
         }
         public String getMenuRendererLocation() {
             return menuRendererLocation;
+        }
+        public String getErrorTemplateLocation() {
+            return errorTemplateLocation;
         }
     }
 }

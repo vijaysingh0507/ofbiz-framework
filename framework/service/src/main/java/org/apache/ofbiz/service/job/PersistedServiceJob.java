@@ -80,10 +80,10 @@ public class PersistedServiceJob extends GenericServiceJob {
         this.jobValue = jobValue;
         Timestamp storedDate = jobValue.getTimestamp("runTime");
         this.startTime = storedDate.getTime();
-        this.maxRetry = jobValue.get("maxRetry") != null ? jobValue.getLong("maxRetry").longValue() : -1;
+        this.maxRetry = jobValue.get("maxRetry") != null ? jobValue.getLong("maxRetry") : 0;
         Long retryCount = jobValue.getLong("currentRetryCount");
         if (retryCount != null) {
-            this.currentRetryCount = retryCount.longValue();
+            this.currentRetryCount = retryCount;
         } else {
             // backward compatibility
             this.currentRetryCount = getRetries(this.delegator);
@@ -161,10 +161,10 @@ public class PersistedServiceJob extends GenericServiceJob {
             }
         }
         if (jobValue.get("maxRecurrenceCount") != null) {
-            maxRecurrenceCount = jobValue.getLong("maxRecurrenceCount").longValue();
+            maxRecurrenceCount = jobValue.getLong("maxRecurrenceCount");
         }
         if (jobValue.get("currentRecurrenceCount") != null) {
-            currentRecurrenceCount = jobValue.getLong("currentRecurrenceCount").longValue();
+            currentRecurrenceCount = jobValue.getLong("currentRecurrenceCount");
         }
         if (maxRecurrenceCount != -1) {
             currentRecurrenceCount++;
@@ -206,11 +206,15 @@ public class PersistedServiceJob extends GenericServiceJob {
             newJob.set("runByInstanceId", null);
             newJob.set("runTime", new java.sql.Timestamp(next));
             if (isRetryOnFailure) {
-                newJob.set("currentRetryCount", Long.valueOf(currentRetryCount + 1));
+                newJob.set("currentRetryCount", currentRetryCount + 1);
             } else {
-                newJob.set("currentRetryCount", Long.valueOf(0));
+                newJob.set("currentRetryCount", 0L);
             }
             nextRecurrence = next;
+            // Set priority if missing
+            if (newJob.getLong("priority") == null) {
+                newJob.set("priority", JobPriority.NORMAL);
+            }
             delegator.createSetNextSeqId(newJob);
             if (Debug.verboseOn()) {
                 Debug.logVerbose("Created next job entry: " + newJob, module);
@@ -378,5 +382,18 @@ public class PersistedServiceJob extends GenericServiceJob {
     @Override
     public Date getStartTime() {
         return new Date(startTime);
+    }
+
+    /* 
+     * Returns the priority stored in the JobSandbox.priority field, if no value is present
+     * then it defaults to AbstractJob.getPriority()
+     */
+    @Override
+    public long getPriority() {
+        Long priority = jobValue.getLong("priority");
+        if (priority == null) {
+            return super.getPriority();
+        }
+        return priority;
     }
 }

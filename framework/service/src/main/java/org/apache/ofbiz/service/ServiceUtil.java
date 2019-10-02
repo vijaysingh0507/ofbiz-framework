@@ -64,25 +64,18 @@ public final class ServiceUtil {
 
     /** A little short-cut method to check to see if a service returned an error */
     public static boolean isError(Map<String, ? extends Object> results) {
-        if (results == null || results.get(ModelService.RESPONSE_MESSAGE) == null) {
-            return false;
-        }
-        return ModelService.RESPOND_ERROR.equals(results.get(ModelService.RESPONSE_MESSAGE));
+        return !(results == null || results.get(ModelService.RESPONSE_MESSAGE) == null) &&
+                ModelService.RESPOND_ERROR.equals(results.get(ModelService.RESPONSE_MESSAGE));
     }
 
     public static boolean isFailure(Map<String, ? extends Object> results) {
-        if (results == null || results.get(ModelService.RESPONSE_MESSAGE) == null) {
-            return false;
-        }
-        return ModelService.RESPOND_FAIL.equals(results.get(ModelService.RESPONSE_MESSAGE));
+        return !(results == null || results.get(ModelService.RESPONSE_MESSAGE) == null) &&
+                ModelService.RESPOND_FAIL.equals(results.get(ModelService.RESPONSE_MESSAGE));
     }
 
     /** A little short-cut method to check to see if a service was successful (neither error or failed) */
     public static boolean isSuccess(Map<String, ? extends Object> results) {
-        if (ServiceUtil.isError(results) || ServiceUtil.isFailure(results)) {
-            return false;
-        }
-        return true;
+        return !(ServiceUtil.isError(results) || ServiceUtil.isFailure(results));
     }
 
     /** A small routine used all over to improve code efficiency, make a result map with the message and the error response code */
@@ -139,10 +132,10 @@ public final class ServiceUtil {
                 errorList.add(nestedResult.get(ModelService.ERROR_MESSAGE));
             }
             if (nestedResult.get(ModelService.ERROR_MESSAGE_LIST) != null) {
-                errorList.addAll(UtilGenerics.checkList(nestedResult.get(ModelService.ERROR_MESSAGE_LIST)));
+                errorList.addAll(UtilGenerics.cast(nestedResult.get(ModelService.ERROR_MESSAGE_LIST)));
             }
             if (nestedResult.get(ModelService.ERROR_MESSAGE_MAP) != null) {
-                errorMap.putAll(UtilGenerics.<String, Object>checkMap(nestedResult.get(ModelService.ERROR_MESSAGE_MAP)));
+                errorMap.putAll(UtilGenerics.cast(nestedResult.get(ModelService.ERROR_MESSAGE_MAP)));
             }
         }
 
@@ -255,7 +248,7 @@ public final class ServiceUtil {
         }
 
         if (result.get(ModelService.ERROR_MESSAGE_LIST) != null) {
-            List<? extends Object> errors = UtilGenerics.checkList(result.get(ModelService.ERROR_MESSAGE_LIST));
+            List<? extends Object> errors = UtilGenerics.cast(result.get(ModelService.ERROR_MESSAGE_LIST));
             for (Object message: errors) {
                 // NOTE: this MUST use toString and not cast to String because it may be a MessageString object
                 String curMessage = message.toString();
@@ -275,8 +268,8 @@ public final class ServiceUtil {
             return null;
         }
         String errorMsg = (String) result.get(ModelService.ERROR_MESSAGE);
-        List<? extends Object> errorMsgList = UtilGenerics.checkList(result.get(ModelService.ERROR_MESSAGE_LIST));
-        Map<String, ? extends Object> errorMsgMap = UtilGenerics.checkMap(result.get(ModelService.ERROR_MESSAGE_MAP));
+        List<? extends Object> errorMsgList = UtilGenerics.cast(result.get(ModelService.ERROR_MESSAGE_LIST));
+        Map<String, ? extends Object> errorMsgMap = UtilGenerics.cast(result.get(ModelService.ERROR_MESSAGE_MAP));
         StringBuilder outMsg = new StringBuilder();
 
         if (errorMsg != null) {
@@ -321,7 +314,7 @@ public final class ServiceUtil {
             return "";
         }
         String successMsg = (String) result.get(ModelService.SUCCESS_MESSAGE);
-        List<? extends Object> successMsgList = UtilGenerics.checkList(result.get(ModelService.SUCCESS_MESSAGE_LIST));
+        List<? extends Object> successMsgList = UtilGenerics.cast(result.get(ModelService.SUCCESS_MESSAGE_LIST));
         StringBuilder outMsg = new StringBuilder();
 
         outMsg.append(makeMessageList(successMsgList, msgPrefix, msgSuffix));
@@ -390,13 +383,13 @@ public final class ServiceUtil {
 
         //See if there is a message list
         if (callResult.containsKey(ModelService.ERROR_MESSAGE_LIST)) {
-            newList = UtilGenerics.checkList(callResult.get(ModelService.ERROR_MESSAGE_LIST));
+            newList = UtilGenerics.cast(callResult.get(ModelService.ERROR_MESSAGE_LIST));
             targetList.addAll(newList);
         }
 
         //See if there are an error message map
         if (callResult.containsKey(ModelService.ERROR_MESSAGE_MAP)) {
-            errorMsgMap = UtilGenerics.checkMap(callResult.get(ModelService.ERROR_MESSAGE_MAP));
+            errorMsgMap = UtilGenerics.cast(callResult.get(ModelService.ERROR_MESSAGE_MAP));
             targetMap.putAll(errorMsgMap);
         }
     }
@@ -612,7 +605,7 @@ public final class ServiceUtil {
         try {
             job = EntityQuery.use(delegator).from("JobSandbox").where("jobId", jobId).queryOne();
             if (job != null) {
-                job.set("maxRetry", Long.valueOf(0));
+                job.set("maxRetry", 0L);
                 job.store();
             }
         } catch (GenericEntityException e) {
@@ -670,6 +663,7 @@ public final class ServiceUtil {
         return locale;
     }
 
+    @SafeVarargs
     public static <T extends Object> Map<String, Object> makeContext(T... args) {
         if (args == null) {
             throw new IllegalArgumentException("args is null in makeContext, this would throw a NullPointerExcption.");
@@ -679,7 +673,7 @@ public final class ServiceUtil {
                 throw new IllegalArgumentException("Arg(" + i + "), value(" + args[i] + ") is not a string.");
             }
         }
-        return UtilGenerics.checkMap(UtilMisc.toMap(args));
+        return UtilGenerics.cast(UtilMisc.toMap(args));
     }
 
     public static Map<String, Object> resetJob(DispatchContext dctx, Map<String, Object> context) {

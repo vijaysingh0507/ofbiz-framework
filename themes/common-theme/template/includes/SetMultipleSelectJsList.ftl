@@ -19,7 +19,7 @@ under the License.
 <#if asm_listField??> <#-- we check only this var and suppose the others are also present -->
   <#list asm_listField as row>
     <#if row.asm_multipleSelect??>
-      <script type="text/javascript">
+      <script type="application/javascript">
           jQuery(document).ready(function () {
               multiple = jQuery("#${row.asm_multipleSelect!}");
 
@@ -31,7 +31,8 @@ under the License.
               multiple.select2({
                 tags: true,
                 multiple: true,
-                lang: <#if userLogin??>'${userLogin.lastLocale!"en"}'<#else>"en"</#if>
+                lang: <#if userLogin??>'${userLogin.lastLocale!"en"}'<#else>"en"</#if>,
+                width: "50%"
               });
 
               <#if row.asm_relatedField??> <#-- can be used without related field -->

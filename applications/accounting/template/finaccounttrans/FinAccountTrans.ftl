@@ -17,7 +17,7 @@ specific language governing permissions and limitations
 under the License.
 -->
 
-<script language="JavaScript" type="text/javascript">
+<script type="application/javascript">
 function togglefinAccountTransId(master) {
     var form = document.selectAllForm;
     var finAccountTransList = form.elements.length;
@@ -106,12 +106,12 @@ function getFinAccountTransRunningTotalAndBalances() {
                   <option value="${glReconciliation.glReconciliationId}">${glReconciliation.glReconciliationName!}[[${glReconciliation.glReconciliationId}] [${glReconciliation.reconciledDate!}] [${glReconciliation.reconciledBalance!}]]</option>
                 </#list>
               </select>
-              <input id="submitButton" type="submit" onclick="javascript:document.selectAllForm.submit();" value="${uiLabelMap.AccountingAssignToReconciliation}" disabled="disabled" />
+              <input id="submitButton" type="submit" value="${uiLabelMap.AccountingAssignToReconciliation}" disabled="disabled" />
             <#else>
               <span class="tooltip">${uiLabelMap.AccountingNoGlReconciliationExists} <a href="<@ofbizUrl>EditFinAccountReconciliations?finAccountId=${parameters.finAccountId!}</@ofbizUrl>">${uiLabelMap.CommonClickHere}</a></span>
             </#if>
           <#else>
-            <input id="submitButton" type="submit" onclick="javascript:document.selectAllForm.submit();" value="${uiLabelMap.AccountingReconcile}" disabled="disabled" />
+            <input id="submitButton" type="submit" value="${uiLabelMap.AccountingReconcile}" disabled="disabled" />
           </#if>
         </div>
       </#if>
@@ -218,7 +218,7 @@ function getFinAccountTransRunningTotalAndBalances() {
                     </#list>
                   </table>
                 </div>
-                <script type="text/javascript">
+                <script type="application/javascript">
                    jQuery(document).ready( function() {
                         jQuery("#displayPayments_${finAccountTrans.finAccountTransId}").dialog({autoOpen: false, modal: true,
                                 buttons: {

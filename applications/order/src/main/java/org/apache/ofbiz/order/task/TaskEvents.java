@@ -21,7 +21,6 @@ package org.apache.ofbiz.order.task;
 import java.util.Locale;
 import java.util.Map;
 
-import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -62,7 +61,7 @@ public class TaskEvents {
         Locale locale = UtilHttp.getLocale(request);
 
         try {
-            fromDate = (java.sql.Timestamp) ObjectType.simpleTypeConvert(fromDateStr, "java.sql.Timestamp", null, null);
+            fromDate = (java.sql.Timestamp) ObjectType.simpleTypeOrObjectConvert(fromDateStr, "java.sql.Timestamp", null, null);
         } catch (GeneralException e) {
             request.setAttribute("_ERROR_MESSAGE_", UtilProperties.getMessage(resource_error,"OrderInvalidDateFormatForFromDate", locale));
             return "error";
@@ -89,8 +88,7 @@ public class TaskEvents {
 
     /** Accept role assignment event */
     public static String acceptRoleAssignment(HttpServletRequest request, HttpServletResponse response) {
-        ServletContext ctx = (ServletContext) request.getAttribute("servletContext");
-        RequestHandler rh = (RequestHandler) ctx.getAttribute("_REQUEST_HANDLER_");
+        RequestHandler rh = RequestHandler.from(request);
         Locale locale = UtilHttp.getLocale(request);
 
         if (addToOrderRole(request)) {
@@ -109,8 +107,7 @@ public class TaskEvents {
 
     /** Delegate and accept assignment event */
     public static String delegateAndAcceptAssignment(HttpServletRequest request, HttpServletResponse response) {
-        ServletContext ctx = (ServletContext) request.getAttribute("servletContext");
-        RequestHandler rh = (RequestHandler) ctx.getAttribute("_REQUEST_HANDLER_");
+        RequestHandler rh = RequestHandler.from(request);
         Locale locale = UtilHttp.getLocale(request);
 
         if (addToOrderRole(request)) {

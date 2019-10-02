@@ -113,6 +113,7 @@ under the License.
     <Enumeration enumId="VT_CHPWD_TMPLT_LOC" description="Change Password Template Location" enumTypeId="VT_RES_TYPE" sequenceId="22"/>
     <Enumeration enumId="VT_FGPWD_TMPLT_LOC" description="Forget Password Template Location" enumTypeId="VT_RES_TYPE" sequenceId="23"/>
     <Enumeration enumId="VT_GSQUE_TMPLT_LOC" description="Security Question Template Location" enumTypeId="VT_RES_TYPE" sequenceId="24"/>
+    <Enumeration enumId="VT_IMPERSO_TMPLT_LOC" description="Impersonated Template Location" enumTypeId="VT_RES_TYPE" sequenceId="25"/>
     <Enumeration enumId="VT_STYLESHEET_LESS" description="Style Sheet Less URL" enumTypeId="VT_RES_TYPE" sequenceId="25"/>
 
     <VisualThemeSet visualThemeSetId="BACKOFFICE" description="Themes to be used for backoffice applications"/>
@@ -147,4 +148,10 @@ under the License.
     <EnumerationType enumTypeId="JM_OFBIZ_INSTANCE" hasTable="N" description="OFBiz Instance"/>
     <Enumeration enumId="JM_OFBIZ_INS_0" enumTypeId="JM_OFBIZ_INSTANCE" enumCode="_NA_" sequenceId="00" description="ALL instance"/>
     <Enumeration enumId="JM_OFBIZ_INS_1" enumTypeId="JM_OFBIZ_INSTANCE" enumCode="ofbiz1" sequenceId="01" description="OFBiz instance 1"/>
+    
+    <!-- Telecom Services Seed Data -->
+    <EnumerationType enumTypeId="TELECOM_MSG" description="Telcom Message Type Enum" hasTable="N"/>
+    <TelecomMethodType telecomMethodTypeId="SMS" description="Short Messaging Service Method"/>
+    <TelecomMethodType telecomMethodTypeId="WHATSAPP" description="WhatsApp Messaging Service Method"/>
+    <CustomMethodType customMethodTypeId="TELECOM_GATEWAY" description="Telecom Gateway Custom Method"/>
 </entity-engine-xml>

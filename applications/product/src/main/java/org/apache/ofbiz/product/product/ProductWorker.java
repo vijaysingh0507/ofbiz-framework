@@ -74,7 +74,7 @@ public final class ProductWorker {
             if (chargeShipping == null) {
                 return true;
             }
-            return chargeShipping.booleanValue();
+            return chargeShipping;
         }
         throw new IllegalArgumentException(errMsg);
     }
@@ -148,7 +148,7 @@ public final class ProductWorker {
             if (taxable == null) {
                 return true;
             }
-            return taxable.booleanValue();
+            return taxable;
         }
         throw new IllegalArgumentException(errMsg);
     }
@@ -483,11 +483,11 @@ public final class ProductWorker {
      * @return a List of ProductFeature GenericValues
      */
     public static List<GenericValue> getVariantSelectionFeatures(GenericValue variantProduct) {
-        if (!"Y".equals(variantProduct.getString("isVariant"))) {
+        if (variantProduct == null || !"Y".equals(variantProduct.getString("isVariant"))) {
             return null;
         }
         GenericValue virtualProduct = ProductWorker.getParentProduct(variantProduct.getString("productId"), variantProduct.getDelegator());
-        if (virtualProduct == null || !"Y".equals(virtualProduct.getString("productId"))) {
+        if (virtualProduct == null || !"Y".equals(virtualProduct.getString("isVirtual"))) {
             return null;
         }
         // The selectable features from the virtual product

@@ -25,6 +25,8 @@ var AJAX_REQUEST_TIMEOUT = 5000;
 
 // Add observers on DOM ready.
 $(document).ready(function() {
+    //initializing UI combobox dropdown by overriding its methods.
+    ajaxAutoCompleteDropDown();
     // bindObservers will add observer on passed html section when DOM is ready.
     bindObservers("body");
 });
@@ -63,6 +65,30 @@ function bindObservers(bind_element) {
         var mask = element.data('mask');
         element.mask(mask);
     });
+    jQuery(bind_element).find('.autoCompleteDropDown').each(function(){
+        jQuery(this).combobox();
+    });
+    jQuery(bind_element).find('[data-other-field-name]').each(function(){
+        var element = jQuery(this);
+        var otherFieldName = element.data("other-field-name");
+        var otherFieldValue = element.data("other-field-value");
+        var otherFieldSize = element.data("other-field-size");
+        var disabled = true;
+        if(other_choice(this))
+            disabled = false;
+        var $input = jQuery("<input>", {type: "text", name: otherFieldName})
+            .attr("size", otherFieldSize)
+            .val(otherFieldValue)
+            .on("focus", function(e){
+                check_choice(element);
+            })
+            .css('visibility', 'hidden');
+            $input.prop("disabled", disabled);
+        $input.insertAfter(element.closest(".ui-widget"));
+        element.on("change", function(e) {
+            process_choice(element[0], $input);
+        })
+    });
     jQuery(bind_element).find(".visual-editor").each(function(){
         var element = jQuery(this);
         var toolbar = element.data('toolbar');
@@ -75,6 +101,14 @@ function bindObservers(bind_element) {
             cssfiles : ['/images/jquery/plugins/elrte-1.3/css/elrte-inner.css']
         }
         element.elrte(opts);
+    });
+    jQuery(bind_element).find(".ajaxAutoCompleter").each(function(){
+        var element = jQuery(this);
+        var ajaxUrl = element.data("ajax-url");
+        var showDescription = element.data("show-description");
+        var defaultMinLength = element.data("default-minlength");
+        var defaultDelay = element.data("default-delay");
+        ajaxAutoCompleter(ajaxUrl, showDescription, defaultMinLength, defaultDelay);
     });
     jQuery(bind_element).find("[data-inplace-editor-url]").each(function(){
         var element = jQuery(this);
@@ -222,6 +256,115 @@ function bindObservers(bind_element) {
     jQuery(bind_element).find(".requireValidation").each(function(){
         var element = jQuery(this);
         element.validate();
+    });
+
+    jQuery(bind_element).find(".date-time-picker").each(function(){
+        var element = jQuery(this);
+        var id = element.attr("id");
+        var element_i18n = jQuery("#" + id + "_i18n");
+        var shortDate = element.data("shortdate");
+        //If language specific lib is found, use date / time converter else just copy the value fields
+        if (Date.CultureInfo != undefined) {
+            var initDate = element.val();
+            if (initDate != "") {
+                var dateFormat;
+                var ofbizTime;
+                if (shortDate) {
+                    dateFormat = Date.CultureInfo.formatPatterns.shortDate;
+                    ofbizTime = "yyyy-MM-dd";
+                } else {
+                    dateFormat = Date.CultureInfo.formatPatterns.shortDate + " " + Date.CultureInfo.formatPatterns.longTime;
+                    ofbizTime = "yyyy-MM-dd HH:mm:ss"
+                }
+                // The JS date parser doesn't understand the dot before ms in the date/time string. The ms here should be always 000
+                if (initDate.indexOf('.') != -1) {
+                    initDate = initDate.substring(0, initDate.indexOf('.'));
+                }
+                element.val(initDate);
+                var dateObj = Date.parseExact(initDate, ofbizTime);
+                var formatedObj = dateObj.toString(dateFormat);
+                element_i18n.val(formatedObj);
+            }
+
+            element.change(function() {
+                var value = element.val();
+                var dateFormat;
+                var ofbizTime;
+                if (shortDate) {
+                    dateFormat = Date.CultureInfo.formatPatterns.shortDate;
+                    ofbizTime = "yyyy-MM-dd";
+                } else {
+                    dateFormat = Date.CultureInfo.formatPatterns.shortDate + " " + Date.CultureInfo.formatPatterns.longTime;
+                    ofbizTime = "yyyy-MM-dd HH:mm:ss"
+                }
+                var newValue = ""
+                if (value != "") {
+                    var dateObj = Date.parseExact(value, ofbizTime);
+                    newValue = dateObj.toString(dateFormat);
+                }
+                element_i18n.val(newValue);
+            });
+
+            element_i18n.change(function() {
+                var value = element_i18n.val();
+                var dateFormat;
+                var ofbizTime;
+                if (shortDate) {
+                    dateFormat = Date.CultureInfo.formatPatterns.shortDate;
+                    ofbizTime = "yyyy-MM-dd";
+                } else {
+                    dateFormat = Date.CultureInfo.formatPatterns.shortDate + " " + Date.CultureInfo.formatPatterns.longTime;
+                    ofbizTime = "yyyy-MM-dd HH:mm:ss"
+                }
+                var newValue = "";
+                var dateObj = Date.parseExact(this.value, dateFormat);
+                if (value != "" && dateObj !== null) {
+                    newValue = dateObj.toString(ofbizTime);
+                } else { // invalid input
+                    element_i18n.val("");
+                }
+                element.val(newValue);
+            });
+        } else {
+            //fallback if no language specific js date file is found
+            element.change(function() {
+                element_i18n.val(this.value);
+            });
+            element_i18n.change(function() {
+                element.val(this.value);
+            });
+        }
+        if (shortDate) {
+            element.datepicker({
+                showWeek: true,
+                showOn: 'button',
+                buttonImage: '',
+                buttonText: '',
+                buttonImageOnly: false,
+                dateFormat: 'yy-mm-dd'
+            })
+        } else {
+            element.datetimepicker({
+                showSecond: true,
+                // showMillisec: true,
+                timeFormat: 'HH:mm:ss',
+                stepHour: 1,
+                stepMinute: 1,
+                stepSecond: 1,
+                showOn: 'button',
+                buttonImage: '',
+                buttonText: '',
+                buttonImageOnly: false,
+                dateFormat: 'yy-mm-dd'
+            })
+        }
+    });
+    jQuery(bind_element).on("click", ".fieldgroup  li.collapsed, .fieldgroup  li.expanded", function(e){
+        var element = jQuery(this);
+        var collapsibleAreaId =  element.data("collapsible-area-id");
+        var expandToolTip =  element.data("expand-tooltip");
+        var collapseToolTip =  element.data("collapse-tooltip");
+        toggleCollapsiblePanel(element, collapsibleAreaId, expandToolTip, collapseToolTip);
     });
 }
 
@@ -633,7 +776,7 @@ function ajaxAutoCompleter(areaCsvString, showDescription, defaultMinLength, def
         if (showDescription) {
             var lookupDescriptionLoader = new lookupDescriptionLoaded(areaArray[i], areaArray[i + 1], areaArray[i + 2], formName);
             lookupDescriptionLoader.update();
-            jQuery("#" + areaArray[i]).bind('change lookup:changed', function(){
+            jQuery("#" + areaArray[i]).on('change lookup:changed', function(){
                 lookupDescriptionLoader.update();
             });
         }
@@ -659,7 +802,7 @@ function setLookDescription(textFieldId, description, params, formName, showDesc
         if (lookupWrapperEl.length) {
             if (start == -1 && showDescription) {
                 var start = description.indexOf(' ');
-                if (start != -1 && description.indexOf('<script type="text/javascript">') == -1) {
+                if (start != -1 && description.indexOf('<script type="application/javascript">') == -1) {
                     description = description.substring(start);
                 }
             }
@@ -713,6 +856,13 @@ function ajaxAutoCompleteDropDown() {
                         });
                     },
                     change: function( event, ui ) {
+                        var element = jQuery(this);
+                        if (element.data('other-field-name') != undefined) {
+                            var otherField = (element.form()).find("input[name=" + element.data('other-field-name') + "]");
+                            if (otherField != undefined) {
+                                process_choice(element, jQuery(otherField));
+                            }
+                        }
                         if ( !ui.item ) {
                             var matcher = new RegExp( "^" + jQuery.ui.autocomplete.escapeRegex( jQuery(this).val() ) + "$", "i" ),
                                 valid = false;
@@ -777,7 +927,7 @@ function ajaxAutoCompleteDropDown() {
 */
 function toggleCollapsiblePanel(link, areaId, expandTxt, collapseTxt){
    var container = jQuery("#" + areaId);
-   var liElement = jQuery(link).parents('li:first');
+   var liElement = jQuery(link).is("li") ? jQuery(link) : jQuery(link).parents('li:first');
     if (liElement) {
       if (container.is(':visible')) {
         liElement.removeClass('expanded');
@@ -868,7 +1018,7 @@ function ajaxInPlaceEditDisplayField(element, url, options) {
             data : settings.submitdata,
             success : function(data) {
                 // adding the new value to the field and make the modified field 'blink' a little bit to show the user that somethink have changed
-                jElement.html(value).fadeOut(500).fadeIn(500).fadeOut(500).fadeIn(500).css('background-color', 'transparent');
+                jElement.text(value).fadeOut(500).fadeIn(500).fadeOut(500).fadeIn(500).css('background-color', 'transparent');
             }
         });
     }, options);
@@ -994,7 +1144,7 @@ function expandAll(bool) {
     jQuery('.fieldgroup').each(function() {
         var titleBar = jQuery(this).children('.fieldgroup-title-bar'), body = jQuery(this).children('.fieldgroup-body');
         if (titleBar.children().length > 0 && body.is(':visible') != bool) {
-            toggleCollapsiblePanel(titleBar.find('a'), body.attr('id'), 'expand', 'collapse');
+            toggleCollapsiblePanel(titleBar.find('li.collapsed, li.expanded'), body.attr('id'), 'expand', 'collapse');
         }
     });
 }
@@ -1197,12 +1347,45 @@ function submitPagination(obj, url) {
         form.submit();
         return false;
     } else {
-        if (obj.tagName == "SELECT") {
+        if (obj.tagName == "SELECT" || obj.tagName == "INPUT") {
             location.href = url;
             return false;
         } else {
             obj.href = url;
             return true;
         }
+    }
+}
+function loadJWT() {
+    var JwtToken = "";
+    jQuery.ajax({
+        url: "loadJWT",
+        type: "POST",
+        async: false,
+        dataType: "text",
+        success: function(response) {
+            JwtToken = response;
+        },
+        error: function(textStatus, errorThrown){
+            alert('Failure, errorThrown: ' + errorThrown);
+        }
+    });
+    return JwtToken;
+}
+
+function sendJWT(targetUrl) {
+    var redirectUrl = targetUrl;
+    var jwtToken = loadJWT(); 
+    if (jwtToken != null && jwtToken != "") {
+        jQuery.ajax({
+            url: targetUrl,
+            async: false,
+            type: 'POST',
+            xhrFields: {withCredentials: true},
+            headers: {"Authorization" : "Bearer " + jwtToken},
+            success: function(){
+                window.location.assign(redirectUrl);
+            }
+        });
     }
 }

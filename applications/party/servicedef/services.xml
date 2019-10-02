@@ -114,7 +114,7 @@ under the License.
         <attribute name="externalId" type="String" mode="IN" optional="true"/>
         <attribute name="statusId" type="String" mode="IN" optional="true"/>
         <override name="groupName" optional="false"/>
-        <override name="comments" allow-html="any"/>
+        <override name="comments" allow-html="safe"/>
     </service>
     <service name="updatePartyGroup" engine="java" default-entity-name="PartyGroup"
             location="org.apache.ofbiz.party.party.PartyServices" invoke="updatePartyGroup" auth="true">
@@ -127,7 +127,7 @@ under the License.
         <attribute name="preferredCurrencyUomId" type="String" mode="IN" optional="true"/>
         <attribute name="externalId" type="String" mode="IN" optional="true"/>
         <attribute name="statusId" type="String" mode="IN" optional="true"/>
-        <override name="comments" allow-html="any"/>
+        <override name="comments" allow-html="safe"/>
     </service>
 
     <service name="savePartyNameChange" engine="simple"
@@ -368,7 +368,7 @@ under the License.
         <description>create a company/contact relationship and add the related roles</description>
         <attribute name="accountPartyId" type="String" mode="IN"/>
         <attribute name="contactPartyId" type="String" mode="IN"/>
-        <attribute name="comments" type="String" mode="IN" optional="true" allow-html="any"/>
+        <attribute name="comments" type="String" mode="IN" optional="true" allow-html="safe"/>
     </service>
 
     <!-- ContactMech services -->
@@ -626,20 +626,15 @@ under the License.
         <attribute name="contactMechPurposeTypeId" type="String" mode="IN" optional="false"/>
         <attribute name="fromDate" type="Timestamp" mode="INOUT" optional="true"/>
     </service>
-    <service name="deletePartyContactMechPurpose" engine="java"
-            location="org.apache.ofbiz.party.contact.ContactMechServices" invoke="deletePartyContactMechPurpose" auth="true">
-        <description>Delete a Party ContactMech Purpose</description>
-        <attribute name="partyId" type="String" mode="IN" optional="true"/>
-        <attribute name="contactMechId" type="String" mode="IN" optional="false"/>
-        <attribute name="contactMechPurposeTypeId" type="String" mode="IN" optional="false"/>
-        <attribute name="fromDate" type="Timestamp" mode="IN" optional="false"/>
+    <service name="deletePartyContactMechPurpose" default-entity-name="PartyContactMechPurpose" engine="entity-auto" invoke="delete">
+        <description>Delete a Party Contact Mech Purpose</description>
+        <permission-service service-name="partyIdPermissionCheck" main-action="DELETE"/>
+        <auto-attributes mode="IN" include="pk" optional="false"/>
     </service>
-    <service name="deletePartyContactMechPurposeIfExists" engine="java"
-            location="org.apache.ofbiz.party.contact.ContactMechServices" invoke="deletePartyContactMechPurposeIfExists" auth="true">
-        <description>Delete a Party ContactMech Purpose</description>
-        <attribute name="partyId" type="String" mode="IN" optional="true"/>
-        <attribute name="contactMechId" type="String" mode="IN" optional="false"/>
-        <attribute name="contactMechPurposeTypeId" type="String" mode="IN" optional="false"/>
+    <service name="expirePartyContactMechPurpose" default-entity-name="PartyContactMechPurpose" engine="entity-auto" invoke="expire">
+        <description>Expires a Party Contact Mech Purpose</description>
+        <permission-service service-name="partyContactMechPermissionCheck" main-action="DELETE"/>
+        <auto-attributes mode="IN" include="pk" optional="false"/>
     </service>
 
     <!-- ContactMechLink services -->
@@ -753,9 +748,8 @@ under the License.
         <override name="fromDate" mode="IN" type="Timestamp" optional="true"/>
     </service>
 
-    <!-- Communication Event Services -->
-    <service name="setCommunicationEventStatus" engine="simple" default-entity-name="CommunicationEvent"
-            location="component://party/minilang/communication/CommunicationEventServices.xml" invoke="setCommunicationEventStatus" auth="true">
+    <service name="setCommunicationEventStatus" engine="groovy" default-entity-name="CommunicationEvent"
+             location="component://party/groovyScripts/communication/CommunicationEventServices.groovy" invoke="setCommunicationEventStatus" auth="true">
         <description>Set the Communication event Status</description>
         <permission-service service-name="partyCommunicationEventPermissionCheck" main-action="UPDATE"/>
         <auto-attributes mode="IN" include="pk" optional="false"/>
@@ -764,8 +758,9 @@ under the License.
         <attribute name="setRoleStatusToComplete" mode="IN" type="String" default-value="N"/>
         <attribute name="partyIdFrom" type="String" mode="IN" optional="true"/>
     </service>
-    <service name="setCommunicationEventRoleStatus" engine="simple" default-entity-name="CommunicationEventRole"
-            location="component://party/minilang/communication/CommunicationEventServices.xml" invoke="setCommunicationEventRoleStatus" auth="true">
+
+    <service name="setCommunicationEventRoleStatus" engine="groovy" default-entity-name="CommunicationEventRole"
+             location="component://party/groovyScripts/communication/CommunicationEventServices.groovy" invoke="setCommunicationEventRoleStatus" auth="true">
         <description>Set the Communication event  Status for a specific role</description>
         <permission-service service-name="partyCommunicationEventPermissionCheck" main-action="UPDATE"/>
         <auto-attributes mode="IN" include="pk" optional="false"/>
@@ -782,10 +777,10 @@ under the License.
         <attribute name="returnId" type="String" mode="IN" optional="true"/>
         <attribute name="custRequestId" type="String" mode="IN" optional="true"/>
         <attribute name="action" type="String" mode="IN" optional="true"/><!-- to indicate any special action like: REPLY, REPLYALL, FORWARD or empty for no special action-->
-        <override name="headerString" allow-html="any"/>
-        <override name="content" allow-html="any"/>
-        <override name="messageId" allow-html="any"/>
-        <override name="subject" allow-html="any"/>
+        <override name="headerString" allow-html="safe"/>
+        <override name="content" allow-html="safe"/>
+        <override name="messageId" allow-html="safe"/>
+        <override name="subject" allow-html="safe"/>
     </service>
     <service name="createCommunicationEvent" engine="simple"
             location="component://party/minilang/communication/CommunicationEventServices.xml" invoke="createCommunicationEventWithPermission" auth="true">
@@ -799,8 +794,8 @@ under the License.
         <implements service="createCommunicationEventInterface"/>
     </service>
 
-    <service name="updateCommunicationEvent" engine="simple"
-            location="component://party/minilang/communication/CommunicationEventServices.xml" invoke="updateCommunicationEvent" auth="true">
+    <service name="updateCommunicationEvent" engine="groovy"
+             location="component://party/groovyScripts/communication/CommunicationEventServices.groovy" invoke="updateCommunicationEvent" auth="true">
         <description>Update a Communication Event</description>
         <permission-service service-name="partyCommunicationEventPermissionCheck" main-action="UPDATE"/>
         <auto-attributes entity-name="CommunicationEvent" include="pk" mode="IN" optional="false"/>
@@ -809,23 +804,27 @@ under the License.
         <attribute name="oldStatusId" type="String" mode="OUT" optional="true"/>
         <override name="messageId" allow-html="any"/>
         <override name="content" allow-html="any"/>
-        <override name="subject" allow-html="any"/>
+        <override name="subject" allow-html="safe"/>
     </service>
-    <service name="deleteCommunicationEvent" engine="simple"
-        location="component://party/minilang/communication/CommunicationEventServices.xml" invoke="deleteCommunicationEvent" auth="true">
+
+
+    <service name="deleteCommunicationEvent" engine="groovy"
+             location="component://party/groovyScripts/communication/CommunicationEventServices.groovy" invoke="deleteCommunicationEvent" auth="true">
         <description>Delete a Communication Event, optionally delete the attached content and dataresource</description>
         <permission-service service-name="partyCommunicationEventPermissionCheck" main-action="DELETE"/>
         <auto-attributes entity-name="CommunicationEvent" include="pk" mode="IN" optional="false"/>
         <attribute name="delContentDataResource" type="String" mode="IN" optional="true"/>
     </service>
-    <service name="deleteCommunicationEventWorkEffort" engine="simple"
-        location="component://party/minilang/communication/CommunicationEventServices.xml" invoke="deleteCommunicationEventWorkEffort" auth="true">
+
+    <service name="deleteCommunicationEventWorkEffort" engine="groovy"
+             location="component://party/groovyScripts/communication/CommunicationEventServices.groovy" invoke="deleteCommunicationEventWorkEffort" auth="true">
         <description>Delete a Communication Event, optionally delete the attached content and dataresource
             and when this is the only communication event connected to a workeffort delete the workeffort too.</description>
         <permission-service service-name="partyCommunicationEventPermissionCheck" main-action="DELETE"/>
         <auto-attributes entity-name="CommunicationEvent" include="pk" mode="IN" optional="false"/>
         <attribute name="delContentDataResource" type="String" mode="IN" optional="true"/>
     </service>
+
     <service name="createCommunicationEventPurpose" default-entity-name="CommunicationEventPurpose" engine="entity-auto" invoke="create" auth="true">
         <description>Create a Communication Event Purpose</description>
         <permission-service service-name="partyCommunicationEventPermissionCheck" main-action="CREATE"/>
@@ -857,26 +856,29 @@ under the License.
         <auto-attributes entity-name="CommunicationEventRole" include="pk" mode="IN" optional="false"/>
         <auto-attributes entity-name="CommunicationEventRole" include="nonpk" mode="IN" optional="true"/>
     </service>
-    <service name="createCommunicationEventRole" engine="simple"
-            location="component://party/minilang/communication/CommunicationEventServices.xml" invoke="createCommunicationEventRole" auth="true">
+
+    <service name="createCommunicationEventRole" engine="groovy"
+             location="component://party/groovyScripts/communication/CommunicationEventServices.groovy" invoke="createCommunicationEventRole" auth="true">
         <description>Create a Communication Event Role with permission check</description>
         <permission-service service-name="partyCommunicationEventPermissionCheck" main-action="CREATE"/>
         <implements service="createCommunicationEventRoleInterface"/>
     </service>
-    <service name="createCommunicationEventRoleWithoutPermission" engine="simple"
-            location="component://party/minilang/communication/CommunicationEventServices.xml" invoke="createCommunicationEventRole" auth="true">
+
+    <service name="createCommunicationEventRoleWithoutPermission" engine="groovy"
+            location="component://party/groovyScripts/communication/CommunicationEventServices.groovy" invoke="createCommunicationEventRole" auth="true">
         <description>Create a Communication Event Role without permission check</description>
         <implements service="createCommunicationEventRoleInterface"/>
     </service>
-    <service name="updateCommunicationEventRole" engine="simple"
-            location="component://party/minilang/communication/CommunicationEventServices.xml" invoke="updateCommunicationEventRole" auth="true">
+
+    <service name="updateCommunicationEventRole" engine="entity-auto" invoke="update" auth="true" default-entity-name="CommunicationEventRole">
         <description>Update a Communication Event Role</description>
         <permission-service service-name="partyCommunicationEventPermissionCheck" main-action="UPDATE"/>
         <auto-attributes entity-name="CommunicationEventRole" include="pk" mode="IN" optional="false"/>
         <auto-attributes entity-name="CommunicationEventRole" include="nonpk" mode="IN" optional="true"/>
     </service>
-    <service name="removeCommunicationEventRole" engine="simple"
-            location="component://party/minilang/communication/CommunicationEventServices.xml" invoke="removeCommunicationEventRole" auth="true">
+
+    <service name="removeCommunicationEventRole" engine="groovy"
+             location="component://party/groovyScripts/communication/CommunicationEventServices.groovy" invoke="removeCommunicationEventRole" auth="true">
         <description>Remove a Communication Event Role</description>
         <permission-service service-name="partyCommunicationEventPermissionCheck" main-action="DELETE"/>
         <auto-attributes entity-name="CommunicationEventRole" include="pk" mode="IN" optional="false"/>
@@ -906,8 +908,9 @@ under the License.
             </type-validate>
         </override>
     </service>
-    <service name="setCommEventRoleToRead" engine="simple" default-entity-name="CommunicationEventRole"
-        location="component://party/minilang/communication/CommunicationEventServices.xml" invoke="setCommEventRoleToRead" auth="false">
+
+    <service name="setCommEventRoleToRead" engine="groovy" default-entity-name="CommunicationEventRole"
+             location="component://party/groovyScripts/communication/CommunicationEventServices.groovy" invoke="setCommEventRoleToRead" auth="false">
         <description>Marks a communication event as read</description>
         <auto-attributes include="pk" mode="IN" optional="true"/>
         <override name="communicationEventId" optional="false"/>
@@ -997,8 +1000,8 @@ under the License.
         <attribute name="partyIdFrom" type="String" mode="IN" optional="true"/>
     </service>
 
-    <service name="sendEmailDated" engine="simple" use-transaction="false"
-        location="component://party/minilang/communication/CommunicationEventServices.xml" invoke="sendEmailDated" auth="true">
+    <service name="sendEmailDated" engine="groovy" use-transaction="false"
+             location="component://party/groovyScripts/communication/CommunicationEventServices.groovy" invoke="sendEmailDated" auth="true">
         <description>Checks for email communication events with the status COM_IN_PROGRESS and a startdate which is expired, then send the email</description>
     </service>
 
@@ -1379,8 +1382,8 @@ under the License.
         <attribute name="description" type="String" mode="OUT" optional="true"/>
     </service>
 
-    <service name="sendContactUsEmailToCompany" engine="simple"
-            location="component://party/minilang/communication/CommunicationEventServices.xml" invoke="sendContactUsEmailToCompany" auth="false">
+    <service name="sendContactUsEmailToCompany" engine="groovy"
+             location="component://party/groovyScripts/communication/CommunicationEventServices.groovy" invoke="sendContactUsEmailToCompany" auth="false">
         <description>Create communication event and send mail to company</description>
         <implements service="createCommunicationEventWithoutPermission"/>
         <attribute name="emailAddress" type="String" mode="IN" optional="true"/>

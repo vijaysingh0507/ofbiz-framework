@@ -35,16 +35,17 @@ import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.io.Writer;
 import java.net.MalformedURLException;
+import java.nio.charset.StandardCharsets;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
-
 import java.util.UUID;
 import java.util.zip.Deflater;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
+
 import org.apache.commons.io.FileUtils;
 import org.apache.ofbiz.base.location.ComponentLocationResolver;
 
@@ -200,7 +201,7 @@ public final class FileUtil {
             throw new IOException("Cannot obtain buffered writer for an empty filename!");
         }
 
-        return new BufferedWriter(new OutputStreamWriter(new FileOutputStream(fileName), UtilIO.getUtf8()));
+        return new BufferedWriter(new OutputStreamWriter(new FileOutputStream(fileName), StandardCharsets.UTF_8));
     }
 
     public static OutputStream getBufferedOutputStream(String path, String name) throws IOException {
@@ -243,8 +244,7 @@ public final class FileUtil {
 
         StringBuffer buf = new StringBuffer();
         try (
-                BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(file), UtilIO
-                        .getUtf8()));) {
+                BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8));) {
 
             String str;
             while ((str = in.readLine()) != null) {
@@ -386,7 +386,7 @@ public final class FileUtil {
        File inFile = new File(fileName);
        if (inFile.exists()) {
             try (
-           BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(inFile),UtilIO.getUtf8()));
+           BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(inFile),StandardCharsets.UTF_8));
             ) {
                return containsString(in, searchString);
            }
@@ -488,4 +488,17 @@ public final class FileUtil {
         zis.closeEntry();
         zis.close();
     }
+    
+    /**
+     * Creates a File with a normalized file path
+     * This useful to prevent path traversal security issues 
+     * cf. OFBIZ-9973 for more details 
+     *
+     * @param filePath The file path to normalize
+     * @return A File with a normalized file path
+     */
+    public static File normalizeFilePath(String filePath) {
+        return new File(filePath).toPath().normalize().toFile(); 
+    }
+    
 }

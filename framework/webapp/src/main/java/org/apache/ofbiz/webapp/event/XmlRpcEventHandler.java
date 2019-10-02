@@ -22,12 +22,14 @@ package org.apache.ofbiz.webapp.event;
 import static org.apache.ofbiz.base.util.UtilGenerics.checkMap;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.Writer;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
@@ -45,20 +47,26 @@ import org.apache.ofbiz.service.LocalDispatcher;
 import org.apache.ofbiz.service.ModelService;
 import org.apache.ofbiz.service.ServiceContainer;
 import org.apache.ofbiz.service.ServiceUtil;
-import org.apache.ofbiz.webapp.control.ConfigXMLReader;
 import org.apache.ofbiz.webapp.control.ConfigXMLReader.Event;
 import org.apache.ofbiz.webapp.control.ConfigXMLReader.RequestMap;
 import org.apache.xmlrpc.XmlRpcException;
 import org.apache.xmlrpc.XmlRpcHandler;
 import org.apache.xmlrpc.XmlRpcRequest;
+import org.apache.xmlrpc.XmlRpcRequestConfig;
 import org.apache.xmlrpc.common.ServerStreamConnection;
 import org.apache.xmlrpc.common.XmlRpcHttpRequestConfig;
 import org.apache.xmlrpc.common.XmlRpcHttpRequestConfigImpl;
+import org.apache.xmlrpc.common.XmlRpcStreamRequestConfig;
+import org.apache.xmlrpc.parser.XmlRpcRequestParser;
 import org.apache.xmlrpc.server.AbstractReflectiveHandlerMapping;
 import org.apache.xmlrpc.server.XmlRpcHttpServer;
 import org.apache.xmlrpc.server.XmlRpcHttpServerConfig;
 import org.apache.xmlrpc.server.XmlRpcNoSuchHandlerException;
 import org.apache.xmlrpc.util.HttpUtil;
+import org.apache.xmlrpc.util.SAXParsers;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
+import org.xml.sax.XMLReader;
 
 /**
  * XmlRpcEventHandler
@@ -72,6 +80,7 @@ public class XmlRpcEventHandler extends XmlRpcHttpServer implements EventHandler
     private Boolean enabledForExtensions = null;
     private Boolean enabledForExceptions = null;
 
+    @Override
     public void init(ServletContext context) throws EventHandlerException {
         String delegatorName = context.getInitParameter("entityDelegatorName");
         this.delegator = DelegatorFactory.getDelegator(delegatorName);
@@ -88,9 +97,7 @@ public class XmlRpcEventHandler extends XmlRpcHttpServer implements EventHandler
         }
     }
 
-    /**
-     * @see org.apache.ofbiz.webapp.event.EventHandler#invoke(ConfigXMLReader.Event, ConfigXMLReader.RequestMap, javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)
-     */
+    @Override
     public String invoke(Event event, RequestMap requestMap, HttpServletRequest request, HttpServletResponse response) throws EventHandlerException {
         String report = request.getParameter("echo");
         if (report != null) {
@@ -174,6 +181,7 @@ public class XmlRpcEventHandler extends XmlRpcHttpServer implements EventHandler
 
     class OfbizRpcAuthHandler implements AbstractReflectiveHandlerMapping.AuthenticationHandler {
 
+        @Override
         public boolean isAuthorized(XmlRpcRequest xmlRpcReq) throws XmlRpcException {
             XmlRpcHttpRequestConfig config = (XmlRpcHttpRequestConfig) xmlRpcReq.getConfig();
 
@@ -189,7 +197,7 @@ public class XmlRpcEventHandler extends XmlRpcHttpServer implements EventHandler
                 String password = config.getBasicPassword();
 
                 // check the account
-                Map<String, Object> context = new HashMap<String, Object>();
+                Map<String, Object> context = new HashMap<>();
                 context.put("login.username", username);
                 context.put("login.password", password);
 
@@ -207,6 +215,96 @@ public class XmlRpcEventHandler extends XmlRpcHttpServer implements EventHandler
 
             return true;
         }
+    }
+
+    @Override
+    public void execute(XmlRpcStreamRequestConfig pConfig,
+            ServerStreamConnection pConnection) throws XmlRpcException {
+        try {
+            Object result = null;
+            boolean foundError = false;
+
+            try (InputStream istream = getInputStream(pConfig, pConnection)) {
+                XmlRpcRequest request = getRequest(pConfig, istream);
+                result = execute(request);
+            } catch (Exception e) {
+                Debug.logError(e, module);
+                foundError = true;
+            }
+
+            ByteArrayOutputStream baos;
+            OutputStream initialStream;
+            if (isContentLengthRequired(pConfig)) {
+                baos = new ByteArrayOutputStream();
+                initialStream = baos;
+            } else {
+                baos = null;
+                initialStream = pConnection.newOutputStream();
+            }
+
+            try (OutputStream ostream = getOutputStream(pConnection, pConfig, initialStream)) {
+                if (!foundError) {
+                    writeResponse(pConfig, ostream, result);
+                } else {
+                    writeError(pConfig, ostream, new Exception("Failed to read XML-RPC request. Please check logs for more information"));
+                }
+            }
+
+            if (baos != null) {
+                try (OutputStream dest = getOutputStream(pConfig, pConnection, baos.size())) {
+                    baos.writeTo(dest);
+                }
+            }
+
+            pConnection.close();
+            pConnection = null;
+        } catch (IOException e) {
+            throw new XmlRpcException("I/O error while processing request: " + e.getMessage(), e);
+        } finally {
+            if (pConnection != null) {
+                try {
+                    pConnection.close();
+                } catch (IOException e) {
+                    Debug.logError(e, "Unable to close stream connection");
+                }
+            }
+        }
+    }
+
+    @Override
+    protected XmlRpcRequest getRequest(final XmlRpcStreamRequestConfig pConfig, InputStream pStream)
+            throws XmlRpcException {
+        final XmlRpcRequestParser parser = new XmlRpcRequestParser(pConfig, getTypeFactory());
+        final XMLReader xr = SAXParsers.newXMLReader();
+        xr.setContentHandler(parser);
+        try {
+            xr.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+            xr.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
+            xr.setFeature("http://xml.org/sax/features/external-general-entities", false);
+            xr.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
+            xr.parse(new InputSource(pStream));
+        } catch (SAXException | IOException e) {
+            throw new XmlRpcException("Failed to parse / read XML-RPC request: " + e.getMessage(), e);
+        }
+        final List<?> params = parser.getParams();
+        return new XmlRpcRequest() {
+            @Override
+            public XmlRpcRequestConfig getConfig() {
+                return pConfig;
+            }
+            @Override
+            public String getMethodName() {
+                return parser.getMethodName();
+            }
+            @Override
+            public int getParameterCount() {
+                return params == null ? 0 : params.size();
+            }
+            @Override
+            public Object getParameter(int pIndex) {
+                return params.get(pIndex);
+            }
+        };
     }
 
     class ServiceRpcHandler extends AbstractReflectiveHandlerMapping implements XmlRpcHandler {
@@ -229,6 +327,7 @@ public class XmlRpcEventHandler extends XmlRpcHttpServer implements EventHandler
             return this;
         }
 
+        @Override
         public Object execute(XmlRpcRequest xmlRpcReq) throws XmlRpcException {
             DispatchContext dctx = dispatcher.getDispatchContext();
             String serviceName = xmlRpcReq.getMethodName();
@@ -286,7 +385,7 @@ public class XmlRpcEventHandler extends XmlRpcHttpServer implements EventHandler
             }
 
             // context placeholder
-            Map<String, Object> context = new HashMap<String, Object>();
+            Map<String, Object> context = new HashMap<>();
 
             if (model != null) {
                 int parameterCount = xmlRpcReq.getParameterCount();
@@ -344,15 +443,18 @@ public class XmlRpcEventHandler extends XmlRpcHttpServer implements EventHandler
             return response;
         }
 
+        @Override
         public InputStream newInputStream() throws IOException {
             return request.getInputStream();
         }
 
+        @Override
         public OutputStream newOutputStream() throws IOException {
             response.setContentType("text/xml");
             return response.getOutputStream();
         }
 
+        @Override
         public void close() throws IOException {
             response.getOutputStream().close();
         }

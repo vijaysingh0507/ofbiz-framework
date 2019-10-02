@@ -18,7 +18,7 @@ under the License.
 -->
 
 <#assign enableEdit = parameters.enableEdit?default("false")>
-<script language="JavaScript" type="text/javascript">
+<script type="application/javascript">
 var numTabs=${(entity.getRelationsSize()+1)};
 function ShowTab(lname) {
   for(inc=1; inc <= numTabs; inc++) {
@@ -53,7 +53,7 @@ function ShowTab(lname) {
       <a href='<@ofbizUrl>FindGeneric?entityName=${entityName}&amp;noConditionFind=Y</@ofbizUrl>' class="buttontext">${uiLabelMap.WebtoolsBackToFindScreen}</a>
       <#if enableEdit = "false">
         <#if hasCreatePermission>
-          <a href='<@ofbizUrl>ViewGeneric?entityName=${entityName}&amp;enableEdit=true</@ofbizUrl>' class="buttontext create">${uiLabelMap.CommonCreateNew}</a>
+          <a href='<@ofbizUrl>ViewGeneric?entityName=${entityName}&amp;enableEdit=true</@ofbizUrl>' class="buttontext create">${uiLabelMap.CommonCreate}</a>
           <a href="<@ofbizUrl>ViewGeneric?${curFindString}&amp;enableEdit=true</@ofbizUrl>" class="buttontext">${uiLabelMap.CommonEdit}</a>
         </#if>
         <#if value?has_content>

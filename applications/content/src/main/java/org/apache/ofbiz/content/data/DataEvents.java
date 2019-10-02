@@ -154,7 +154,7 @@ public class DataEvents {
 
             // no service errors; now check the actual response
             Boolean hasPermission = (Boolean) permSvcResp.get("hasPermission");
-            if (!hasPermission.booleanValue()) {
+            if (!hasPermission) {
                 String errorMsg = (String) permSvcResp.get("failMessage");
                 Debug.logError(errorMsg, module);
                 request.setAttribute("_ERROR_MESSAGE_", errorMsg);
@@ -276,7 +276,7 @@ public class DataEvents {
 
             // hack for IE and mime types
             String userAgent = request.getHeader("User-Agent");
-            if (userAgent.indexOf("MSIE") > -1) {
+            if (userAgent != null && userAgent.indexOf("MSIE") > -1) {
                 Debug.logInfo("Found MSIE changing mime type from - " + mimeType, module);
                 mimeType = "application/octet-stream";
             }

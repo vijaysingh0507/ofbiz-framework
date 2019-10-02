@@ -17,7 +17,7 @@ specific language governing permissions and limitations
 under the License.
 -->
 
-<script language="JavaScript" type="text/javascript">
+<script type="application/javascript">
 <!--
 function toggleInvoiceId(master) {
     var form = document.listSalesInvoices;
@@ -82,7 +82,7 @@ function enableSubmitButton() {
     </#if>
     <div align="right">
       <select name="serviceName" id="serviceName" onchange="javascript:setServiceName(this);">
-        <option value="">${uiLabelMap.AccountingSelectAction}</options>
+        <option value="">${uiLabelMap.AccountingSelectAction}</option>
         <option value="processCommissionRun">${uiLabelMap.AccountingCommissionRun}</option>
       </select>
       <input id="submitButton" type="button" onclick="javascript:runAction();" value="${uiLabelMap.CommonRun}" disabled="disabled" />

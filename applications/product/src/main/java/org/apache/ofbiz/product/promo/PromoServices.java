@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.sql.Timestamp;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -33,7 +34,6 @@ import java.util.Map;
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.ofbiz.base.util.Debug;
 import org.apache.ofbiz.base.util.UtilDateTime;
-import org.apache.ofbiz.base.util.UtilIO;
 import org.apache.ofbiz.base.util.UtilMisc;
 import org.apache.ofbiz.base.util.UtilProperties;
 import org.apache.ofbiz.base.util.UtilValidate;
@@ -244,7 +244,7 @@ public class PromoServices {
         byte[] wrapper = bytebufferwrapper.array();
 
       // read the bytes into a reader
-        BufferedReader reader = new BufferedReader(new StringReader(new String(wrapper, UtilIO.getUtf8())));
+        BufferedReader reader = new BufferedReader(new StringReader(new String(wrapper, StandardCharsets.UTF_8)));
         List<Object> errors = new LinkedList<>();
         int lines = 0;
         String line;

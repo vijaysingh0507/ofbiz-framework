@@ -953,9 +953,10 @@ in contained elements. */
 /* ===== Masthead (Header) Styles ===== */
 /* ==================================== */
 #logo-area {
-    background: url(../images/ofbiz_logo.png) no-repeat;
+    background: url(/images/ofbiz_logo.png) no-repeat;
     width: 385px;
     height: 50px;
+    background-size: 119px 50px;
 }
 
 #logo-area a {
@@ -2232,17 +2233,14 @@ render borders around empty <td> elements */
 
 .fieldgroup-title-bar ul .collapsed, .fieldgroup-title-bar ul .collapsed:hover {
     background: url(../images/bullet_toggle_plus.png) no-repeat left center;
+    cursor: pointer;
+    padding-left: 10px;
 }
 
 .fieldgroup-title-bar ul .expanded, .fieldgroup-title-bar ul .expanded:hover {
     background: url(../images/bullet_toggle_minus.png) no-repeat left center;
-}
-
-.fieldgroup-title-bar a {
     cursor: pointer;
-    text-decoration: none;
     padding-left: 10px;
-    color: #000000;
 }
 
 /* == Portlet configuration screenlet == */
@@ -4530,4 +4528,8 @@ html > /**/ body .jstree-default a {
 
 .button-bar > a.buttontext {
     text-transform:none!important;
+}
+/* The custom CSS to show mouse pointer on links using featherlight plugin  */
+a[data-featherlight] {
+    cursor: pointer;
 }

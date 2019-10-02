@@ -156,31 +156,6 @@ public class UtilObjectTests extends GenericTestCaseBase {
         in.close();
     }
 
-    public void testGetBytes_Stream() {
-        boolean errorOn = Debug.isOn(Debug.ERROR);
-        try {
-            Debug.set(Debug.ERROR, false);
-            byte[] source = new byte[] { 0, 1, 2, 3, 4, 5, 6 };
-            byte[] result = UtilObject.getBytes(new ByteArrayInputStream(source));
-            assertNotNull("initial result", result);
-            assertEquals("initial equals", source, result);
-            assertNull("error after read", UtilObject.getBytes(new ErrorInjector(new ByteArrayInputStream(source), 3)));
-            byte[] closeResult = UtilObject.getBytes(new ErrorInjector(new ByteArrayInputStream(source), true));
-            assertNotNull("error on close", closeResult);
-            assertEquals("error on close equals", source, result);
-            Exception caught = null;
-            try {
-                UtilObject.getBytes(null);
-            } catch (NullPointerException e) {
-                caught = e;
-            } finally {
-                assertNotNull("null stream exception", caught);
-            }
-        } finally {
-            Debug.set(Debug.ERROR, errorOn);
-        }
-    }
-
     @SuppressWarnings("serial")
     public static class SerializationInjector implements Serializable {
         private boolean onRead;
@@ -209,7 +184,7 @@ public class UtilObjectTests extends GenericTestCaseBase {
     }
 
     public void testGetBytes_Object() {
-        assertNotNull("long", UtilObject.getBytes(Long.valueOf(0)));
+        assertNotNull("long", UtilObject.getBytes(0L));
         assertNotNull("injector good", UtilObject.getBytes(new SerializationInjector(false, false)));
         boolean errorOn = Debug.isOn(Debug.ERROR);
         try {
@@ -222,7 +197,7 @@ public class UtilObjectTests extends GenericTestCaseBase {
     }
 
     public void testGetObject() {
-        Long one = Long.valueOf(1);
+        Long one = 1L;
         byte[] oneBytes = UtilObject.getBytes(one);
         assertNotNull("oneBytes", oneBytes);
         assertEquals("one getObject", one, UtilObject.getObject(oneBytes));
@@ -249,7 +224,7 @@ public class UtilObjectTests extends GenericTestCaseBase {
     }
 
     public void testGetByteCount() throws Exception {
-        assertNotSame("long", 0, UtilObject.getByteCount(Long.valueOf(0)));
+        assertNotSame("long", 0, UtilObject.getByteCount(0L));
         Exception caught = null;
         try {
             UtilObject.getByteCount(this);
@@ -258,26 +233,6 @@ public class UtilObjectTests extends GenericTestCaseBase {
         } finally {
             assertNotNull("exception thrown", caught);
         }
-    }
-
-    public void testEqualsHelper() {
-        assertTrue("a == a", UtilObject.equalsHelper(this, this));
-        assertFalse("null == a", UtilObject.equalsHelper(null, this));
-        assertFalse("a == null", UtilObject.equalsHelper(this, null));
-        assertTrue("null == null", UtilObject.equalsHelper(null, null));
-        assertTrue("map == map", UtilObject.equalsHelper(new HashMap<String, Object>(), new HashMap<String, Object>()));
-        assertFalse("map == this", UtilObject.equalsHelper(new HashMap<String, Object>(), this));
-        assertFalse("this == map", UtilObject.equalsHelper(this, new HashMap<String, Object>()));
-    }
-
-    public void testCompareToHelper() {
-        Long one = Long.valueOf(1);
-        Long two = Long.valueOf(2);
-        assertComparison("one <-> two", -1, UtilObject.compareToHelper(one, two));
-        assertComparison("one <-> one", 0, UtilObject.compareToHelper(one, one));
-        assertComparison("two <-> one", 1, UtilObject.compareToHelper(two, one));
-        assertComparison("one <-> null", 1, UtilObject.compareToHelper(one, null));
-        assertComparison("null <-> one", -1, UtilObject.compareToHelper(null, one));
     }
 
     public void testDoHashCode() throws Exception {
@@ -293,6 +248,7 @@ public class UtilObjectTests extends GenericTestCaseBase {
     }
 
     public static class FirstTestFactory implements TestFactoryIntf {
+        @Override
         public Object getInstance(Set<String> set) {
             if (!set.contains("first")) return null;
             if (set.contains("one")) return "ONE";
@@ -303,6 +259,7 @@ public class UtilObjectTests extends GenericTestCaseBase {
     }
 
     public static class SecondTestFactory implements TestFactoryIntf {
+        @Override
         public Object getInstance(Set<String> set) {
             if (!set.contains("second")) return null;
             if (set.contains("ONE")) return "1";

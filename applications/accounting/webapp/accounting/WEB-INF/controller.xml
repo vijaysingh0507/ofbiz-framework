@@ -194,7 +194,7 @@ under the License.
     <request-map uri="updateInvoiceItem">
         <security https="true" auth="true"/>
         <event type="service-multi" invoke="updateInvoiceItem"/>
-        <response name="success" type="request-redirect-noparam" value="listInvoiceItems"/>
+        <response name="success" type="request-redirect" value="listInvoiceItems"/>
         <response name="error" type="view" value="listInvoiceItems"/>
     </request-map>
     <request-map uri="removeInvoiceItem">
@@ -267,6 +267,23 @@ under the License.
     <request-map uri="createInvoiceTerm">
         <security https="true" auth="true"/>
         <event type="service" invoke="createInvoiceTerm"/>
+        <response name="success" type="view" value="invoiceTerms"/>
+        <response name="error" type="view" value="invoiceTerms"/>
+    </request-map>
+    <request-map uri="updateInvoiceTerm">
+        <security https="true" auth="true"/>
+        <event type="service" invoke="updateInvoiceTerm"/>
+        <response name="success" type="view" value="invoiceTerms"/>
+        <response name="error" type="view" value="invoiceTerms"/>
+    </request-map>
+    <request-map uri="deleteInvoiceTerm">
+        <security https="true" auth="true"/>
+        <event type="service" invoke="deleteInvoiceTerm"/>
+        <response name="success" type="view" value="invoiceTerms"/>
+        <response name="error" type="view" value="invoiceTerms"/>
+    </request-map>
+    <request-map uri="editInvoiceTerm">
+        <security https="true" auth="true"/>
         <response name="success" type="view" value="invoiceTerms"/>
         <response name="error" type="view" value="invoiceTerms"/>
     </request-map>
@@ -582,12 +599,6 @@ under the License.
         <response name="success" type="view" value="EditPaymentGatewayConfig"/>
         <response name="error" type="view" value="EditPaymentGatewayConfig"/>
     </request-map>
-    <request-map uri="UpdatePaymentGatewayConfigiDEAL">
-        <security https="true" auth="true"/>
-        <event type="service" invoke="updatePaymentGatewayConfigiDEAL"/>
-        <response name="success" type="view" value="EditPaymentGatewayConfig"/>
-        <response name="error" type="view" value="EditPaymentGatewayConfig"/>
-    </request-map>
 
     <!-- transaction action requests -->
     <request-map uri="processAuthorizeTransaction">
@@ -769,7 +780,7 @@ under the License.
     </request-map>
     <request-map uri="ImportInvoice">
         <security auth="true" https="true"/>
-        <event invoke="importInvoice" path="" type="service"/>
+        <event type="service" invoke="importInvoice" path=""/>
         <response name="success" type="request" value="ImportExport"/>
         <response name="error" type="view" value="ImportExport"/>
     </request-map>
@@ -1093,7 +1104,7 @@ under the License.
     <request-map uri="updateBudgetItem">
         <security https="true" auth="true"/>
         <event type="service-multi" invoke="updateBudgetItem"/>
-        <response name="success" type="request-redirect-noparam" value="EditBudgetItems"/>
+        <response name="success" type="request-redirect" value="EditBudgetItems"/>
         <response name="error" type="view" value="EditBudgetItems"/>
     </request-map>
     <request-map uri="removeBudgetItem">

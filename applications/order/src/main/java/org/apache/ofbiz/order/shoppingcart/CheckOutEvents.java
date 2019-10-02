@@ -435,18 +435,20 @@ public class CheckOutEvents {
     public static String checkoutValidation(HttpServletRequest request, HttpServletResponse response) {
         ShoppingCart cart = (ShoppingCart) request.getSession().getAttribute("shoppingCart");
         if (cart.isSalesOrder()) {
-        List<GenericValue> paymentMethodTypes = cart.getPaymentMethodTypes();
-        if (UtilValidate.isEmpty(paymentMethodTypes)) {
-            String errMsg = UtilProperties.getMessage(resource_error, "OrderNoPaymentMethodTypeSelected", (cart != null ? cart.getLocale() : UtilHttp.getLocale(request)));
-            request.setAttribute("_ERROR_MESSAGE_",errMsg);
-            return "error";
-        }
-        String shipmentMethod = cart.getShipmentMethodTypeId();
-        if (UtilValidate.isEmpty(shipmentMethod)) {
-            String errMsg = UtilProperties.getMessage(resource_error, "OrderNoShipmentMethodSelected", (cart != null ? cart.getLocale() : UtilHttp.getLocale(request)));
-            request.setAttribute("_ERROR_MESSAGE_",errMsg);
-            return "error";
-        }
+            List<GenericValue> paymentMethodTypes = cart.getPaymentMethodTypes();
+            if (UtilValidate.isEmpty(paymentMethodTypes)) {
+                String errMsg = UtilProperties.getMessage(resource_error, "OrderNoPaymentMethodTypeSelected",
+                        cart.getLocale());
+                request.setAttribute("_ERROR_MESSAGE_",errMsg);
+                return "error";
+            }
+            String shipmentMethod = cart.getShipmentMethodTypeId();
+            if (UtilValidate.isEmpty(shipmentMethod)) {
+                String errMsg = UtilProperties.getMessage(resource_error, "OrderNoShipmentMethodSelected",
+                        cart.getLocale());
+                request.setAttribute("_ERROR_MESSAGE_",errMsg);
+                return "error";
+            }
         }
         return "success";
     }
@@ -531,10 +533,8 @@ public class CheckOutEvents {
             return false;
         }
         GenericValue productStore = ProductStoreWorker.getProductStore(cart.getProductStoreId(), delegator);
-        if (productStore == null || productStore.get("explodeOrderItems") == null) {
-            return false;
-        }
-        return productStore.getBoolean("explodeOrderItems").booleanValue();
+        return !(productStore == null || productStore.get("explodeOrderItems") == null)
+                && productStore.getBoolean("explodeOrderItems");
     }
 
     public static String checkShipmentNeeded(HttpServletRequest request, HttpServletResponse response) {
@@ -613,7 +613,7 @@ public class CheckOutEvents {
         ServiceUtil.getMessages(request, callResult, null);
 
         // check for customer message(s)
-        List<String> messages = UtilGenerics.checkList(callResult.get("authResultMsgs"));
+        List<String> messages = UtilGenerics.cast(callResult.get("authResultMsgs"));
         if (UtilValidate.isNotEmpty(messages)) {
             request.setAttribute("_EVENT_MESSAGE_LIST_", messages);
         }
@@ -1172,8 +1172,8 @@ public class CheckOutEvents {
         String originalOrderId = request.getParameter("orderId");
 
         // create the replacement order adjustment
-        List <GenericValue>orderAdjustments = UtilGenerics.checkList(context.get("orderAdjustments"));
-        List <GenericValue>orderItems = UtilGenerics.checkList(context.get("orderItems"));
+        List <GenericValue>orderAdjustments = UtilGenerics.cast(context.get("orderAdjustments"));
+        List <GenericValue>orderItems = UtilGenerics.cast(context.get("orderItems"));
         OrderReadHelper orderReadHelper = new OrderReadHelper(orderAdjustments, orderItems);
         BigDecimal grandTotal = orderReadHelper.getOrderGrandTotal();
         if (grandTotal.compareTo(new BigDecimal(0)) != 0) {

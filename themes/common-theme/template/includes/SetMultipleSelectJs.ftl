@@ -17,7 +17,7 @@ specific language governing permissions and limitations
 under the License.
 -->
 <#if asm_multipleSelect??> <#-- we check only this var and suppose the others are also present -->
-<script type="text/javascript">
+<script type="application/javascript">
     jQuery(document).ready(function () {
         multiple = jQuery("#${asm_multipleSelect!}");
 
@@ -29,7 +29,8 @@ under the License.
         multiple.select2({
           tags: true,
           multiple: true,
-          lang: <#if userLogin??>'${userLogin.lastLocale!"en"}'<#else>"en"</#if>
+          lang: <#if userLogin??>'${userLogin.lastLocale!"en"}'<#else>"en"</#if>,
+          width: "50%"
         });
 
       <#if asm_relatedField??> <#-- can be used without related field -->

@@ -72,7 +72,6 @@ under the License.
 
     <grid name="ListProductManufacturingRules" target="UpdateProductManufacturingRule" title="" list-name="manufacturingRules"
         odd-row-style="alternate-row" header-row-style="header-row-2" default-table-style="basic-table hover-bar">
-        <auto-fields-service service-name="updateProductManufacturingRule" map-name="manufacturingRule"/>
         <field name="ruleId"><display/></field>
         <field name="ruleSeqId"><display/></field>
         <field name="description"><display/></field>
@@ -125,7 +124,10 @@ under the License.
                 <option key="AND" description="${uiLabelMap.CommonAnd}"/>
             </drop-down>
         </field>
-        <field name="submitButton" title="${uiLabelMap.CommonUpdate}">
+        <field use-when="ruleId==null" name="submitButton" title="${uiLabelMap.CommonCreate}">
+            <submit button-type="button"/>
+        </field>
+        <field use-when="ruleId!=null" name="submitButton" title="${uiLabelMap.CommonUpdate}">
             <submit button-type="button"/>
         </field>
     </form>

@@ -147,7 +147,7 @@ public abstract class ModelForm extends ModelWidget {
     private final String formWidgetAreaStyle;
     private final boolean groupColumns;
     private final String headerRowStyle;
-    private boolean hideHeader;
+    private final boolean hideHeader;
     private final String itemIndexSeparator;
     private final List<String> lastOrderFields;
     private final String listEntryName;
@@ -184,7 +184,7 @@ public abstract class ModelForm extends ModelWidget {
     private final String targetType;
     private final FlexibleStringExpander targetWindowExdr;
     private final String title;
-    private final String emptyFormDataMessage;
+    private final FlexibleStringExpander emptyFormDataMessage;
     private final String tooltip;
     private final String type;
     private final boolean useRowSubmit;
@@ -242,11 +242,9 @@ public abstract class ModelForm extends ModelWidget {
             title = parentModel.title;
         }
         this.title = title;
-        String emptyFormDataMessage = formElement.getAttribute("empty-form-data-message");
+        FlexibleStringExpander emptyFormDataMessage = FlexibleStringExpander.getInstance(formElement.getAttribute("empty-form-data-message"));
         if (emptyFormDataMessage.isEmpty() && parentModel != null) {
             emptyFormDataMessage = parentModel.emptyFormDataMessage;
-        } else if (emptyFormDataMessage.isEmpty()) {
-            emptyFormDataMessage = UtilProperties.getMessage("CommonUiLabels", "CommonNoRecordFound", Locale.getDefault());
         }
         this.emptyFormDataMessage = emptyFormDataMessage;
         String tooltip = formElement.getAttribute("tooltip");
@@ -499,11 +497,11 @@ public abstract class ModelForm extends ModelWidget {
             lastOrderFields.addAll(parentModel.lastOrderFields);
         }
         String sortFieldParameterName = formElement.getAttribute("sort-field-parameter-name");
-        if (sortFieldParameterName.isEmpty() && parentModel != null) {
-            this.sortFieldParameterName = parentModel.targetType;
-        } else {
-            this.sortFieldParameterName = "sortField";
-        }
+        if (!sortFieldParameterName.isEmpty()) {
+            this.sortFieldParameterName = sortFieldParameterName;
+       } else {
+            this.sortFieldParameterName = (parentModel != null) ? parentModel.getSortFieldParameterName() : "sortField";
+       }
         String defaultRequiredFieldStyle = formElement.getAttribute("default-required-field-style");
         if (defaultRequiredFieldStyle.isEmpty() && parentModel != null) {
             defaultRequiredFieldStyle = parentModel.defaultRequiredFieldStyle;
@@ -760,7 +758,8 @@ public abstract class ModelForm extends ModelWidget {
         Iterator<ModelField> modelFieldIter = modelEntity.getFieldsIterator();
         while (modelFieldIter.hasNext()) {
             ModelField modelField = modelFieldIter.next();
-            if (modelField.getIsAutoCreatedInternal()) {
+            // auto-add only if field was generated automatically by the entity engine or including internally
+            if (modelField.getIsAutoCreatedInternal() && !autoFieldsEntity.includeInternal) {
                 // don't ever auto-add these, should only be added if explicitly referenced
                 continue;
             }
@@ -839,7 +838,7 @@ public abstract class ModelForm extends ModelWidget {
         }
     }
 
-    private void addUpdateField(ModelFormFieldBuilder builder, Set<String> useWhenFields,
+    private static void addUpdateField(ModelFormFieldBuilder builder, Set<String> useWhenFields,
             List<ModelFormFieldBuilder> fieldBuilderList, Map<String, ModelFormFieldBuilder> fieldBuilderMap) {
         if (!builder.getUseWhen().isEmpty() || useWhenFields.contains(builder.getName())) {
             useWhenFields.add(builder.getName());
@@ -1015,9 +1014,6 @@ public abstract class ModelForm extends ModelWidget {
     public boolean getHideHeader() {
         return this.hideHeader;
     }
-    public void setHideHeader(Boolean hideHeader) {
-        this.hideHeader = hideHeader;
-    }
 
     public String getItemIndexSeparator() {
         if (UtilValidate.isNotEmpty(this.itemIndexSeparator)) {
@@ -1107,7 +1103,7 @@ public abstract class ModelForm extends ModelWidget {
     public boolean getPaginate(Map<String, Object> context) {
         String paginate = this.paginate.expandString(context);
         if (!paginate.isEmpty()) {
-            return Boolean.valueOf(paginate).booleanValue();
+            return Boolean.valueOf(paginate);
         }
         return true;
     }
@@ -1314,7 +1310,7 @@ public abstract class ModelForm extends ModelWidget {
                 // retVal should be a Boolean, if not something weird is up...
                 if (retVal instanceof Boolean) {
                     Boolean boolVal = (Boolean) retVal;
-                    if (boolVal.booleanValue()) {
+                    if (boolVal) {
                         styles += altRowStyle.style;
                     }
                 } else {
@@ -1351,7 +1347,7 @@ public abstract class ModelForm extends ModelWidget {
                 // retVal should be a Boolean, if not something weird is up...
                 if (retVal instanceof Boolean) {
                     Boolean boolVal = (Boolean) retVal;
-                    condTrue = boolVal.booleanValue();
+                    condTrue = boolVal;
                 } else {
                     throw new IllegalArgumentException("Return value from target condition eval was not a Boolean: "
                             + retVal.getClass().getName() + " [" + retVal + "] of form " + getName());
@@ -1385,8 +1381,8 @@ public abstract class ModelForm extends ModelWidget {
         return this.title;
     }
 
-    public String getEmptyFormDataMessage() {
-        return this.emptyFormDataMessage;
+    public String getEmptyFormDataMessage(Map<String, Object> context) {
+        return this.emptyFormDataMessage.expandString(context);
     }
 
     public String getTooltip() {
@@ -1451,11 +1447,13 @@ public abstract class ModelForm extends ModelWidget {
         public final String mapName;
         public final String defaultFieldType;
         public final int defaultPosition;
+        public final boolean includeInternal;
 
         public AutoFieldsEntity(Element element) {
             this.entityName = element.getAttribute("entity-name");
             this.mapName = element.getAttribute("map-name");
             this.defaultFieldType = element.getAttribute("default-field-type");
+            this.includeInternal = !"false".equals(element.getAttribute("include-internal"));
             String positionStr = element.getAttribute("default-position");
             int position = 1;
             try {

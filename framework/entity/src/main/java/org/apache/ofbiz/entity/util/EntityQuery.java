@@ -447,7 +447,7 @@ public class EntityQuery {
             findOptions = efo;
         }
         List<GenericValue> result = null;
-        if (dynamicViewEntity == null) {
+        if (dynamicViewEntity == null && this.havingEntityCondition == null) {
             result = delegator.findList(entityName, makeWhereCondition(useCache), fieldsToSelect, orderBy, findOptions, useCache);
         } else {
             try (EntityListIterator it = queryIterator()) { 
@@ -481,7 +481,8 @@ public class EntityQuery {
         if (whereEntityCondition == null && fieldMap != null) {
             if (this.searchPkOnly) {
                 //Resolve if the map contains a sub map parameters, use a containsKeys to avoid error when a GenericValue is given as map
-                Map<String, Object> parameters = fieldMap.containsKey("parameters") ? (Map<String, Object>) fieldMap.get("parameters") : null;
+                Map<String, Object> parameters =
+                        fieldMap.containsKey("parameters") ? UtilGenerics.cast(fieldMap.get("parameters")) : null;
                 GenericPK pk = GenericPK.create(delegator.getModelEntity(entityName));
                 pk.setPKFields(parameters);
                 pk.setPKFields(fieldMap);
@@ -502,7 +503,7 @@ public class EntityQuery {
     }
 
     private EntityCondition makeDateCondition() {
-        List<EntityCondition> conditions = new ArrayList<EntityCondition>();
+        List<EntityCondition> conditions = new ArrayList<>();
         if (UtilValidate.isEmpty(this.filterByFieldNames)) {
             this.filterByDate(filterByDateMoment, "fromDate", "thruDate");
         }
@@ -522,7 +523,7 @@ public class EntityQuery {
     public <T> List<T> getFieldList(final String fieldName) throws GenericEntityException {select(fieldName);
         try (EntityListIterator genericValueEli = queryIterator()) {
             if (Boolean.TRUE.equals(this.distinct)) {
-                Set<T> distinctSet = new HashSet<T>();
+                Set<T> distinctSet = new HashSet<>();
                 GenericValue value = null;
                 while ((value = genericValueEli.next()) != null) {
                     T fieldValue = UtilGenerics.<T>cast(value.get(fieldName));
@@ -530,10 +531,10 @@ public class EntityQuery {
                         distinctSet.add(fieldValue);
                     }
                 }
-                return new ArrayList<T>(distinctSet);
+                return new ArrayList<>(distinctSet);
             }
             else {
-                List<T> fieldList = new LinkedList<T>();
+                List<T> fieldList = new LinkedList<>();
                 GenericValue value = null;
                 while ((value = genericValueEli.next()) != null) {
                     T fieldValue = UtilGenerics.<T>cast(value.get(fieldName));

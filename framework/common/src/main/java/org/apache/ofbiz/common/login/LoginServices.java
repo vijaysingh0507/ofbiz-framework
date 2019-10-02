@@ -20,6 +20,7 @@
 package org.apache.ofbiz.common.login;
 
 import java.sql.Timestamp;
+import java.util.Calendar;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -27,6 +28,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -53,6 +55,7 @@ import org.apache.ofbiz.entity.util.EntityListIterator;
 import org.apache.ofbiz.entity.util.EntityQuery;
 import org.apache.ofbiz.entity.util.EntityUtilProperties;
 import org.apache.ofbiz.security.Security;
+import org.apache.ofbiz.security.SecurityUtil;
 import org.apache.ofbiz.service.DispatchContext;
 import org.apache.ofbiz.service.GenericServiceException;
 import org.apache.ofbiz.service.LocalDispatcher;
@@ -99,7 +102,7 @@ public class LoginServices {
         boolean useEncryption = "true".equals(EntityUtilProperties.getPropertyValue("security", "password.encrypt", delegator));
 
         // if isServiceAuth is not specified, default to not a service auth
-        boolean isServiceAuth = context.get("isServiceAuth") != null && ((Boolean) context.get("isServiceAuth")).booleanValue();
+        boolean isServiceAuth = context.get("isServiceAuth") != null && (Boolean) context.get("isServiceAuth");
 
         String username = (String) context.get("login.username");
         if (username == null) {
@@ -189,8 +192,7 @@ public class LoginServices {
                             "Y".equalsIgnoreCase(userLogin.getString("isSystem")) : false;
 
                     // grab the hasLoggedOut flag
-                    boolean hasLoggedOut = userLogin.get("hasLoggedOut") != null ?
-                            "Y".equalsIgnoreCase(userLogin.getString("hasLoggedOut")) : false;
+                    Boolean hasLoggedOut = userLogin.getBoolean("hasLoggedOut");
 
                     if ((UtilValidate.isEmpty(userLogin.getString("enabled")) || "Y".equals(userLogin.getString("enabled")) ||
                             (reEnableTime != null && reEnableTime.before(UtilDateTime.nowTimestamp())) || (isSystem)) && UtilValidate.isEmpty(userLogin.getString("disabledBy"))) {
@@ -228,15 +230,15 @@ public class LoginServices {
                             Debug.logVerbose("[LoginServices.userLogin] : Password Matched", module);
 
                             // update the hasLoggedOut flag
-                            if (hasLoggedOut) {
+                            if (hasLoggedOut == null || hasLoggedOut) {
                                 userLogin.set("hasLoggedOut", "N");
                             }
 
                             // reset failed login count if necessary
                             Long currentFailedLogins = userLogin.getLong("successiveFailedLogins");
-                            if (currentFailedLogins != null && currentFailedLogins.longValue() > 0) {
-                                userLogin.set("successiveFailedLogins", Long.valueOf(0));
-                            } else if (!hasLoggedOut) {
+                            if (currentFailedLogins != null && currentFailedLogins > 0) {
+                                userLogin.set("successiveFailedLogins", 0L);
+                            } else if (hasLoggedOut != null && !hasLoggedOut) {
                                 // successful login & no logout flag, no need to change anything, so don't do the store
                                 doStore = false;
                             }
@@ -273,9 +275,9 @@ public class LoginServices {
                             Long currentFailedLogins = userLogin.getLong("successiveFailedLogins");
 
                             if (currentFailedLogins == null) {
-                                currentFailedLogins = Long.valueOf(1);
+                                currentFailedLogins = 1L;
                             } else {
-                                currentFailedLogins = Long.valueOf(currentFailedLogins.longValue() + 1);
+                                currentFailedLogins = currentFailedLogins + 1;
                             }
                             userLogin.set("successiveFailedLogins", currentFailedLogins);
 
@@ -289,7 +291,7 @@ public class LoginServices {
                                 Debug.logWarning("Could not parse max.failed.logins from security.properties, using default of 3", module);
                             }
 
-                            if (maxFailedLogins > 0 && currentFailedLogins.longValue() >= maxFailedLogins) {
+                            if (maxFailedLogins > 0 && currentFailedLogins >= maxFailedLogins) {
                                 userLogin.set("enabled", "N");
                                 userLogin.set("disabledDateTime", UtilDateTime.nowTimestamp());
                             }
@@ -436,10 +438,130 @@ public class LoginServices {
         return result;
     }
 
+    /**
+     * Login service to authenticate a username without password, storing history
+     *
+     * @return Map of results including (userLogin) GenericValue object
+     */
+    public static Map<String, Object> userImpersonate(DispatchContext ctx, Map<String, ?> context) {
+        Locale locale = (Locale) context.get("locale");
+        Delegator delegator = ctx.getDelegator();
+        Map<String, Object> result = ServiceUtil.returnSuccess();
+
+        String userLoginIdToImpersonate = (String) context.get("userLoginIdToImpersonate");
+        GenericValue originUserLogin = (GenericValue) context.get("userLogin");
+        // get the visitId for the history entity
+        String visitId = (String) context.get("visitId");
+
+        if ("true".equalsIgnoreCase(EntityUtilProperties.getPropertyValue("security", "username.lowercase", delegator))) {
+            userLoginIdToImpersonate = userLoginIdToImpersonate.toLowerCase();
+        }
+
+        GenericValue userLogin;
+        try {
+            userLogin = EntityQuery.use(delegator).from("UserLogin").where("userLoginId", userLoginIdToImpersonate).queryOne();
+        } catch (GenericEntityException e) {
+            Debug.logError(e, module);
+            return ServiceUtil.returnError(e.getMessage());
+        }
+
+        // check impersonation controls
+        String errorMessage = checkImpersonationControls(delegator, originUserLogin, userLogin, locale);
+        if (errorMessage != null) {
+            return ServiceUtil.returnError(errorMessage);
+        }
+
+        // return the UserLoginSession Map
+        Map<String, Object> userLoginSessionMap = LoginWorker.getUserLoginSession(userLogin);
+        if (userLoginSessionMap != null) {
+            result.put("userLoginSession", userLoginSessionMap);
+        }
+
+        // grab the hasLoggedOut flag
+        boolean hasLoggedOut = "Y".equalsIgnoreCase(userLogin.getString("hasLoggedOut"));
+        if (hasLoggedOut || UtilValidate.isEmpty(userLogin.getString("hasLoggedOut"))) {
+            userLogin.set("hasLoggedOut", "N");
+            try {
+                userLogin.store();
+            } catch (GenericEntityException e) {
+                Debug.logError(e, module);
+                return ServiceUtil.returnError(e.getMessage());
+            }
+        }
+
+        //Log impersonation in UserLoginHistory
+        Map<String, Object> historyCreateMap = UtilMisc.toMap("userLoginId", userLoginIdToImpersonate);
+        historyCreateMap.put("visitId", visitId);
+        historyCreateMap.put("fromDate", UtilDateTime.nowTimestamp());
+        historyCreateMap.put("successfulLogin", "Y");
+        historyCreateMap.put("partyId", userLogin.get("partyId"));
+        historyCreateMap.put("originUserLoginId", originUserLogin.get("userLoginId"));
+        //End impersonation in one hour max
+        historyCreateMap.put("thruDate", UtilDateTime.adjustTimestamp(UtilDateTime.nowTimestamp(), Calendar.HOUR, 1));
+        try {
+            delegator.create("UserLoginHistory", historyCreateMap);
+        } catch (GenericEntityException e) {
+            Debug.logError(e, module);
+            return ServiceUtil.returnError(e.getMessage());
+        }
+
+        result.put("userLogin", userLogin);
+        result.put("originUserLogin", originUserLogin);
+        return result;
+    }
+
+    /**
+     * Return error message if a needed control has failed :
+     * userLoginToImpersonate must exist
+     * Impersonation have to be enabled
+     * Check userLoginIdToImpersonate is active, not Admin and not equals to userLogin
+     * Check userLogin has enough permission
+     *
+     * @param delegator
+     * @param userLogin
+     * @param userLoginToImpersonate
+     * @param locale
+     * @return
+     */
+    private static String checkImpersonationControls(Delegator delegator, GenericValue userLogin, GenericValue userLoginToImpersonate, Locale locale) {
+        if (userLoginToImpersonate == null) {
+            return UtilProperties.getMessage(resource, "loginservices.username_missing", locale);
+        }
+        String userLoginId = userLogin.getString("userLoginId");
+        String userLoginIdToImpersonate = userLoginToImpersonate.getString("userLoginId");
+
+        if (UtilProperties.getPropertyAsBoolean("security", "security.disable.impersonation", true)) {
+            return UtilProperties.getMessage(resource, "loginevents.impersonation_disabled", locale);
+        }
+
+        if (!LoginWorker.isUserLoginActive(userLoginToImpersonate)) {
+            Map<String, Object> messageMap = UtilMisc.toMap("username", userLoginIdToImpersonate);
+            return UtilProperties.getMessage(resource, "loginservices.account_for_user_login_id_disabled", messageMap, locale);
+        }
+
+        if (SecurityUtil.hasUserLoginAdminPermission(delegator, userLoginIdToImpersonate)) {
+            return UtilProperties.getMessage(resource, "loginevents.impersonate_notAdmin", locale);
+        }
+
+        if (userLoginIdToImpersonate.equals(userLoginId)) {
+            return UtilProperties.getMessage(resource, "loginevents.impersonate_yourself", locale);
+        }
+
+        //Cannot impersonate more privileged user
+        List<String> missingNeededPermissions = SecurityUtil.hasUserLoginMorePermissionThan(delegator, userLoginId, userLoginIdToImpersonate);
+        if (UtilValidate.isNotEmpty(missingNeededPermissions)) {
+            String missingPermissionListString = missingNeededPermissions.stream().collect(Collectors.joining(", "));
+            return UtilProperties.getMessage(resource, "loginevents.impersonate_notEnoughPermission",
+                    UtilMisc.toMap("missingPermissions", missingPermissionListString), locale);
+        }
+
+        return null;
+    }
+
     public static void createUserLoginPasswordHistory(Delegator delegator,String userLoginId, String currentPassword) throws GenericEntityException{
         int passwordChangeHistoryLimit = 0;
         try {
-            passwordChangeHistoryLimit = EntityUtilProperties.getPropertyAsInteger("security", "password.change.history.limit", 0).intValue();
+            passwordChangeHistoryLimit = EntityUtilProperties.getPropertyAsInteger("security", "password.change.history.limit", 0);
         } catch (NumberFormatException nfe) {
             //No valid value is found so don't bother to save any password history
             passwordChangeHistoryLimit = 0;
@@ -946,7 +1068,7 @@ public class LoginServices {
 
         int passwordChangeHistoryLimit = 0;
         try {
-            passwordChangeHistoryLimit = EntityUtilProperties.getPropertyAsInteger("security", "password.change.history.limit", 0).intValue();
+            passwordChangeHistoryLimit = EntityUtilProperties.getPropertyAsInteger("security", "password.change.history.limit", 0);
         } catch (NumberFormatException nfe) {
             //No valid value is found so don't bother to save any password history
             passwordChangeHistoryLimit = 0;
@@ -979,7 +1101,7 @@ public class LoginServices {
         int minPasswordLength = 0;
 
         try {
-            minPasswordLength = EntityUtilProperties.getPropertyAsInteger("security", "password.length.min", 0).intValue();
+            minPasswordLength = EntityUtilProperties.getPropertyAsInteger("security", "password.length.min", 0);
         } catch (NumberFormatException nfe) {
             minPasswordLength = 0;
         }

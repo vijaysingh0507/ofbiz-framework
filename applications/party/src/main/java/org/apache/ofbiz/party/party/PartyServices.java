@@ -833,7 +833,7 @@ public class PartyServices {
         } catch (Exception e) {
             viewIndex = 0;
         }
-        result.put("viewIndex", Integer.valueOf(viewIndex));
+        result.put("viewIndex", viewIndex);
 
         int viewSize = 20;
         try {
@@ -841,7 +841,7 @@ public class PartyServices {
         } catch (Exception e) {
             viewSize = 20;
         }
-        result.put("viewSize", Integer.valueOf(viewSize));
+        result.put("viewSize", viewSize);
 
         // get the lookup flag
         String lookupFlag = (String) context.get("lookupFlag");
@@ -1238,10 +1238,10 @@ public class PartyServices {
             partyList = new LinkedList<>();
         }
         result.put("partyList", partyList);
-        result.put("partyListSize", Integer.valueOf(partyListSize));
+        result.put("partyListSize", partyListSize);
         result.put("paramList", paramList);
-        result.put("highIndex", Integer.valueOf(highIndex));
-        result.put("lowIndex", Integer.valueOf(lowIndex));
+        result.put("highIndex", highIndex);
+        result.put("lowIndex", lowIndex);
 
         return result;
     }
@@ -1421,6 +1421,22 @@ public class PartyServices {
             // add the expr
             andExprs.add(EntityCondition.makeCondition("roleTypeId", roleTypeId));
             fieldsToSelect.add("roleTypeId");
+        }
+
+        // ----
+        // PartyClassificationGroup Fields
+        // ----
+
+        String partyClassificationGroupId = (String) context.get("partyClassificationGroupId");
+        if (UtilValidate.isNotEmpty(partyClassificationGroupId)) {
+            // add PartyClassification to view
+            dynamicView.addMemberEntity("PC", "PartyClassification");
+            dynamicView.addAlias("PC", "partyClassificationGroupId");
+            dynamicView.addViewLink("PT", "PC", Boolean.FALSE, ModelKeyMap.makeKeyMapList("partyId"));
+
+            // add the expr
+            andExprs.add(EntityCondition.makeCondition("partyClassificationGroupId", partyClassificationGroupId));
+            fieldsToSelect.add("partyClassificationGroupId");
         }
 
         // ----
@@ -1928,7 +1944,7 @@ public class PartyServices {
                     }
                 }
 
-                addrMap.put("sequenceNum", Long.valueOf(seq));
+                addrMap.put("sequenceNum", (long) seq);
                 Debug.logInfo("Creating map entry: " + addrMap, module);
                 try {
                     delegator.create(addrMap);
@@ -2004,7 +2020,6 @@ public class PartyServices {
         ByteBuffer fileBytes = (ByteBuffer) context.get("uploadedFile");
         String encoding = System.getProperty("file.encoding");
         String csvString = Charset.forName(encoding).decode(fileBytes).toString();
-        final BufferedReader csvReader = new BufferedReader(new StringReader(csvString));
         CSVFormat fmt = CSVFormat.DEFAULT.withHeader();
         List<String> errMsgs = new LinkedList<>();
         List<String> newErrMsgs = new LinkedList<>();
@@ -2034,7 +2049,7 @@ public class PartyServices {
         Boolean addParty = false; // when modify party, contact mech not added again
 
 
-        try {
+        try (BufferedReader csvReader = new BufferedReader(new StringReader(csvString))) {
             for (final CSVRecord rec : fmt.parse(csvReader)) {
                 if (UtilValidate.isNotEmpty(rec.get("partyId"))) {
                     currentPartyId =  rec.get("partyId");
@@ -2343,7 +2358,7 @@ public class PartyServices {
                                 currentContactMechPurposeTypeId= "PHONE_WORK";
                             }
                             Map<String, Object> resultMap = dispatcher.runSync("createPartyContactMech", UtilMisc.toMap("partyId", newPartyId, "contactMechId", newContactMechId, "contactMechPurposeTypeId", currentContactMechPurposeTypeId, "userLogin", userLogin));
-                            if (ServiceUtil.isError(result)) {
+                            if (ServiceUtil.isError(resultMap)) {
                                 return ServiceUtil.returnError(ServiceUtil.getErrorMessage(result));
                             }
                         }
@@ -2358,7 +2373,7 @@ public class PartyServices {
                                 currentContactMechPurposeTypeId = "PRIMARY_EMAIL";
                             }
                             Map<String, Object> resultMap = dispatcher.runSync("createPartyContactMech", UtilMisc.toMap("partyId", newPartyId, "contactMechId", newContactMechId, "contactMechPurposeTypeId", currentContactMechPurposeTypeId, "userLogin", userLogin));
-                            if (ServiceUtil.isError(result)) {
+                            if (ServiceUtil.isError(resultMap)) {
                                 return ServiceUtil.returnError(ServiceUtil.getErrorMessage(result));
                             }
                         }

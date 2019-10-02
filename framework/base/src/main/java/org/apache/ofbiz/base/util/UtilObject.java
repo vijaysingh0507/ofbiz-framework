@@ -21,7 +21,6 @@ package org.apache.ofbiz.base.util;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.ObjectOutputStream;
 import java.lang.reflect.Array;
 import java.util.Iterator;
@@ -41,68 +40,15 @@ public final class UtilObject {
 
     public static final String module = UtilObject.class.getName();
 
-    public static byte[] getBytes(InputStream is) {
-        byte[] buffer = new byte[4 * 1024];
-        byte[] data = null;
-        try {
-            ByteArrayOutputStream bos = new ByteArrayOutputStream();
-            try {
-
-                int numBytesRead;
-                while ((numBytesRead = is.read(buffer)) != -1) {
-                    bos.write(buffer, 0, numBytesRead);
-                }
-                data = bos.toByteArray();
-            } finally {
-                bos.close();
-            }
-        } catch (IOException e) {
-            Debug.logError(e, module);
-        } finally {
-            try {
-                if (is != null) {
-                    is.close();
-                }
-            } catch (IOException e) {
-                Debug.logError(e, module);
-            }
-        }
-
-        return data;
-    }
-
     /** Serialize an object to a byte array */
     public static byte[] getBytes(Object obj) {
         byte[] data = null;
-        try {
-            ByteArrayOutputStream bos = new ByteArrayOutputStream();
-            try {
-                ObjectOutputStream oos = new ObjectOutputStream(bos);
-                try {
-                    oos.writeObject(obj);
-                    data = bos.toByteArray();
-                } catch (IOException e) {
-                    Debug.logError(e, module);
-                } finally {
-                    oos.flush();
-                    oos.close();
-                }
-            } catch (IOException e) {
-                // I don't know how to force an error during flush or
-                // close of ObjectOutputStream; since OOS is wrapping
-                // BAOS, and BAOS does not throw IOException during
-                // write, I don't think this can happen.
-                Debug.logError(e, module);
-            } finally {
-                bos.close();
-            }
+        try (ByteArrayOutputStream bos = new ByteArrayOutputStream(); ObjectOutputStream oos = new ObjectOutputStream(bos)) {
+            oos.writeObject(obj);
+            data = bos.toByteArray();
         } catch (IOException e) {
-            // How could this ever happen?  BAOS.close() is listed as
-            // throwing the exception, but I don't understand why this
-            // is.
             Debug.logError(e, module);
         }
-
         return data;
     }
 
@@ -139,42 +85,14 @@ public final class UtilObject {
 
     /** Deserialize a byte array back to an object */
     public static Object getObjectException(byte[] bytes) throws ClassNotFoundException, IOException {
-        ByteArrayInputStream bis = new ByteArrayInputStream(bytes);
-        try {
-            ObjectInputStream ois = new ObjectInputStream(bis, Thread.currentThread().getContextClassLoader());
-            try {
-                return ois.readObject();
-            } finally {
-                ois.close();
-            }
-        } finally {
-            bis.close();
-        }
-    }
-
-    public static boolean equalsHelper(Object o1, Object o2) {
-        if (o1 == o2) {
-            // handles same-reference, or null
-            return true;
-        } else if (o1 == null || o2 == null) {
-            // either o1 or o2 is null, but not both
-            return false;
-        } else {
-            return o1.equals(o2);
-        }
-    }
-
-    public static <T> int compareToHelper(Comparable<T> o1, T o2) {
-        if (o1 == o2) {
-            // handles same-reference, or null
-            return 0;
-        } else if (o1 == null) {
-            return -1;
-        } else if (o2 == null) {
-            // either o1 or o2 is null, but not both
-            return 1;
-        } else {
-            return o1.compareTo(o2);
+        try (ByteArrayInputStream bis = new ByteArrayInputStream(bytes);
+                SafeObjectInputStream wois = new SafeObjectInputStream(bis,
+                        Thread.currentThread().getContextClassLoader(),
+                        java.util.Arrays.asList("byte\\[\\]", "foo", "SerializationInjector",
+                                "\\[Z","\\[B","\\[S","\\[I","\\[J","\\[F","\\[D","\\[C",
+                                "java..*", "sun.util.calendar..*", "org.apache.ofbiz..*"));) {
+                        // "foo" and, "SerializationInjector" are used in UtilObjectTests::testGetObject
+            return wois.readObject();
         }
     }
 

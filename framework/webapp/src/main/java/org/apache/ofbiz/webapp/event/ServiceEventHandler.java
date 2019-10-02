@@ -18,10 +18,6 @@
  *******************************************************************************/
 package org.apache.ofbiz.webapp.event;
 
-import static org.apache.ofbiz.base.util.UtilGenerics.checkList;
-
-import java.io.File;
-import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -35,10 +31,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import org.apache.commons.fileupload.FileItem;
-import org.apache.commons.fileupload.FileUploadException;
-import org.apache.commons.fileupload.disk.DiskFileItemFactory;
-import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.ofbiz.base.util.Debug;
 import org.apache.ofbiz.base.util.UtilGenerics;
 import org.apache.ofbiz.base.util.UtilHttp;
@@ -53,7 +45,6 @@ import org.apache.ofbiz.service.ModelParam;
 import org.apache.ofbiz.service.ModelService;
 import org.apache.ofbiz.service.ServiceAuthException;
 import org.apache.ofbiz.service.ServiceValidationException;
-import org.apache.ofbiz.webapp.control.ConfigXMLReader;
 import org.apache.ofbiz.webapp.control.ConfigXMLReader.Event;
 import org.apache.ofbiz.webapp.control.ConfigXMLReader.RequestMap;
 import org.apache.ofbiz.webapp.control.ControlActivationEventListener;
@@ -69,15 +60,11 @@ public class ServiceEventHandler implements EventHandler {
     public static final String SYNC = "sync";
     public static final String ASYNC = "async";
 
-    /**
-     * @see org.apache.ofbiz.webapp.event.EventHandler#init(javax.servlet.ServletContext)
-     */
+    @Override
     public void init(ServletContext context) throws EventHandlerException {
     }
 
-    /**
-     * @see org.apache.ofbiz.webapp.event.EventHandler#invoke(ConfigXMLReader.Event, ConfigXMLReader.RequestMap, javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)
-     */
+    @Override
     public String invoke(Event event, RequestMap requestMap, HttpServletRequest request, HttpServletResponse response) throws EventHandlerException {
         // make sure we have a valid reference to the Service Engine
         LocalDispatcher dispatcher = (LocalDispatcher) request.getAttribute("dispatcher");
@@ -131,113 +118,13 @@ public class ServiceEventHandler implements EventHandler {
             Debug.logVerbose("[Using delegator]: " + dispatcher.getDelegator().getDelegatorName(), module);
         }
 
-        boolean isMultiPart = ServletFileUpload.isMultipartContent(request);
-        Map<String, Object> multiPartMap = new HashMap<String, Object>();
-        if (isMultiPart) {
-            // get the http upload configuration
-            String maxSizeStr = EntityUtilProperties.getPropertyValue("general", "http.upload.max.size", "-1", dctx.getDelegator());
-            long maxUploadSize = -1;
-            try {
-                maxUploadSize = Long.parseLong(maxSizeStr);
-            } catch (NumberFormatException e) {
-                Debug.logError(e, "Unable to obtain the max upload size from general.properties; using default -1", module);
-                maxUploadSize = -1;
-            }
-            // get the http size threshold configuration - files bigger than this will be
-            // temporarly stored on disk during upload
-            String sizeThresholdStr = EntityUtilProperties.getPropertyValue("general", "http.upload.max.sizethreshold", "10240", dctx.getDelegator());
-            int sizeThreshold = 10240; // 10K
-            try {
-                sizeThreshold = Integer.parseInt(sizeThresholdStr);
-            } catch (NumberFormatException e) {
-                Debug.logError(e, "Unable to obtain the threshold size from general.properties; using default 10K", module);
-                sizeThreshold = -1;
-            }
-            // directory used to temporarily store files that are larger than the configured size threshold
-            String tmpUploadRepository = EntityUtilProperties.getPropertyValue("general", "http.upload.tmprepository", "runtime/tmp", dctx.getDelegator());
-            String encoding = request.getCharacterEncoding();
-            // check for multipart content types which may have uploaded items
-
-            ServletFileUpload upload = new ServletFileUpload(new DiskFileItemFactory(sizeThreshold, new File(tmpUploadRepository)));
-
-            // create the progress listener and add it to the session
-            FileUploadProgressListener listener = new FileUploadProgressListener();
-            upload.setProgressListener(listener);
-            session.setAttribute("uploadProgressListener", listener);
-
-            if (encoding != null) {
-                upload.setHeaderEncoding(encoding);
-            }
-            upload.setSizeMax(maxUploadSize);
-
-            List<FileItem> uploadedItems = null;
-            try {
-                uploadedItems = UtilGenerics.<FileItem>checkList(upload.parseRequest(request));
-            } catch (FileUploadException e) {
-                throw new EventHandlerException("Problems reading uploaded data", e);
-            }
-            if (uploadedItems != null) {
-                for (FileItem item: uploadedItems) {
-                    String fieldName = item.getFieldName();
-                    //byte[] itemBytes = item.get();
-                    /*
-                    Debug.logInfo("Item Info [" + fieldName + "] : " + item.getName() + " / " + item.getSize() + " / " +
-                            item.getContentType() + " FF: " + item.isFormField(), module);
-                    */
-                    if (item.isFormField() || item.getName() == null) {
-                        if (multiPartMap.containsKey(fieldName)) {
-                            Object mapValue = multiPartMap.get(fieldName);
-                            if (mapValue instanceof List<?>) {
-                                checkList(mapValue, Object.class).add(item.getString());
-                            } else if (mapValue instanceof String) {
-                                List<String> newList = new LinkedList<String>();
-                                newList.add((String) mapValue);
-                                newList.add(item.getString());
-                                multiPartMap.put(fieldName, newList);
-                            } else {
-                                Debug.logWarning("Form field found [" + fieldName + "] which was not handled!", module);
-                            }
-                        } else {
-                            if (encoding != null) {
-                                try {
-                                    multiPartMap.put(fieldName, item.getString(encoding));
-                                } catch (java.io.UnsupportedEncodingException uee) {
-                                    Debug.logError(uee, "Unsupported Encoding, using deafault", module);
-                                    multiPartMap.put(fieldName, item.getString());
-                                }
-                            } else {
-                                multiPartMap.put(fieldName, item.getString());
-                            }
-                        }
-                    } else {
-                        String fileName = item.getName();
-                        if (fileName.indexOf('\\') > -1 || fileName.indexOf('/') > -1) {
-                            // get just the file name IE and other browsers also pass in the local path
-                            int lastIndex = fileName.lastIndexOf('\\');
-                            if (lastIndex == -1) {
-                                lastIndex = fileName.lastIndexOf('/');
-                            }
-                            if (lastIndex > -1) {
-                                fileName = fileName.substring(lastIndex + 1);
-                            }
-                        }
-                        multiPartMap.put(fieldName, ByteBuffer.wrap(item.get()));
-                        multiPartMap.put("_" + fieldName + "_size", Long.valueOf(item.getSize()));
-                        multiPartMap.put("_" + fieldName + "_fileName", fileName);
-                        multiPartMap.put("_" + fieldName + "_contentType", item.getContentType());
-                    }
-                }
-            }
-        }
-
-        // store the multi-part map as an attribute so we can access the parameters
-        request.setAttribute("multiPartMap", multiPartMap);
-
         Map<String, Object> rawParametersMap = UtilHttp.getCombinedMap(request);
+        Map<String, Object> multiPartMap = UtilGenerics.cast(request.getAttribute("multiPartMap"));
+
         Set<String> urlOnlyParameterNames = UtilHttp.getUrlOnlyParameterMap(request).keySet();
 
         // we have a service and the model; build the context
-        Map<String, Object> serviceContext = new HashMap<String, Object>();
+        Map<String, Object> serviceContext = new HashMap<>();
         for (ModelParam modelParam: model.getInModelParamList()) {
             String name = modelParam.name;
 
@@ -284,7 +171,7 @@ public class ServiceEventHandler implements EventHandler {
 
                     // make any composite parameter data (e.g., from a set of parameters {name_c_date, name_c_hour, name_c_minutes})
                     if (value == null) {
-                        value = UtilHttp.makeParamValueFromComposite(request, name, locale);
+                        value = UtilHttp.makeParamValueFromComposite(request, name);
                     }
                 }
 
@@ -313,7 +200,7 @@ public class ServiceEventHandler implements EventHandler {
 
         // get only the parameters for this service - converted to proper type
         // TODO: pass in a list for error messages, like could not convert type or not a proper X, return immediately with messages if there are any
-        List<Object> errorMessages = new LinkedList<Object>();
+        List<Object> errorMessages = new LinkedList<>();
         serviceContext = model.makeValid(serviceContext, ModelService.IN_PARAM, true, errorMessages, timeZone, locale);
         if (errorMessages.size() > 0) {
             // uh-oh, had some problems...

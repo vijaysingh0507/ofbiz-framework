@@ -55,6 +55,7 @@ import org.apache.ofbiz.widget.renderer.MenuStringRenderer;
 import org.apache.ofbiz.widget.renderer.ScreenRenderer;
 import org.apache.ofbiz.widget.renderer.ScreenStringRenderer;
 import org.apache.ofbiz.widget.renderer.TreeStringRenderer;
+import org.apache.ofbiz.widget.renderer.VisualTheme;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
@@ -433,6 +434,7 @@ public abstract class ModelScreenWidget extends ModelWidget {
     public static final class Container extends ModelScreenWidget {
         public static final String TAG_NAME = "container";
         private final FlexibleStringExpander idExdr;
+        private final FlexibleStringExpander typeExdr;
         private final FlexibleStringExpander styleExdr;
         private final FlexibleStringExpander autoUpdateTargetExdr;
         private final FlexibleStringExpander autoUpdateInterval;
@@ -441,6 +443,7 @@ public abstract class ModelScreenWidget extends ModelWidget {
         public Container(ModelScreen modelScreen, Element containerElement) {
             super(modelScreen, containerElement);
             this.idExdr = FlexibleStringExpander.getInstance(containerElement.getAttribute("id"));
+            this.typeExdr = FlexibleStringExpander.getInstance(containerElement.getAttribute("type"));
             this.styleExdr = FlexibleStringExpander.getInstance(containerElement.getAttribute("style"));
             this.autoUpdateTargetExdr = FlexibleStringExpander.getInstance(containerElement.getAttribute("auto-update-target"));
             String autoUpdateInterval = containerElement.getAttribute("auto-update-interval");
@@ -473,6 +476,10 @@ public abstract class ModelScreenWidget extends ModelWidget {
             return this.idExdr.expandString(context);
         }
 
+        public String getType(Map<String, Object> context) {
+            return this.typeExdr.expandString(context);
+        }
+
         public String getStyle(Map<String, Object> context) {
             return this.styleExdr.expandString(context);
         }
@@ -496,6 +503,10 @@ public abstract class ModelScreenWidget extends ModelWidget {
 
         public FlexibleStringExpander getIdExdr() {
             return idExdr;
+        }
+
+        public FlexibleStringExpander getTypeExdr() {
+            return typeExdr;
         }
 
         public FlexibleStringExpander getStyleExdr() {
@@ -589,7 +600,7 @@ public abstract class ModelScreenWidget extends ModelWidget {
             boolean collapsed = getInitiallyCollapsed(context);
             if (this.collapsible) {
                 String preferenceKey = getPreferenceKey(context) + "_collapsed";
-                Map<String, Object> requestParameters = UtilGenerics.checkMap(context.get("requestParameters"));
+                Map<String, Object> requestParameters = UtilGenerics.cast(context.get("requestParameters"));
                 if (requestParameters != null) {
                     String collapsedParam = (String) requestParameters.get(preferenceKey);
                     if (collapsedParam != null) {
@@ -617,9 +628,9 @@ public abstract class ModelScreenWidget extends ModelWidget {
         //initially-collapsed status, which may be overriden by user preference
         public boolean getInitiallyCollapsed(Map<String, Object> context) {
             String screenletId = this.getId(context) + "_collapsed";
-            Map<String, ? extends Object> userPreferences = UtilGenerics.checkMap(context.get("userPreferences"));
+            Map<String, ? extends Object> userPreferences = UtilGenerics.cast(context.get("userPreferences"));
             if (userPreferences != null && userPreferences.containsKey(screenletId)) {
-                return Boolean.valueOf((String)userPreferences.get(screenletId)).booleanValue() ;
+                return Boolean.valueOf((String) userPreferences.get(screenletId));
             }
 
             return "true".equals(this.initiallyCollapsed.expand(context));
@@ -760,9 +771,10 @@ public abstract class ModelScreenWidget extends ModelWidget {
                 }
 
                 UtilGenerics.<MapStack<String>>cast(context).push();
+                Object obj = context.get("_WIDGETTRAIL_");
 
                 // build the widgetpath
-                List<String> widgetTrail = UtilGenerics.toList(context.get("_WIDGETTRAIL_"));
+                List<String> widgetTrail = (obj instanceof List) ? UtilGenerics.cast(obj) : null;
                 if (widgetTrail == null) {
                     widgetTrail = new LinkedList<>();
                 }
@@ -842,17 +854,16 @@ public abstract class ModelScreenWidget extends ModelWidget {
         }
 
         @Override
-        @SuppressWarnings("unchecked")
         public void renderWidgetString(Appendable writer, Map<String, Object> context, ScreenStringRenderer screenStringRenderer) throws GeneralException, IOException {
             // isolate the scope
             if (!(context instanceof MapStack)) {
                 context = MapStack.create(context);
             }
 
-            MapStack contextMs = (MapStack) context;
+            MapStack<String> contextMs = UtilGenerics.cast(context);
 
             // create a standAloneStack, basically a "save point" for this SectionsRenderer, and make a new "screens" object just for it so it is isolated and doesn't follow the stack down
-            MapStack standAloneStack = contextMs.standAloneChildStack();
+            MapStack<String> standAloneStack = contextMs.standAloneChildStack();
             standAloneStack.put("screens", new ScreenRenderer(writer, standAloneStack, screenStringRenderer));
             SectionsRenderer sections = new SectionsRenderer(this.sectionMap, standAloneStack, writer, screenStringRenderer);
 
@@ -931,7 +942,7 @@ public abstract class ModelScreenWidget extends ModelWidget {
 
         @Override
         public void renderWidgetString(Appendable writer, Map<String, Object> context, ScreenStringRenderer screenStringRenderer) throws GeneralException, IOException {
-            Map<String, ? extends Object> preRenderedContent = UtilGenerics.checkMap(context.get("preRenderedContent"));
+            Map<String, ? extends Object> preRenderedContent = UtilGenerics.cast(context.get("preRenderedContent"));
             if (preRenderedContent != null && preRenderedContent.containsKey(getName())) {
                 try {
                     writer.append((String) preRenderedContent.get(getName()));
@@ -1589,7 +1600,7 @@ public abstract class ModelScreenWidget extends ModelWidget {
             String location = this.getLocation(context);
             ModelMenu modelMenu = null;
             try {
-                modelMenu = MenuFactory.getMenuFromLocation(location, name);
+                modelMenu = MenuFactory.getMenuFromLocation(location, name, (VisualTheme) context.get("visualTheme"));
             } catch (Exception e) {
                 String errMsg = "Error rendering included menu named [" + name + "] at location [" + location + "]: ";
                 Debug.logError(e, errMsg, module);
@@ -1632,6 +1643,7 @@ public abstract class ModelScreenWidget extends ModelWidget {
             }
         }
 
+        @Override
         public String getName() {
             return link.getName();
         }
@@ -1765,6 +1777,7 @@ public abstract class ModelScreenWidget extends ModelWidget {
         public static final String TAG_NAME = "image";
         private final Image image;
 
+        @Override
         public String getName() {
             return image.getName();
         }

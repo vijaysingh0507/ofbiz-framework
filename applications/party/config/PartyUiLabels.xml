@@ -19,6 +19,9 @@
     under the License.
 -->
 <resource xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://ofbiz.apache.org/dtds/ofbiz-properties.xsd">
+    <property key="CustomerCreatedSuccessfully">
+        <value xml:lang="en">Customer created successfully.</value>
+    </property>
     <property key="FormFieldTitle_annualRevenue">
         <value xml:lang="ar">الدخل السنوي</value>
         <value xml:lang="de">Jahresumsatz</value>
@@ -181,6 +184,7 @@
         <value xml:lang="de">Kommunikationsereignis Typ ID</value>
         <value xml:lang="en">Comm.Type ID</value>
         <value xml:lang="es">Código Tipo de evento de comunicación</value>
+        <value xml:lang="es-CL">Tipo de Evento de Comunicación</value>
         <value xml:lang="fr">Type d'évènement de communication</value>
         <value xml:lang="hi-IN">संचार घटना प्रकार का क्रमांक(communicationEventTypeId)</value>
         <value xml:lang="it">Tipo evento communicazioni</value>
@@ -212,6 +216,7 @@
         <value xml:lang="de">Kontaktliste ID</value>
         <value xml:lang="en">Contact List ID</value>
         <value xml:lang="es">Codigo Lista de contactos</value>
+        <value xml:lang="es-CL">Lista de contactos</value>
         <value xml:lang="fr">Liste de contact</value>
         <value xml:lang="hi-IN">संपर्क सूची क्रमांक</value>
         <value xml:lang="it">Lista contatto</value>
@@ -266,6 +271,7 @@
         <value xml:lang="de">Kontaktmechanismus Typ ID</value>
         <value xml:lang="en">Contact Mech Type ID</value>
         <value xml:lang="es">Código Tipo Mecanismo de contacto</value>
+        <value xml:lang="es-CL">Mecanismo de Contacto</value>
         <value xml:lang="fr">Type de coordonnées</value>
         <value xml:lang="hi-IN">संपर्क यांत्रिक प्रकार का क्रमांक</value>
         <value xml:lang="it">Tipo contatto</value>
@@ -283,6 +289,8 @@
         <value xml:lang="ar">دليل نوع المايم للمحتوى</value>
         <value xml:lang="de">Inhalt Mime Typ ID</value>
         <value xml:lang="en">Content Mime Type ID</value>
+        <value xml:lang="es">Content Mime Type Id</value>
+        <value xml:lang="es-CL">Content Mime Type</value>
         <value xml:lang="fr">Type de contenu</value>
         <value xml:lang="hi-IN">सामग्री माइम प्रकार का क्रमांक(contentMimeTypeId)</value>
         <value xml:lang="it">Codice tipo contenuto mime</value>
@@ -368,6 +376,8 @@
         <value xml:lang="cs">ID polohy zařízení</value>
         <value xml:lang="de">Zieleinrichtung</value>
         <value xml:lang="en">Destination Facility ID</value>
+        <value xml:lang="es">Id Almacén de destino</value>
+        <value xml:lang="es-CL">Bodega de Destino</value>
         <value xml:lang="fr">Lieu de stockage de destination</value>
         <value xml:lang="hi-IN">गंतव्य सुविधा क्रमांक(destinationFacilityId)</value>
         <value xml:lang="it">Stabilimento destinazione</value>
@@ -526,6 +536,7 @@
         <value xml:lang="de">Von Akteur ID</value>
         <value xml:lang="en">From Party ID</value>
         <value xml:lang="es">Código Participante origen</value>
+        <value xml:lang="es-CL">Participante de Origen</value>
         <value xml:lang="fr">Expéditeur</value>
         <value xml:lang="hi-IN">पार्टी क्रमांक से</value>
         <value xml:lang="it">Dal Soggetto</value>
@@ -1065,6 +1076,8 @@
         <value xml:lang="ar">دليل وسيلة إتصال المصدر</value>
         <value xml:lang="de">Kontaktherkunft ID</value>
         <value xml:lang="en">Origin Contact Mech ID</value>
+        <value xml:lang="es">Id Mecanismo de Contacto de Origen</value>
+        <value xml:lang="es-CL">Mecanismo de Contacto de Origen</value>
         <value xml:lang="fr">Coordonnées d'origine</value>
         <value xml:lang="hi-IN">मूल संपर्क यांत्रिक क्रमांक</value>
         <value xml:lang="it">Contatto origine</value>
@@ -1143,6 +1156,7 @@
         <value xml:lang="de">Übergeordnetes Kommunikationsereignis ID</value>
         <value xml:lang="en">Parent Comm Event ID</value>
         <value xml:lang="es">Codigo Precursor del evento de comunicación</value>
+        <value xml:lang="es-CL">Evento de Comunicación</value>
         <value xml:lang="fr">Evènement de communication de parent</value>
         <value xml:lang="hi-IN">उच्च(Parent) संचार घटना क्रमांक</value>
         <value xml:lang="it">Evento comunicazione padre</value>
@@ -1248,6 +1262,7 @@
         <value xml:lang="de">Akteur ID</value>
         <value xml:lang="en">Party ID</value>
         <value xml:lang="es">Id Grupo</value>
+        <value xml:lang="es-CL">Grupo</value>
         <value xml:lang="fr">Acteur</value>
         <value xml:lang="hi-IN">पार्टी क्रमांक</value>
         <value xml:lang="it">Codice Soggetto</value>
@@ -1267,6 +1282,7 @@
         <value xml:lang="de">Akteur ID von</value>
         <value xml:lang="en">From Party ID</value>
         <value xml:lang="es">Id Grupo Origen</value>
+        <value xml:lang="es-CL">Grupo de Origen</value>
         <value xml:lang="fr">De l'acteur</value>
         <value xml:lang="hi-IN">पार्टी क्रमांक से</value>
         <value xml:lang="it">Soggetto Da</value>
@@ -1286,6 +1302,7 @@
         <value xml:lang="de">Akteur ID zu</value>
         <value xml:lang="en">To Party ID</value>
         <value xml:lang="es">Id Grupo Destino</value>
+        <value xml:lang="es-CL">Grupo de Destino</value>
         <value xml:lang="fr">Vers l'acteur</value>
         <value xml:lang="hi-IN">पार्टी क्रमांक को</value>
         <value xml:lang="it">Soggetto a</value>
@@ -1510,6 +1527,16 @@
         <value xml:lang="zh">已用百分比</value>
         <value xml:lang="zh-TW">已用百分比</value>
     </property>
+    <property key="FormFieldTitle_personalImage">
+        <value xml:lang="ar">الصورة الشخصية</value>
+        <value xml:lang="cs">Fotografie</value>
+        <value xml:lang="de">Persönliches Bild</value>
+        <value xml:lang="en">Personal Image</value>
+        <value xml:lang="ja">個人画像</value>
+        <value xml:lang="vi">Ảnh đại diện</value>
+        <value xml:lang="zh">个人图片</value>
+        <value xml:lang="zh-TW">個人圖片</value>
+    </property>
     <property key="FormFieldTitle_personalTitle">
         <value xml:lang="ar">اللقب الشخصي</value>
         <value xml:lang="cs">Titul</value>
@@ -1528,16 +1555,6 @@
         <value xml:lang="vi">Tiêu đề cá nhân</value>
         <value xml:lang="zh">称谓</value>
         <value xml:lang="zh-TW">稱謂</value>
-    </property>
-    <property key="FormFieldTitle_personalImage">
-        <value xml:lang="ar">الصورة الشخصية</value>
-        <value xml:lang="cs">Fotografie</value>
-        <value xml:lang="de">Persönliches Bild</value>
-        <value xml:lang="en">Personal Image</value>
-        <value xml:lang="ja">個人画像</value>
-        <value xml:lang="vi">Ảnh đại diện</value>
-        <value xml:lang="zh">个人图片</value>
-        <value xml:lang="zh-TW">個人圖片</value>
     </property>
     <property key="FormFieldTitle_port">
         <value xml:lang="de">Port</value>
@@ -1634,6 +1651,7 @@
         <value xml:lang="de">Rolle Typ ID</value>
         <value xml:lang="en">Role Type ID</value>
         <value xml:lang="es">Codigo Tipo de rol</value>
+        <value xml:lang="es-CL">Tipo de rol</value>
         <value xml:lang="fr">Rôle</value>
         <value xml:lang="hi-IN">भूमिका प्रकार क्रमांक</value>
         <value xml:lang="it">Tipo Ruolo</value>
@@ -1652,6 +1670,7 @@
         <value xml:lang="de">Rolle Typ ID von</value>
         <value xml:lang="en">Role Type Id From</value>
         <value xml:lang="es">Código Tipo de rol desde</value>
+        <value xml:lang="es-CL">Tipo de rol desde</value>
         <value xml:lang="fr">Rôle d'origine</value>
         <value xml:lang="hi-IN">भूमिका प्रकार क्रमांक से</value>
         <value xml:lang="it">Tipo ruolo da</value>
@@ -1670,6 +1689,7 @@
         <value xml:lang="de">Rolle Typ ID nach</value>
         <value xml:lang="en">Role Type Id To</value>
         <value xml:lang="es">Código Tipo de rol hacia</value>
+        <value xml:lang="es-CL">Tipo de rol hasta</value>
         <value xml:lang="fr">Rôle de destination</value>
         <value xml:lang="hi-IN">भूमिका प्रकार क्रमांक को</value>
         <value xml:lang="it">Tipo ruolo a</value>
@@ -1874,6 +1894,8 @@
         <value xml:lang="cs">K partnerovi s ID</value>
         <value xml:lang="de">Empfänger ID</value>
         <value xml:lang="en">To Party ID</value>
+        <value xml:lang="es">Id Grupo Destino</value>
+        <value xml:lang="es-CL">Grupo de Destino</value>
         <value xml:lang="fr">Acteur destinataire</value>
         <value xml:lang="hi-IN">पार्टी क्रमांक को</value>
         <value xml:lang="it">Al soggetto</value>
@@ -2040,10 +2062,10 @@
     <property key="NewProspect">
         <value xml:lang="ar">تم إنشاء بروسبكت جديد بنجاح.</value>
         <value xml:lang="de">Neuer Prospect wurde erfolgreich erstellt.</value>
+        <value xml:lang="en">New Prospect created Successfully.</value>
         <value xml:lang="es">Nueva perspectiva creada con éxito.</value>
         <value xml:lang="fr">Nouveau prospect créé avec succès.</value>
         <value xml:lang="hi-IN">नई संभावना सफलतापूर्वक बनाया</value>
-        <value xml:lang="en">New Prospect created Successfully.</value>
         <value xml:lang="it">Nuova prospettiva creata con successo.</value>
         <value xml:lang="ja">新しい見通しが作成されました。</value>
         <value xml:lang="nl">Nieuwe Prospect is met succes gemaakt.</value>
@@ -2051,9 +2073,6 @@
         <value xml:lang="ru">Новый проспект создан успешно.</value>
         <value xml:lang="th">โอกาสใหม่ที่สร้างเสร็จเรียบร้อยแล้ว</value>
         <value xml:lang="vi">Triển vọng Mới được tạo thành công.</value>
-    </property>
-    <property key="CustomerCreatedSuccessfully">
-        <value xml:lang="en">Customer created successfully.</value>
     </property>
     <property key="PageTitleAddPartyContent">
         <value xml:lang="ar">إضافة محتوى للطرف</value>
@@ -2134,6 +2153,16 @@
         <value xml:lang="zh">添加会员税务机关信息</value>
         <value xml:lang="zh-TW">增加團體稅務機關資訊</value>
     </property>
+    <property key="PageTitleAddRelatedCompany">
+        <value xml:lang="ar">إضافة الطرف المعني</value>
+        <value xml:lang="de">Zusammenhängende Firma hinzufügen</value>
+        <value xml:lang="en">Add Related Company</value>
+        <value xml:lang="ja">関係会社を追加</value>
+        <value xml:lang="th">เพิ่มบริษัทที่เกี่ยวข้อง</value>
+        <value xml:lang="vi">Thêm doanh nghiệp liên quan</value>
+        <value xml:lang="zh">添加相关的公司</value>
+        <value xml:lang="zh-TW">增加相關的公司</value>
+    </property>
     <property key="PageTitleAddressMatchMap">
         <value xml:lang="ar">خريطة مطابقة العنوان</value>
         <value xml:lang="de">Address-Karte</value>
@@ -2169,16 +2198,6 @@
         <value xml:lang="vi">Địa chỉ thỏa mãn</value>
         <value xml:lang="zh">地址匹配</value>
         <value xml:lang="zh-TW">位址匹配</value>
-    </property>
-    <property key="PageTitleAddRelatedCompany">
-        <value xml:lang="ar">إضافة الطرف المعني</value>
-        <value xml:lang="de">Zusammenhängende Firma hinzufügen</value>
-        <value xml:lang="en">Add Related Company</value>
-        <value xml:lang="ja">関係会社を追加</value>
-        <value xml:lang="th">เพิ่มบริษัทที่เกี่ยวข้อง</value>
-        <value xml:lang="vi">Thêm doanh nghiệp liên quan</value>
-        <value xml:lang="zh">添加相关的公司</value>
-        <value xml:lang="zh-TW">增加相關的公司</value>
     </property>
     <property key="PageTitleCommEvents">
         <value xml:lang="ar">الإتصالات</value>
@@ -2234,6 +2253,9 @@
         <value xml:lang="vi">Sửa đổi Dịch vụ kiểm tra địa chỉ (AVS)</value>
         <value xml:lang="zh">编辑地址验证服务替代</value>
         <value xml:lang="zh-TW">編輯位址驗證服務替代</value>
+    </property>
+    <property key="PageTitleEditCheckAccount">
+        <value xml:lang="en">Edit Check Account</value>
     </property>
     <property key="PageTitleEditCommContent">
         <value xml:lang="ar">تعديل محتوى الإتصال</value>
@@ -2328,9 +2350,6 @@
         <value xml:lang="vi">Sửa đổi tài khoản EFT</value>
         <value xml:lang="zh">编辑电子资金转账账户</value>
         <value xml:lang="zh-TW">編輯電子資金轉帳帳戶</value>
-    </property>
-    <property key="PageTitleEditCheckAccount">
-        <value xml:lang="en">Edit Check Account</value>
     </property>
     <property key="PageTitleEditGiftCard">
         <value xml:lang="ar">تعديل بطاقة الهدية</value>
@@ -3230,6 +3249,7 @@
         <value xml:lang="ar">أضافة علاقة بطرف آخر</value>
         <value xml:lang="de">Weitere Akteur Verbindung hinzufügen</value>
         <value xml:lang="en">Add other party relationship</value>
+        <value xml:lang="es">Añadir otra relación de Participante</value>
         <value xml:lang="fr">Ajouter une autre relation entre acteurs</value>
         <value xml:lang="hi-IN">अन्य पार्टी के रिश्ते जोड़ें</value>
         <value xml:lang="it">Aggiungi altro rapporto soggetti</value>
@@ -3335,26 +3355,6 @@
         <value xml:lang="zh">添加到主要角色</value>
         <value xml:lang="zh-TW">增加到主要角色</value>
     </property>
-    <property key="PartyAddToSecondRole">
-        <value xml:lang="ar">إضافة الى الدور الثانوي</value>
-        <value xml:lang="de">Zweitrolle hinzufügen</value>
-        <value xml:lang="en">Add To Second Role</value>
-        <value xml:lang="fr">Ajouter le rôle secondaire</value>
-        <value xml:lang="ja">第２ロールに追加</value>
-        <value xml:lang="vi">Thêm vào vai trò thứ 2</value>
-        <value xml:lang="zh">添加次要角色</value>
-        <value xml:lang="zh-TW">增加次要角色</value>
-    </property>
-    <property key="PartyAddToRoleViewAll">
-        <value xml:lang="ar">اضافة إلى دور: مشاهدة الكل</value>
-        <value xml:lang="de">Rolle hinzufügen: generelle Ansicht</value>
-        <value xml:lang="en">Add To Role : view all</value>
-        <value xml:lang="fr">Ajouter le rôle : vue générale</value>
-        <value xml:lang="ja">ロールに追加: すべて表示</value>
-        <value xml:lang="vi">Thêm vào vai trò : xem tất cả</value>
-        <value xml:lang="zh">添加到角色：浏览全部</value>
-        <value xml:lang="zh-TW">增加到角色:流覽全部</value>
-    </property>
     <property key="PartyAddToRole">
         <value xml:lang="ar">إضافة إلى دور</value>
         <value xml:lang="de">Zur Rolle hinzufügen</value>
@@ -3373,6 +3373,26 @@
         <value xml:lang="vi">Thêm vào vai trò</value>
         <value xml:lang="zh">添加到角色</value>
         <value xml:lang="zh-TW">增加到角色</value>
+    </property>
+    <property key="PartyAddToRoleViewAll">
+        <value xml:lang="ar">اضافة إلى دور: مشاهدة الكل</value>
+        <value xml:lang="de">Rolle hinzufügen: generelle Ansicht</value>
+        <value xml:lang="en">Add To Role : view all</value>
+        <value xml:lang="fr">Ajouter le rôle : vue générale</value>
+        <value xml:lang="ja">ロールに追加: すべて表示</value>
+        <value xml:lang="vi">Thêm vào vai trò : xem tất cả</value>
+        <value xml:lang="zh">添加到角色：浏览全部</value>
+        <value xml:lang="zh-TW">增加到角色:流覽全部</value>
+    </property>
+    <property key="PartyAddToSecondRole">
+        <value xml:lang="ar">إضافة الى الدور الثانوي</value>
+        <value xml:lang="de">Zweitrolle hinzufügen</value>
+        <value xml:lang="en">Add To Second Role</value>
+        <value xml:lang="fr">Ajouter le rôle secondaire</value>
+        <value xml:lang="ja">第２ロールに追加</value>
+        <value xml:lang="vi">Thêm vào vai trò thứ 2</value>
+        <value xml:lang="zh">添加次要角色</value>
+        <value xml:lang="zh-TW">增加次要角色</value>
     </property>
     <property key="PartyAddToShoppingList">
         <value xml:lang="ar">إضافة الى قائمة التسوق</value>
@@ -3715,6 +3735,7 @@
         <value xml:lang="cs">celá komunikace</value>
         <value xml:lang="de">Alle Ereignisse</value>
         <value xml:lang="en">All Communications</value>
+        <value xml:lang="es">Todas las Comunicaciones</value>
         <value xml:lang="fr">Toutes les communications</value>
         <value xml:lang="hi-IN">सारे संचार</value>
         <value xml:lang="it">Tutte le comunicazioni</value>
@@ -4132,6 +4153,16 @@
         <value xml:lang="zh">办公电话</value>
         <value xml:lang="zh-TW">辦公室電話</value>
     </property>
+    <property key="PartyCannotCopyPartyContactMech">
+        <value xml:lang="ar">خطأ في نسخ وسيلة الإتصال: ${errorString}</value>
+        <value xml:lang="de">Kontakt konnte nicht kopiert werden. Fehler ${errorString}</value>
+        <value xml:lang="en">Failed to copy contact mechs. Error: ${errorString}</value>
+        <value xml:lang="it">Fallita copia contatti. Errore: ${errorString}</value>
+        <value xml:lang="ja">連絡方法のコピーに失敗しました。エラー: ${errorString}</value>
+        <value xml:lang="vi">Không thành công khi sao chép địa chỉ liên lạc. Nguyên nhân: ${errorString}</value>
+        <value xml:lang="zh">复制联系方式时失败。错误：${errorString}</value>
+        <value xml:lang="zh-TW">複製聯絡方式時失敗.錯誤:${errorString}</value>
+    </property>
     <property key="PartyCannotCreatePartyDataSource">
         <value xml:lang="ar">لا يمكن خلق مصدر المعلومة للطرف</value>
         <value xml:lang="de">PartyDataSource kann nicht erstellt werden</value>
@@ -4152,26 +4183,6 @@
         <value xml:lang="zh">不能创建角色类型实体(写失败)：${errMessage}</value>
         <value xml:lang="zh-TW">不能新建角色類型資料資料實體(寫失敗):${errMessage}</value>
     </property>
-    <property key="PartyCannotGetUserLoginFromParty">
-        <value xml:lang="ar">المعلمة 'userLoginId' لا يمكن أن تكون فارغة</value>
-        <value xml:lang="de">Der benötigte Parameter 'userLoginId' darf nicht leer sein.</value>
-        <value xml:lang="en">Required parameter 'userLoginId' cannot be empty.</value>
-        <value xml:lang="it">Parametro 'userLoginId' richiesto non può essere vuoto.</value>
-        <value xml:lang="ja">必須のパラメータ'ユーザログインID'は空にできません。</value>
-        <value xml:lang="vi">Trường bắt buộc 'userLoginId' không được rỗng.</value>
-        <value xml:lang="zh">必须的参数'userLoginId'不能为空。</value>
-        <value xml:lang="zh-TW">必要的參數'userLoginId'不能為空.</value>
-    </property>
-    <property key="PartyCannotCopyPartyContactMech">
-        <value xml:lang="ar">خطأ في نسخ وسيلة الإتصال: ${errorString}</value>
-        <value xml:lang="de">Kontakt konnte nicht kopiert werden. Fehler ${errorString}</value>
-        <value xml:lang="en">Failed to copy contact mechs. Error: ${errorString}</value>
-        <value xml:lang="it">Fallita copia contatti. Errore: ${errorString}</value>
-        <value xml:lang="ja">連絡方法のコピーに失敗しました。エラー: ${errorString}</value>
-        <value xml:lang="vi">Không thành công khi sao chép địa chỉ liên lạc. Nguyên nhân: ${errorString}</value>
-        <value xml:lang="zh">复制联系方式时失败。错误：${errorString}</value>
-        <value xml:lang="zh-TW">複製聯絡方式時失敗.錯誤:${errorString}</value>
-    </property>
     <property key="PartyCannotGetPartyContactMech">
         <value xml:lang="ar">كلا من دليل الطرف المستخدم فارغين</value>
         <value xml:lang="de">'partyId' und 'userLogin' sind leer.</value>
@@ -4181,6 +4192,16 @@
         <value xml:lang="vi">Cả 'partyId' và 'userLogin' đều rỗng.</value>
         <value xml:lang="zh">'partyId'和'userLogin'都是空的。</value>
         <value xml:lang="zh-TW">團體識別和使用者登入識別都是空的.</value>
+    </property>
+    <property key="PartyCannotGetUserLoginFromParty">
+        <value xml:lang="ar">المعلمة 'userLoginId' لا يمكن أن تكون فارغة</value>
+        <value xml:lang="de">Der benötigte Parameter 'userLoginId' darf nicht leer sein.</value>
+        <value xml:lang="en">Required parameter 'userLoginId' cannot be empty.</value>
+        <value xml:lang="it">Parametro 'userLoginId' richiesto non può essere vuoto.</value>
+        <value xml:lang="ja">必須のパラメータ'ユーザログインID'は空にできません。</value>
+        <value xml:lang="vi">Trường bắt buộc 'userLoginId' không được rỗng.</value>
+        <value xml:lang="zh">必须的参数'userLoginId'不能为空。</value>
+        <value xml:lang="zh-TW">必要的參數'userLoginId'不能為空.</value>
     </property>
     <property key="PartyCannotLinkPartyToItSelf">
         <value xml:lang="ar">لا يمكن ربط الطرف بنفسه</value>
@@ -4760,6 +4781,7 @@
         <value xml:lang="ar">إتصالات الطرف</value>
         <value xml:lang="de">Akteur Kommunikationen</value>
         <value xml:lang="en">Communications of party</value>
+        <value xml:lang="es">Comunicaciones del Participante</value>
         <value xml:lang="fr">Communications de l'acteur</value>
         <value xml:lang="hi-IN">पार्टी के संचार</value>
         <value xml:lang="it">Comunicazioni del soggetto</value>
@@ -4828,28 +4850,20 @@
         <value xml:lang="zh-TW">找不到公司名稱</value>
     </property>
     <property key="PartyCompanySubtitle">
-    <!--value xml:lang="ar">جزء من عائلة أوفبيز للبرمجيات الحرة</value-->
         <value xml:lang="ar">جزء من عائلة أوفبيز للتطبيقات الحرة للتسيير</value>
         <value xml:lang="de">Teil der Apache OFBiz Familie von Open Source Software</value>
         <value xml:lang="en">Part of the Apache OFBiz Family of Open Source Software</value>
-    <!--value xml:lang="es">Parte de la familia "Open for Bussiness" de Software Libre</value-->
         <value xml:lang="es">Parte de la familia de software Apache OFBiz de código abierto</value>
         <value xml:lang="fr">Un module de la famille Apache OFBiz, logiciel libre de gestion d'entreprise.</value>
         <value xml:lang="hi-IN">Open Source Software के Apache OFBiz परिवार का हिस्सा</value>
         <value xml:lang="it">Un modulo della famiglia di software open source Apache OFBiz</value>
-    <!--value xml:lang="nl">Onderdeel van de Apache OFBiz'-suite</value-->
         <value xml:lang="ja">Part of the Apache OFBiz Family of Open Source Software</value>
         <value xml:lang="nl">Deel van de Apache OFBiz-suite van Open Source Software</value>
         <value xml:lang="pt-BR">Parte da família OfBiz de software de fonte aberta</value>
-    <!--value xml:lang="pt-PT">Parte do Software de Fonte Aberta para Grupos Abertos Para o Negócio</value-->
         <value xml:lang="pt-PT">Parte da família OfBiz de software de fonte aberta</value>
-    <!--value xml:lang="ro">Parte accesibila pentru Business Family of Open Source Software</valuevalue xml:lang="ro">Parte din Open for Business Family of Open Source Software</value-->
         <value xml:lang="ro">Partea de Deschidere Pentru Afaceri Familiale din Open Source Software</value>
-    <!--value xml:lang="ru">Часть семейства ПО Apache OFBiz</valuevalue xml:lang="ru">Часть семейства "Apache OFBiz Family" программных продуктов Open Source </value-->
         <value xml:lang="ru">Входит в состав семейства Apache OFBiz</value>
-    <!--value xml:lang="th">เป็นส่วนหนึ่งของธุรกิจแบบครอบครัวที่เป็นซอฟต์แวร์โอเพนซอส</value-->
         <value xml:lang="th">ส่วนหนึ่งของธุรกิจแบบครอบครัวที่เป็นซอฟต์แวร์โอเพนซอส</value>
-    <!--value xml:lang="zh">开源软件OFBiz的组成部分</valuevalue xml:lang="zh">开源软件OFBiz的组成部分</value-->
         <value xml:lang="vi">Part of the Apache OFBiz Family of Open Source Software</value>
         <value xml:lang="zh">开源软件OFBiz家族的一部分</value>
         <value xml:lang="zh-CN">OFBiz的一部分</value>
@@ -6025,28 +6039,6 @@
         <value xml:lang="zh">客户请求</value>
         <value xml:lang="zh-TW">客戶請求</value>
     </property>
-    <property key="PartyTemporaryPassword">
-        <value xml:lang="ar">سوف يستلم الشخص كلمة سر مؤقتة عن طريق البريد الإلكتروني</value>
-        <value xml:lang="de">Die Person wird ein provisorisches Passwort per E-Mail erhalten.</value>
-        <value xml:lang="en">The person will receive a temporary password by email.</value>
-        <value xml:lang="es">La persona recibirá una contraseña temporal por el email.</value>
-        <value xml:lang="fr">La personne recevra un mot de passe provisoire par courriel.</value>
-        <value xml:lang="hi-IN">स्व को ईमेल द्वारा एक अस्थायी पासवर्ड प्राप्त होगा|</value>
-    <!-- was ग्राहक को ईमेल द्वारा एक अस्थायी पासवर्ड प्राप्त होगा| -->
-        <value xml:lang="it">La persona riceverà una password temporanea per email.</value>
-        <value xml:lang="ja">取引先は仮パスワードをEメールで受け取ります。</value>
-        <value xml:lang="nl">De persoon wil een tijdelijk wachtwoord per e-mail ontvangen.</value>
-        <value xml:lang="pt-BR">A pessoa receberá uma senha provisória por e-mail</value>
-        <value xml:lang="ro">Persoană va primi o password provizorie pentru  email.</value>
-        <value xml:lang="ru">Персона получит временный пароль по эл.почте.</value>
-    <!-- was Клиент получит временный пароль по эл.почте. -->
-        <value xml:lang="th">ผู้มาเยี่ยมจะต้องได้รับรหัสผ่านชั่วคราวทางอีเมล์</value>
-    <!-- was ลูกค้าจะต้องได้รับรหัสผ่านชั่วคราวทางอีเมล์ -->
-        <value xml:lang="vi">Người dùng sẽ nhận được mật khẩu tạm thời bởi thư điện tử</value>
-        <value xml:lang="zh">人将由电子邮件接受一个临时密码。</value>
-    <!-- was 客户将通过电子邮件收到一个临时密码。 -->
-        <value xml:lang="zh-TW">此人將經由電子郵件收到一個臨時密碼.</value>
-    </property>
     <property key="PartyCybersourceAvsOver">
         <value xml:lang="de">Cybersource AVS übersteuern</value>
         <value xml:lang="en">Cyber source AVS Over</value>
@@ -6213,6 +6205,7 @@
         <value xml:lang="ar">مسودة بريد الكتروني</value>
         <value xml:lang="de">Emailentwurf</value>
         <value xml:lang="en">Draft Emails</value>
+        <value xml:lang="es">Borrador de correos electrónicos</value>
         <value xml:lang="fr">Mél Brouillon</value>
         <value xml:lang="hi-IN">ईमेल मसौदा(Draft)</value>
         <value xml:lang="it">Bozze emails</value>
@@ -6898,7 +6891,6 @@
         <value xml:lang="zh">按订单查找沟通</value>
         <value xml:lang="zh-TW">按訂單查詢通訊</value>
     </property>
-    
     <property key="PartyFindCommunicationsByReturn">
         <value xml:lang="en">Find Communications by Return</value>
     </property>
@@ -7056,6 +7048,7 @@
         <value xml:lang="de">Von Kontaktmechanismus</value>
         <value xml:lang="en">From Contact Mech</value>
         <value xml:lang="es">Mecanismo de contacto origen</value>
+        <value xml:lang="es-CL">Mecanismo de contacto desde</value>
         <value xml:lang="fr">Coordonné appelante</value>
         <value xml:lang="hi-IN">संपर्क यांत्रिक से</value>
         <value xml:lang="it">Da contatto</value>
@@ -7668,6 +7661,21 @@
         <value xml:lang="zh">上次邀请日期</value>
         <value xml:lang="zh-TW">上次邀請日期</value>
     </property>
+    <property key="PartyInvitationNewOrder">
+        <value xml:lang="ar">خلق أمر من دعوة</value>
+        <value xml:lang="de">Erstellen Sie einen Auftrag von der Einladung</value>
+        <value xml:lang="en">Create An Order From Invitation</value>
+        <value xml:lang="es">Crear una orden de Invitación</value>
+        <value xml:lang="fr">Créer une commande à partir de l'invitation</value>
+        <value xml:lang="it">Creare un ordine da invito</value>
+        <value xml:lang="ja">招待から注文を作成</value>
+        <value xml:lang="nl">Maak een Order van de Uitnodiging</value>
+        <value xml:lang="pt-BR">Criar uma ordem de Convite</value>
+        <value xml:lang="th">สร้างคำสั่งซื้อจากคำเชิญ</value>
+        <value xml:lang="vi">Tạo đơn hàng từ lời mời</value>
+        <value xml:lang="zh">創建的邀請秩序</value>
+        <value xml:lang="zh-TW">新建的邀請秩序</value>
+    </property>
     <property key="PartyInvitationNewPartyInvitation">
         <value xml:lang="ar">دعوة طرف جديدة</value>
         <value xml:lang="de">Neue Akteur Einladung</value>
@@ -7683,21 +7691,6 @@
         <value xml:lang="vi">Thêm lời mời từ tác nhân</value>
         <value xml:lang="zh">新建会员邀请</value>
         <value xml:lang="zh-TW">新建團體邀請</value>
-    </property>
-    <property key="PartyInvitationNewOrder">
-        <value xml:lang="ar">خلق أمر من دعوة</value>
-        <value xml:lang="de">Erstellen Sie einen Auftrag von der Einladung</value>
-        <value xml:lang="en">Create An Order From Invitation</value>
-        <value xml:lang="es">Crear una orden de Invitación</value>
-        <value xml:lang="fr">Créer une commande à partir de l'invitation</value>
-        <value xml:lang="it">Creare un ordine da invito</value>
-        <value xml:lang="ja">招待から注文を作成</value>
-        <value xml:lang="nl">Maak een Order van de Uitnodiging</value>
-        <value xml:lang="pt-BR">Criar uma ordem de Convite</value>
-        <value xml:lang="th">สร้างคำสั่งซื้อจากคำเชิญ</value>
-        <value xml:lang="vi">Tạo đơn hàng từ lời mời</value>
-        <value xml:lang="zh">創建的邀請秩序</value>
-        <value xml:lang="zh-TW">新建的邀請秩序</value>
     </property>
     <property key="PartyInvitationNotValidError">
         <value xml:lang="ar">هذة ليست دعوة طرف صالحة</value>
@@ -7814,6 +7807,7 @@
         <value xml:lang="ar">هو</value>
         <value xml:lang="de">Ist ein</value>
         <value xml:lang="en">is A</value>
+        <value xml:lang="es">Es un</value>
         <value xml:lang="fr">est un</value>
         <value xml:lang="hi-IN">एक है</value>
         <value xml:lang="it">è un</value>
@@ -8321,6 +8315,16 @@
         <value xml:lang="zh">查找沟通事件</value>
         <value xml:lang="zh-TW">尋找通訊事件</value>
     </property>
+    <property key="PartyLookupPartyError">
+        <value xml:lang="ar">خطأ في عملية إيجاد الطرف, يتم التراجع عن العملية: ${errMessage}</value>
+        <value xml:lang="de">Fehler bei Akteur suche, Rückabwicklung der Transaktion: ${errMessage}</value>
+        <value xml:lang="en">Failure in party find operation, rolling back transaction: ${errMessage}</value>
+        <value xml:lang="it">Fallita l'operazione di ricerca soggetto, transazione annullata: ${errMessage}</value>
+        <value xml:lang="ja">取引先検索時にエラー。トランザクションをロールバックします: ${errMessage}</value>
+        <value xml:lang="vi">Tìm kiếm tác nhân không thành công, hoàn lại giao dịch: ${errMessage}</value>
+        <value xml:lang="zh">进行查找会员操作时失败，回滚交易：${errMessage}</value>
+        <value xml:lang="zh-TW">進行尋找團體操作時失敗,回轉交易:${errMessage}</value>
+    </property>
     <property key="PartyLookupPartyGroup">
         <value xml:lang="ar">إيجاد مجموعة</value>
         <value xml:lang="de">Gruppe suchen</value>
@@ -8357,26 +8361,6 @@
         <value xml:lang="zh">查找人员</value>
         <value xml:lang="zh-TW">尋找人員</value>
     </property>
-    <property key="PartyLookupStateProvinceGeoError">
-        <value xml:lang="ar">خطأ في إيجاد الموقع الجغرافي لمقاطعة الولاية: ${errMessage}</value>
-        <value xml:lang="de">Fehler bei der Sucher nach Staat/Provinz: ${errMessage}</value>
-        <value xml:lang="en">Error looking up StateProvinceGeo: ${errMessage}</value>
-        <value xml:lang="it">Errore durante la ricerca dello stato/provincia: ${errMessage}</value>
-        <value xml:lang="ja">州/地方/都道府県位置の検索時にエラー: ${errMessage}</value>
-        <value xml:lang="vi">Lỗi khi tìm kiếm địa lý của tỉnh/thành phố: ${errMessage}</value>
-        <value xml:lang="zh">查找州省地理（StateProvinceGeo）时出错：${errMessage}</value>
-        <value xml:lang="zh-TW">尋找州省地理(StateProvinceGeo)時出錯:${errMessage}</value>
-    </property>
-    <property key="PartyLookupPartyError">
-        <value xml:lang="ar">خطأ في عملية إيجاد الطرف, يتم التراجع عن العملية: ${errMessage}</value>
-        <value xml:lang="de">Fehler bei Akteur suche, Rückabwicklung der Transaktion: ${errMessage}</value>
-        <value xml:lang="en">Failure in party find operation, rolling back transaction: ${errMessage}</value>
-        <value xml:lang="it">Fallita l'operazione di ricerca soggetto, transazione annullata: ${errMessage}</value>
-        <value xml:lang="ja">取引先検索時にエラー。トランザクションをロールバックします: ${errMessage}</value>
-        <value xml:lang="vi">Tìm kiếm tác nhân không thành công, hoàn lại giao dịch: ${errMessage}</value>
-        <value xml:lang="zh">进行查找会员操作时失败，回滚交易：${errMessage}</value>
-        <value xml:lang="zh-TW">進行尋找團體操作時失敗,回轉交易:${errMessage}</value>
-    </property>
     <property key="PartyLookupPartyTypeError">
         <value xml:lang="ar">خطأ في إيجاد أنواع الأطراف: ${errMessage}</value>
         <value xml:lang="de">Fehler bei der Suche nach Akteur-Typ: ${errMessage}</value>
@@ -8396,6 +8380,16 @@
         <value xml:lang="vi">Lỗi tìm kiếm loại tác nhân: ${errMessage}</value>
         <value xml:lang="zh">查找角色类型（RoleTypes）时出错：${errMessage}</value>
         <value xml:lang="zh-TW">尋找角色類型(RoleTypes)時出錯:${errMessage}</value>
+    </property>
+    <property key="PartyLookupStateProvinceGeoError">
+        <value xml:lang="ar">خطأ في إيجاد الموقع الجغرافي لمقاطعة الولاية: ${errMessage}</value>
+        <value xml:lang="de">Fehler bei der Sucher nach Staat/Provinz: ${errMessage}</value>
+        <value xml:lang="en">Error looking up StateProvinceGeo: ${errMessage}</value>
+        <value xml:lang="it">Errore durante la ricerca dello stato/provincia: ${errMessage}</value>
+        <value xml:lang="ja">州/地方/都道府県位置の検索時にエラー: ${errMessage}</value>
+        <value xml:lang="vi">Lỗi khi tìm kiếm địa lý của tỉnh/thành phố: ${errMessage}</value>
+        <value xml:lang="zh">查找州省地理（StateProvinceGeo）时出错：${errMessage}</value>
+        <value xml:lang="zh-TW">尋找州省地理(StateProvinceGeo)時出錯:${errMessage}</value>
     </property>
     <property key="PartyLookupUserLoginAndPartyDetails">
         <value xml:lang="ar">إيجاد اسم المستخدم ومعلومات الطرف</value>
@@ -9113,7 +9107,7 @@
     </property>
     <property key="PartyNewEmail">
         <value xml:lang="ar">رسالة بريد الكتروني جديدة</value>
-        <value xml:lang="de">Neues E-Mail</value>
+        <value xml:lang="de">Neue E-Mail</value>
         <value xml:lang="en">New Email</value>
         <value xml:lang="es">Nuevo correo electrónico</value>
         <value xml:lang="fr">Nouveau courriel</value>
@@ -9607,16 +9601,6 @@
         <value xml:lang="zh">没有找到会员，会员标识</value>
         <value xml:lang="zh-TW">沒有找到相符團體識別</value>
     </property>
-    <property key="PartyNoPartyWithDataSourceId">
-        <value xml:lang="ar">تعذر العثور على مصدر المعلومة ${dataSourceId}</value>
-        <value xml:lang="de">Datenquelle mit ID ${dataSourceId} wurde nicht gefunden</value>
-        <value xml:lang="en">Data source with ID ${dataSourceId} was not found</value>
-        <value xml:lang="it">Sorgente dati ${dataSourceId} non è stato trovato</value>
-        <value xml:lang="ja">ID ${dataSourceId} のデータソースが見つかりません</value>
-        <value xml:lang="vi">Bản ghi dữ liệu với ID ${dataSourceId} không tìm thấy</value>
-        <value xml:lang="zh">没有找到标识为${dataSourceId}的数据源</value>
-        <value xml:lang="zh-TW">沒有找到識別為${dataSourceId}的資料源</value>
-    </property>
     <property key="PartyNoPartyRelationshipsFound">
         <value xml:lang="ar">تعذر العثور على علاقات</value>
         <value xml:lang="de">Keine Beziehungen gefunden.</value>
@@ -9654,6 +9638,16 @@
         <value xml:lang="zh">没有找到会员角色。</value>
         <value xml:lang="zh-TW">沒有找到團體角色.</value>
     </property>
+    <property key="PartyNoPartyWithDataSourceId">
+        <value xml:lang="ar">تعذر العثور على مصدر المعلومة ${dataSourceId}</value>
+        <value xml:lang="de">Datenquelle mit ID ${dataSourceId} wurde nicht gefunden</value>
+        <value xml:lang="en">Data source with ID ${dataSourceId} was not found</value>
+        <value xml:lang="it">Sorgente dati ${dataSourceId} non è stato trovato</value>
+        <value xml:lang="ja">ID ${dataSourceId} のデータソースが見つかりません</value>
+        <value xml:lang="vi">Bản ghi dữ liệu với ID ${dataSourceId} không tìm thấy</value>
+        <value xml:lang="zh">没有找到标识为${dataSourceId}的数据源</value>
+        <value xml:lang="zh-TW">沒有找到識別為${dataSourceId}的資料源</value>
+    </property>
     <property key="PartyNoPaymentMethodInformation">
         <value xml:lang="ar">لا يوجد معلومات للدفع في الملف</value>
         <value xml:lang="de">Keine Zahlungsmethode erfasst.</value>
@@ -9681,7 +9675,6 @@
         <value xml:lang="ja">この取引先に製品店舗はありません。</value>
         <value xml:lang="vi">Không tìm thấy cửa hàng cho tác nhân này.</value>
         <value xml:lang="zh">没有找到这个会员的产品店铺。</value>
-        <!--value xml:lang="zh_TW">此團體沒有產品商店.</value-->
         <value xml:lang="zh-TW">沒有找到這這個團體的產品商店.</value>
     </property>
     <property key="PartyNoServerHitsFound">
@@ -9790,16 +9783,6 @@
         <value xml:lang="zh">没有供货商</value>
         <value xml:lang="zh-TW">沒有供應商</value>
     </property>
-    <property key="PartyNoteCreationError">
-        <value xml:lang="ar">خطأ في خلق ملاحظة: ${errorString}</value>
-        <value xml:lang="de">Notiz kann nicht erstellt werden: ${errorString}</value>
-        <value xml:lang="en">Unable to create Note: ${errorString}</value>
-        <value xml:lang="it">Non è possibile creare la nota: ${errorString}</value>
-        <value xml:lang="ja">連絡を作成できません: ${errorString}</value>
-        <value xml:lang="vi">Không thể tạo mới ghi chú: ${errorString}</value>
-        <value xml:lang="zh">无法创建便笺：${errorString}</value>
-        <value xml:lang="zh-TW">無法新建便箋:${errorString}</value>
-    </property>
     <property key="PartyNoUserLogin">
         <value xml:lang="ar">لا يوجد إسم/أسماء مستخدم لهذا الطرف</value>
         <value xml:lang="de">Keine Benutzeranmeldung gefunden für diesen Akteur.</value>
@@ -9838,9 +9821,6 @@
         <value xml:lang="zh">没有为这个会员找到访问。</value>
         <value xml:lang="zh-TW">沒有找到這個團體的訪問.</value>
     </property>
-    <property key="PartyNotModifRecreateAttribute">
-        <value xml:lang="en">This cannot be changed without re-creating the Attribute.</value>
-    </property>
     <property key="PartyNotModifRecreatSecurityGroup">
         <value xml:lang="ar">لا يمكن التغيير دون إعادة خلق مجموعة الأمن</value>
         <value xml:lang="de">Kann nicht geändert werden ohne die Sicherheitsgruppe neu zu erstellen.</value>
@@ -9860,8 +9840,21 @@
         <value xml:lang="zh">如果不重新创建安全组的话，不能修改这个。</value>
         <value xml:lang="zh-TW">如果不重新新建安全群組的話,不能修改這個.</value>
     </property>
+    <property key="PartyNotModifRecreateAttribute">
+        <value xml:lang="en">This cannot be changed without re-creating the Attribute.</value>
+    </property>
     <property key="PartyNoteCreatedSuccessfully">
         <value xml:lang="en">Party Note created successfully.</value>
+    </property>
+    <property key="PartyNoteCreationError">
+        <value xml:lang="ar">خطأ في خلق ملاحظة: ${errorString}</value>
+        <value xml:lang="de">Notiz kann nicht erstellt werden: ${errorString}</value>
+        <value xml:lang="en">Unable to create Note: ${errorString}</value>
+        <value xml:lang="it">Non è possibile creare la nota: ${errorString}</value>
+        <value xml:lang="ja">連絡を作成できません: ${errorString}</value>
+        <value xml:lang="vi">Không thể tạo mới ghi chú: ${errorString}</value>
+        <value xml:lang="zh">无法创建便笺：${errorString}</value>
+        <value xml:lang="zh-TW">無法新建便箋:${errorString}</value>
     </property>
     <property key="PartyNotificationMailActivated">
         <value xml:lang="de">Akteur Kontoaktivierung Mailbenachrichtigung</value>
@@ -10000,10 +9993,6 @@
         <value xml:lang="zh">订单——上次</value>
         <value xml:lang="zh-TW">訂單——上次</value>
     </property>
-    <property key="PartyReturnAdd">
-        <value xml:lang="en">Return Add</value>
-        <value xml:lang="hi-IN">वापसी जोड़ें</value>
-    </property>
     <property key="PartyOrganizationParty">
         <value xml:lang="ar">طرف المنظمة</value>
         <value xml:lang="de">Organisation Akteur</value>
@@ -10027,6 +10016,7 @@
         <value xml:lang="de">Organisation Akteur ID</value>
         <value xml:lang="en">Organization Party ID</value>
         <value xml:lang="es">Código de participante</value>
+        <value xml:lang="es-CL">Código de organización participante</value>
         <value xml:lang="fr">Organisation de l'acteur</value>
         <value xml:lang="hi-IN">संगठन पार्टी क्रमांक</value>
         <value xml:lang="it">Codice Organizzazione</value>
@@ -10053,6 +10043,15 @@
         <value xml:lang="zh">原始电子邮件地址未知！</value>
         <value xml:lang="zh-TW">未知原發信電子郵件位址！</value>
     </property>
+    <property key="PartyOtherAndGeneralCommunicationEvents">
+        <value xml:lang="ar">أخرى وإتصالات عامة</value>
+        <value xml:lang="de">Andere und generelle Kommunikationsereignisse</value>
+        <value xml:lang="en">Others and General Communication Events</value>
+        <value xml:lang="ja">その他および一般通信イベント</value>
+        <value xml:lang="vi">Sự kiện truyền thông chung và các sự kiện truyền thông khác</value>
+        <value xml:lang="zh">其它和普通沟通事件</value>
+        <value xml:lang="zh-TW">其它和普通通訊事件</value>
+    </property>
     <property key="PartyOverrideDefaultRateAmount">
         <value xml:lang="ar">تجاوز قيمة التسعير الإعتيادي</value>
         <value xml:lang="de">Überschreiben des Standard-Raten Werts</value>
@@ -10065,15 +10064,6 @@
         <value xml:lang="vi">Thiết lập chồng so với tỷ lệ thuế mặc định</value>
         <value xml:lang="zh">覆盖缺省税金金额</value>
         <value xml:lang="zh-TW">覆寫預設稅金金額</value>
-    </property>
-    <property key="PartyOtherAndGeneralCommunicationEvents">
-        <value xml:lang="ar">أخرى وإتصالات عامة</value>
-        <value xml:lang="de">Andere und generelle Kommunikationsereignisse</value>
-        <value xml:lang="en">Others and General Communication Events</value>
-        <value xml:lang="ja">その他および一般通信イベント</value>
-        <value xml:lang="vi">Sự kiện truyền thông chung và các sự kiện truyền thông khác</value>
-        <value xml:lang="zh">其它和普通沟通事件</value>
-        <value xml:lang="zh-TW">其它和普通通訊事件</value>
     </property>
     <property key="PartyPagePushFollowing">
         <value xml:lang="ar">دفع الصفحة / متابعة</value>
@@ -10209,6 +10199,7 @@
         <value xml:lang="de">Akteur von</value>
         <value xml:lang="en">Party From</value>
         <value xml:lang="es">de participante</value>
+        <value xml:lang="es-CL">Participante desde</value>
         <value xml:lang="fr">De l'acteur</value>
         <value xml:lang="hi-IN">पार्टी से</value>
         <value xml:lang="it">Dal soggetto</value>
@@ -10334,6 +10325,7 @@
         <value xml:lang="de">Akteur ID</value>
         <value xml:lang="en">Party ID</value>
         <value xml:lang="es">Código de participante</value>
+        <value xml:lang="es-CL">Participante</value>
         <value xml:lang="fr">Acteur</value>
         <value xml:lang="hi-IN">पार्टी क्रमांक</value>
         <value xml:lang="it">Codice soggetto</value>
@@ -10494,6 +10486,7 @@
         <value xml:lang="de">Akteur an</value>
         <value xml:lang="en">Party To</value>
         <value xml:lang="es">al participante</value>
+        <value xml:lang="es-CL">Participante hasta</value>
         <value xml:lang="fr">à l'acteur</value>
         <value xml:lang="hi-IN">पार्टी को</value>
         <value xml:lang="it">Soggetto A</value>
@@ -11509,6 +11502,7 @@
         <value xml:lang="cs">Společnost</value>
         <value xml:lang="de">Zugehöriges Unternehmen</value>
         <value xml:lang="en">Related Company</value>
+        <value xml:lang="es">Compañía vinculada</value>
         <value xml:lang="fr">Société associée</value>
         <value xml:lang="it">Azienda relativa</value>
         <value xml:lang="ja">関連会社</value>
@@ -11878,6 +11872,10 @@
         <value xml:lang="zh">(*) 是必填项。</value>
         <value xml:lang="zh-TW">(*) 是必填項.</value>
     </property>
+    <property key="PartyReturnAdd">
+        <value xml:lang="en">Return Add</value>
+        <value xml:lang="hi-IN">वापसी जोड़ें</value>
+    </property>
     <property key="PartyRole">
         <value xml:lang="ar">دور</value>
         <value xml:lang="cs">Role</value>
@@ -11934,12 +11932,6 @@
         <value xml:lang="vi">Loại vai trò Từ</value>
         <value xml:lang="zh">角色类型来自</value>
         <value xml:lang="zh-TW">角色類型來自</value>
-    </property>
-    <property key="PartyRoleTypeNotFoundForTheParty">
-        <value xml:lang="de">Rollentyp ${roleTypeId} für diesen Akteur nicht gefunden.</value>
-        <value xml:lang="en">Role Type ${roleTypeId} not found for the party.</value>
-        <value xml:lang="fr">Le rôle ${roleTypeId} n'est pas présent pour cet acteur.</value>
-        <value xml:lang="zh">没有找到这个会员的角色类型${roleTypeId}。</value>
     </property>
     <property key="PartyRoleTypeId">
         <value xml:lang="ar">دليل نوع الدور</value>
@@ -12010,6 +12002,12 @@
         <value xml:lang="vi">Loại vai trò Đến (MỚI)</value>
         <value xml:lang="zh">会员角色类型标识到 (新)</value>
         <value xml:lang="zh-TW">團體角色類型-到 (新)</value>
+    </property>
+    <property key="PartyRoleTypeNotFoundForTheParty">
+        <value xml:lang="de">Rollentyp ${roleTypeId} für diesen Akteur nicht gefunden.</value>
+        <value xml:lang="en">Role Type ${roleTypeId} not found for the party.</value>
+        <value xml:lang="fr">Le rôle ${roleTypeId} n'est pas présent pour cet acteur.</value>
+        <value xml:lang="zh">没有找到这个会员的角色类型${roleTypeId}。</value>
     </property>
     <property key="PartyRoleTypeTo">
         <value xml:lang="ar">نوع الدور إلى</value>
@@ -12808,9 +12806,6 @@
         <value xml:lang="zh">添加税务信息</value>
         <value xml:lang="zh-TW">增加稅務資訊</value>
     </property>
-    <property key="PartyTaxAuthPartyAndGeoNotAvailable">
-        <value xml:lang="en">Tax authority is not availble for provided Tax Authority Party and Tax Authority Geo.</value>
-    </property>
     <property key="PartyTaxAuthInfos">
         <value xml:lang="ar">معلومات الضريبة</value>
         <value xml:lang="de">Steuerangaben</value>
@@ -12828,6 +12823,9 @@
         <value xml:lang="vi">Thông tin thuế</value>
         <value xml:lang="zh">税务信息</value>
         <value xml:lang="zh-TW">稅務資訊</value>
+    </property>
+    <property key="PartyTaxAuthPartyAndGeoNotAvailable">
+        <value xml:lang="en">Tax authority is not availble for provided Tax Authority Party and Tax Authority Geo.</value>
     </property>
     <property key="PartyTaxId">
         <value xml:lang="ar">دليل الضريبة</value>
@@ -12941,6 +12939,24 @@
         <value xml:lang="vi">Số điện thoại được cập nhật thành công.</value>
         <value xml:lang="zh">已成功更新电话号码。</value>
         <value xml:lang="zh-TW">已成功更新電話號碼.</value>
+    </property>
+    <property key="PartyTemporaryPassword">
+        <value xml:lang="ar">سوف يستلم الشخص كلمة سر مؤقتة عن طريق البريد الإلكتروني</value>
+        <value xml:lang="de">Die Person wird ein provisorisches Passwort per E-Mail erhalten.</value>
+        <value xml:lang="en">The person will receive a temporary password by email.</value>
+        <value xml:lang="es">La persona recibirá una contraseña temporal por el email.</value>
+        <value xml:lang="fr">La personne recevra un mot de passe provisoire par courriel.</value>
+        <value xml:lang="hi-IN">स्व को ईमेल द्वारा एक अस्थायी पासवर्ड प्राप्त होगा|</value>
+        <value xml:lang="it">La persona riceverà una password temporanea per email.</value>
+        <value xml:lang="ja">取引先は仮パスワードをEメールで受け取ります。</value>
+        <value xml:lang="nl">De persoon wil een tijdelijk wachtwoord per e-mail ontvangen.</value>
+        <value xml:lang="pt-BR">A pessoa receberá uma senha provisória por e-mail</value>
+        <value xml:lang="ro">Persoană va primi o password provizorie pentru  email.</value>
+        <value xml:lang="ru">Персона получит временный пароль по эл.почте.</value>
+        <value xml:lang="th">ผู้มาเยี่ยมจะต้องได้รับรหัสผ่านชั่วคราวทางอีเมล์</value>
+        <value xml:lang="vi">Người dùng sẽ nhận được mật khẩu tạm thời bởi thư điện tử</value>
+        <value xml:lang="zh">人将由电子邮件接受一个临时密码。</value>
+        <value xml:lang="zh-TW">此人將經由電子郵件收到一個臨時密碼.</value>
     </property>
     <property key="PartyTerm">
         <value xml:lang="ar">بند</value>
@@ -13128,6 +13144,7 @@
         <value xml:lang="de">Zum Kontaktmechanismus</value>
         <value xml:lang="en">To Contact Mech</value>
         <value xml:lang="es">A mecanismo de contacto</value>
+        <value xml:lang="es-CL">Mecanismo de contacto hasta</value>
         <value xml:lang="fr">A la coordonnée</value>
         <value xml:lang="hi-IN">संपर्क यांत्रिक को</value>
         <value xml:lang="it">Al contatto</value>
@@ -13275,6 +13292,13 @@
         <value xml:lang="zh">会员类型标识</value>
         <value xml:lang="zh-TW">團體類型識別</value>
     </property>
+    <property key="PartyURI">
+        <value xml:lang="ar">الرابط</value>
+        <value xml:lang="cs">URI</value>
+        <value xml:lang="en">URI</value>
+        <value xml:lang="hi-IN">यूआरआइ(URI)</value>
+        <value xml:lang="zh">URI</value>
+    </property>
     <property key="PartyUnableToLocatePurpose">
         <value xml:lang="ar">غير قادر على إيجاد الغرض: لا يمكن الإلغاء</value>
         <value xml:lang="de">Bestimmung kann nicht gefunden werden; Löschen nicht möglich</value>
@@ -13284,13 +13308,6 @@
         <value xml:lang="vi">Không thể tìm được mục đích ; không thể xóa</value>
         <value xml:lang="zh">无法定位目的；不能删除</value>
         <value xml:lang="zh-TW">無法定位目的;不能刪除</value>
-    </property>
-    <property key="PartyURI">
-        <value xml:lang="ar">الرابط</value>
-        <value xml:lang="cs">URI</value>
-        <value xml:lang="en">URI</value>
-        <value xml:lang="hi-IN">यूआरआइ(URI)</value>
-        <value xml:lang="zh">URI</value>
     </property>
     <property key="PartyUnknown">
         <value xml:lang="ar">مجهول</value>
@@ -13672,7 +13689,6 @@
         <value xml:lang="zh">浏览沟通产品</value>
         <value xml:lang="zh-TW">檢視通訊產品</value>
     </property>
-    
     <property key="PartyViewCommReturns">
         <value xml:lang="en">View Communication Returns</value>
         <value xml:lang="hi-IN">संचार रिटर्न देखें</value>
@@ -14043,5 +14059,25 @@
         <value xml:lang="vi">Mã bưu chính chưa được cập nhật</value>
         <value xml:lang="zh">找不到邮政编码</value>
         <value xml:lang="zh-TW">找不到郵遞區號</value>
+    </property>
+    <property key="NotValidUserName">
+        <value xml:lang="ar">يمكن أن يحتوي اسم المستخدم على حروف أبجدية وأرقام و _-</value>
+        <value xml:lang="cs">Uživatelské jméno může obsahovat pouze abecedy, číslice a _-</value>
+        <value xml:lang="de">Der Benutzername darf nur Buchstaben, Zahlen und _- enthalten.</value>
+        <value xml:lang="en">Username can only have letters, digits  and the _- characters</value>
+        <value xml:lang="es">El nombre de usuario solo puede tener alfabetos, numéricos y _-</value>
+        <value xml:lang="fr">Le nom d'utilisateur ne peut contenir que des lettres, des chiffres et les caractères _-</value>
+        <value xml:lang="hi-IN">‍ उपयोगकर्ता नाम में केवल अक्षर, संख्यात्मक और _- हो सकते हैं</value>
+        <value xml:lang="it">Il nome utente può contenere solo alfabeti, numeri e _-</value>
+        <value xml:lang="ja">ユーザー名には、アルファベット、数字、および_-しか使用できません。</value>
+        <value xml:lang="nl">Gebruikersnaam kan alleen letters, cijfers en tekens _ of - bevatten</value>
+        <value xml:lang="pt-BR">O nome de usuário só pode ter alfabetos, numéricos e _</value>
+        <value xml:lang="pt-PT">O nome de usuário só pode ter alfabetos, numéricos e _</value>
+        <value xml:lang="ro">Numele de utilizator poate avea numai alfabete, numere numerice și _</value>
+        <value xml:lang="ru">Имя пользователя может содержать только буквы, цифры и _-</value>
+        <value xml:lang="th">ชื่อผู้ใช้จะต้องมีตัวอักษรตัวเลขและ _- เท่านั้น</value>
+        <value xml:lang="vi">Tên người dùng chỉ có thể có bảng chữ cái, số và _-</value>
+        <value xml:lang="zh">用户名只能有字母，数字和_-</value>
+        <value xml:lang="zh-TW">用戶名只能有字母，數字和_-</value>
     </property>
 </resource>

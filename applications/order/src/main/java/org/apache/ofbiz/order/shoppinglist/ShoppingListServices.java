@@ -82,15 +82,15 @@ public class ShoppingListServices {
         }
 
         if (startDate == null) {
-            switch (frequency.intValue()) {
+            switch (frequency) {
                 case 5:
-                    startDate = UtilDateTime.getWeekStart(UtilDateTime.nowTimestamp(), 0, interval.intValue());
+                    startDate = UtilDateTime.getWeekStart(UtilDateTime.nowTimestamp(), 0, interval);
                     break;
                 case 6:
-                    startDate = UtilDateTime.getMonthStart(UtilDateTime.nowTimestamp(), 0, interval.intValue());
+                    startDate = UtilDateTime.getMonthStart(UtilDateTime.nowTimestamp(), 0, interval);
                     break;
                 case 7:
-                    startDate = UtilDateTime.getYearStart(UtilDateTime.nowTimestamp(), 0, interval.intValue());
+                    startDate = UtilDateTime.getYearStart(UtilDateTime.nowTimestamp(), 0, interval);
                     break;
                 default:
                     return ServiceUtil.returnError(UtilProperties.getMessage(resource_error,"OrderInvalidFrequencyForShoppingListRecurrence",locale));
@@ -105,7 +105,7 @@ public class ShoppingListServices {
 
         RecurrenceInfo recInfo = null;
         try {
-            recInfo = RecurrenceInfo.makeInfo(delegator, startTime, frequency.intValue(), interval.intValue(), -1, endTime);
+            recInfo = RecurrenceInfo.makeInfo(delegator, startTime, frequency, interval, -1, endTime);
         } catch (RecurrenceInfoException e) {
             Debug.logError(e, module);
             return ServiceUtil.returnError(UtilProperties.getMessage(resource_error,"OrderUnableToCreateShoppingListRecurrenceInformation",locale));
@@ -171,7 +171,7 @@ public class ShoppingListServices {
 
                     // store the order
                     Map<String, Object> createResp = helper.createOrder(userLogin);
-                    if (createResp == null || (createResp != null && ServiceUtil.isError(createResp))) {
+                    if (createResp == null || ServiceUtil.isError(createResp)) {
                         Debug.logError("Cannot create order for shopping list - " + shoppingList, module);
                     } else {
 
@@ -291,7 +291,7 @@ public class ShoppingListServices {
                 Map<String, Object> newListResult = null;
                 try {
 
-                    newListResult = dispatcher.runSync("createShoppingList", serviceCtx);
+                    newListResult = dispatcher.runSync("createShoppingList", serviceCtx, 90, true);
                 } catch (GenericServiceException e) {
                     Debug.logError(e, "Problems creating new ShoppingList", module);
                     return ServiceUtil.returnError(UtilProperties.getMessage(resource_error,"OrderUnableToCreateNewShoppingList",locale));
@@ -581,7 +581,7 @@ public class ShoppingListServices {
         LocalDispatcher dispatcher = dctx.getDispatcher();
         GenericValue userLogin = (GenericValue) context.get("userLogin");
         List<GenericValue> shoppingList = null;
-        Map<String, Object> result = new HashMap<String, Object>();
+        Map<String, Object> result = new HashMap<>();
         try {
             shoppingList = EntityQuery.use(delegator).from("ShoppingList").where("partyId", null, "shoppingListTypeId", "SLT_SPEC_PURP").queryList();
         } catch (GenericEntityException e) {

@@ -17,7 +17,7 @@ specific language governing permissions and limitations
 under the License.
 -->
 
-<script language="JavaScript" type="text/javascript">
+<script type="application/javascript">
     function editInstruction(shipGroupSeqId) {
         jQuery('#shippingInstructions_' + shipGroupSeqId).css({display:'block'});
         jQuery('#saveInstruction_' + shipGroupSeqId).css({display:'inline'});
@@ -69,7 +69,7 @@ under the License.
             <#if ownedFacilities?has_content>
               <#if !allShipments?has_content>
                   <li>
-                     <form action="/facility/control/quickShipPurchaseOrder?externalLoginKey=${externalLoginKey}" method="post">
+                     <form action="/facility/control/quickReceivePurchaseOrder?externalLoginKey=${externalLoginKey}" method="post">
                        <input type="hidden" name="initialSelected" value="Y"/>
                        <input type="hidden" name="orderId" value="${orderId}"/>
                        <#-- destination form (/facility/control/ReceiveInventory) wants purchaseOrderId instead of orderId, so we set it here as a workaround -->
@@ -83,7 +83,7 @@ under the License.
                      </form>
                   </li>
                   <li>
-                    <form name="receivePurchaseOrderForm" action="/facility/control/quickShipPurchaseOrder?externalLoginKey=${externalLoginKey}" method="post">
+                    <form name="receivePurchaseOrderForm" action="/facility/control/quickReceivePurchaseOrder?externalLoginKey=${externalLoginKey}" method="post">
                       <input type="hidden" name="initialSelected" value="Y"/>
                       <input type="hidden" name="orderId" value="${orderId}"/>
                       <input type="hidden" name="purchaseOrderId" value="${orderId}"/>
@@ -426,7 +426,7 @@ under the License.
                       <td>
                           <input type="submit" value="${uiLabelMap.CommonUpdate}" class="smallSubmit"/>
                           <a class="buttontext" id="newShippingAddress" href="javascript:void(0);">${uiLabelMap.OrderNewShippingAddress}</a>
-                          <script type="text/javascript">
+                          <script type="application/javascript">
                               jQuery("#newShippingAddress").click(function(){jQuery("#newShippingAddressForm").dialog("open")});
                           </script>
                       </td>
@@ -494,7 +494,7 @@ under the License.
             </div>
           </form>
         </div>
-        <script language="JavaScript" type="text/javascript">
+        <script type="application/javascript">
          jQuery(document).ready( function() {
           jQuery("#newShippingAddressForm").dialog({autoOpen: false, modal: true,
                   buttons: {
@@ -517,10 +517,10 @@ under the License.
            <#if OISGAContent.size() == 0>
            <tr>
               <td colspan="3" valign="top" width="100%" align="center">
-                   <a href="javascript:document.deleteOISG_${shipGroup.shipGroupSeqId}.submit()" class="buttontext">${uiLabelMap.DeleteOrderItemShipGroup}</a>
                    <form name="deleteOISG_${shipGroup.shipGroupSeqId}" method="post" action="/ordermgr/control/DeleteOrderItemShipGroup">
                      <input type="hidden" name="orderId" value="${orderId}"/>
                      <input type="hidden" name="shipGroupSeqId" value="${shipGroup.shipGroupSeqId}"/>
+                     <input type="submit" value="${uiLabelMap.DeleteOrderItemShipGroup}"/>
                    </form>
               </td>
            </tr>

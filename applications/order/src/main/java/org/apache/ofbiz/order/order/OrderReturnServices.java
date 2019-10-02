@@ -111,7 +111,7 @@ public class OrderReturnServices {
         if (countNewReturnItems == null) {
             countNewReturnItems = Boolean.FALSE;
         }
-        BigDecimal returnTotal = orh.getOrderReturnedTotal(countNewReturnItems.booleanValue());
+        BigDecimal returnTotal = orh.getOrderReturnedTotal(countNewReturnItems);
         BigDecimal orderTotal = orh.getOrderGrandTotal();
         BigDecimal available = orderTotal.subtract(returnTotal).subtract(adj);
 
@@ -595,7 +595,7 @@ public class OrderReturnServices {
         GenericValue userLogin = (GenericValue) context.get("userLogin");
         String returnId = (String) context.get("returnId");
         Locale locale = (Locale) context.get("locale");
-        Map<String, Object> serviceResult = new HashMap<String, Object>();
+        Map<String, Object> serviceResult = new HashMap<>();
 
         GenericValue returnHeader = null;
         List<GenericValue> returnItems = null;
@@ -2331,7 +2331,7 @@ public class OrderReturnServices {
             return ServiceUtil.returnError(UtilProperties.getMessage(resource_error,
                     "OrderProblemsWithGetReturnAmountByOrder", locale));
         }
-        returnAmountByOrder = UtilGenerics.checkMap(serviceResult.get("orderReturnAmountMap"));
+        returnAmountByOrder = UtilGenerics.cast(serviceResult.get("orderReturnAmountMap"));
 
         if ((returnAmountByOrder != null) && (returnAmountByOrder.entrySet() != null)) {
             for (Entry<String, BigDecimal> orderId : returnAmountByOrder.entrySet()) {
@@ -2629,7 +2629,7 @@ public class OrderReturnServices {
         String settingPrefix = isSalesTax ? "salestax" : "order";
         String decimalsPrefix = isSalesTax ? ".calc" : "";
         int decimals = UtilNumber.getBigDecimalScale(settingPrefix + decimalsPrefix + ".decimals");
-        int rounding = UtilNumber.getBigDecimalRoundingMode(settingPrefix + ".rounding");
+        RoundingMode rounding = UtilNumber.getRoundingMode(settingPrefix + ".rounding");
         returnTotal = returnTotal.setScale(decimals, rounding);
         originalTotal = originalTotal.setScale(decimals, rounding);
         BigDecimal newAmount = null;

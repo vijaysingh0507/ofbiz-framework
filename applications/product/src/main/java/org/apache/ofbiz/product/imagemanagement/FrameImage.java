@@ -30,8 +30,6 @@ import java.awt.image.RenderedImage;
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Locale;
@@ -44,6 +42,7 @@ import javax.servlet.http.HttpSession;
 import javax.swing.ImageIcon;
 
 import org.apache.ofbiz.base.util.Debug;
+import org.apache.ofbiz.base.util.FileUtil;
 import org.apache.ofbiz.base.util.UtilDateTime;
 import org.apache.ofbiz.base.util.UtilGenerics;
 import org.apache.ofbiz.base.util.UtilProperties;
@@ -268,7 +267,7 @@ public class FrameImage {
         HttpSession session = request.getSession();
         GenericValue userLogin = (GenericValue)session.getAttribute("userLogin");
 
-        Map<String, ? extends Object> context = UtilGenerics.checkMap(request.getParameterMap());
+        Map<String, ? extends Object> context = UtilGenerics.cast(request.getParameterMap());
         String imageServerPath = FlexibleStringExpander.expandString(EntityUtilProperties.getPropertyValue("catalog", "image.management.path", delegator), context);
         String imageServerUrl = FlexibleStringExpander.expandString(EntityUtilProperties.getPropertyValue("catalog", "image.management.url", delegator), context);
         Map<String, Object> tempFile = LayoutWorker.uploadImageAndParameters(request, "uploadedFile");
@@ -292,7 +291,7 @@ public class FrameImage {
         String dataResourceId = null;
         try {
             String dirPath = "/frame/";
-            File dir = new File(imageServerPath + dirPath);
+            File dir = FileUtil.normalizeFilePath(imageServerPath + dirPath);
             if (!dir.exists()) {
                 boolean createDir = dir.mkdir();
                 if (!createDir) {
@@ -301,7 +300,7 @@ public class FrameImage {
                 }
             }
             String imagePath = "/frame/" + imageName;
-            File file = new File(imageServerPath + imagePath);
+            File file = FileUtil.normalizeFilePath(imageServerPath + imagePath); // cf. OFBIZ-9973
             if (file.exists()) {
                 request.setAttribute("_ERROR_MESSAGE_", "There is an existing frame, please select from the existing frame.");
                 return "error";
@@ -353,20 +352,12 @@ public class FrameImage {
 
     public static String previewFrameImage(HttpServletRequest request, HttpServletResponse response) throws IOException, JDOMException {
         Delegator delegator = (Delegator) request.getAttribute("delegator");
-        Map<String, ? extends Object> context = UtilGenerics.checkMap(request.getParameterMap());
+        Map<String, ? extends Object> context = UtilGenerics.cast(request.getParameterMap());
         HttpSession session = request.getSession();
         String imageServerPath = FlexibleStringExpander.expandString(EntityUtilProperties.getPropertyValue("catalog", "image.management.path", delegator), context);
 
         String productId = request.getParameter("productId");
-        String imageName = null;
-        try {
-            imageName = URLEncoder.encode(request.getParameter("imageName"), "UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            Debug.logError(e, "Error while saving TrackingCodeVisit", module);
-            request.setAttribute("_ERROR_MESSAGE_", e.getMessage());
-            return "error";
-        }
-
+        String imageName = request.getParameter("imageName");
 
         String dirPath = "/preview/";
         File dir = new File(imageServerPath + dirPath);
@@ -401,13 +392,14 @@ public class FrameImage {
             request.setAttribute("_ERROR_MESSAGE_", e.getMessage());
             return "error";
         }
+        
         if (UtilValidate.isNotEmpty(imageName)) {
             File file = new File(imageServerPath + "/preview/" +"/previewImage.jpg");
             if(!file.delete()) {
                 Debug.logError("File :" + file.getName() + ", couldn't be loaded", module);
             }
             // Image Frame
-            BufferedImage bufImg1 = ImageIO.read(new File(imageServerPath + "/" + productId + "/" + imageName).getCanonicalFile()); // About Findbugs results, see OFBIZ-9973
+            BufferedImage bufImg1 = ImageIO.read(FileUtil.normalizeFilePath(imageServerPath + "/" + productId + "/" + imageName)); // cf. OFBIZ-9973
             BufferedImage bufImg2 = ImageIO.read(new File(imageServerPath + "/frame/" + frameImageName));
 
             int bufImgType;
@@ -463,9 +455,9 @@ public class FrameImage {
     }
 
     public static String deleteFrameImage(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        Map<String, ? extends Object> context = UtilGenerics.checkMap(request.getParameterMap());
+        Map<String, ? extends Object> context = UtilGenerics.cast(request.getParameterMap());
         String imageServerPath = FlexibleStringExpander.expandString(EntityUtilProperties.getPropertyValue("catalog", "image.management.path", (Delegator) context.get("delegator")), context);
-        File file = new File(imageServerPath + "/preview/" + "/previewImage.jpg").getCanonicalFile();
+        File file = new File(imageServerPath + "/preview/" + "/previewImage.jpg");
         if (file.exists()) {
             if (!file.delete()) {
                 Debug.logError("File :" + file.getName() + ", couldn't be deleted", module);

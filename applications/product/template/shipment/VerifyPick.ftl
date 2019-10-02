@@ -40,7 +40,7 @@ under the License.
             <#list invoiceIds as invoiceId>
               <li>
                 ${uiLabelMap.CommonNbr}<a href="/accounting/control/invoiceOverview?invoiceId=${invoiceId}${StringUtil.wrapString(externalKeyParam)}" target="_blank" class="buttontext">${invoiceId}</a>
-                (<a href="/accounting/control/invoice.pdf?invoiceId=${invoiceId}${StringUtil.wrapString(externalKeyParam)}" target="_blank" class="buttontext">PDF</a>)
+                (<a href="/accounting/control/invoice.pdf?invoiceId=${invoiceId}${StringUtil.wrapString(externalKeyParam)}" target="_blank" class="buttontext">${uiLabelMap.CommonPdf}</a>)
               </li>
             </#list>
           </ul>
@@ -360,16 +360,16 @@ under the License.
     </form>
   </#if>
   <#if orderId?has_content>
-    <script language="javascript" type="text/javascript">
+    <script type="application/javascript">
       document.singlePickForm.productId.focus();
     </script>
   <#else>
-    <script language="javascript" type="text/javascript">
+    <script type="application/javascript">
       document.selectOrderForm.orderId.focus();
     </script>
   </#if>
   <#if shipmentId?has_content>
-    <script language="javascript" type="text/javascript">
+    <script type="application/javascript">
       document.selectOrderForm.orderId.focus();
     </script>
   </#if>

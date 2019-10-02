@@ -49,7 +49,6 @@ import org.apache.ofbiz.entity.util.EntityQuery;
 import org.apache.ofbiz.service.DispatchContext;
 import org.apache.ofbiz.service.GenericServiceException;
 import org.apache.ofbiz.service.LocalDispatcher;
-import org.apache.ofbiz.service.ModelService;
 import org.apache.ofbiz.service.ServiceUtil;
 
 /**
@@ -65,7 +64,7 @@ public class ContentServices {
      */
     public static Map<String, Object> findRelatedContent(DispatchContext dctx, Map<String, ? extends Object> context) {
         LocalDispatcher dispatcher = dctx.getDispatcher();
-        Map<String, Object> results = new HashMap<String, Object>();
+        Map<String, Object> results = new HashMap<>();
 
         GenericValue currentContent = (GenericValue) context.get("currentContent");
         String fromDate = (String) context.get("fromDate");
@@ -78,9 +77,9 @@ public class ContentServices {
             toFrom = toFrom.toUpperCase(Locale.getDefault());
         }
 
-        List<String> assocTypes = UtilGenerics.checkList(context.get("contentAssocTypeList"));
-        List<String> targetOperations = UtilGenerics.checkList(context.get("targetOperationList"));
-        List<String> contentTypes = UtilGenerics.checkList(context.get("contentTypeList"));
+        List<String> assocTypes = UtilGenerics.cast(context.get("contentAssocTypeList"));
+        List<String> targetOperations = UtilGenerics.cast(context.get("targetOperationList"));
+        List<String> contentTypes = UtilGenerics.cast(context.get("contentTypeList"));
         List<GenericValue> contentList = null;
         
         try {
@@ -94,12 +93,12 @@ public class ContentServices {
             return results;
         }
 
-        Map<String, Object> serviceInMap = new HashMap<String, Object>();
+        Map<String, Object> serviceInMap = new HashMap<>();
         serviceInMap.put("userLogin", context.get("userLogin"));
         serviceInMap.put("targetOperationList", targetOperations);
         serviceInMap.put("entityOperation", context.get("entityOperation"));
 
-        List<GenericValue> permittedList = new LinkedList<GenericValue>();
+        List<GenericValue> permittedList = new LinkedList<>();
         Map<String, Object> permResults = null;
         for (GenericValue content : contentList) {
             serviceInMap.put("currentContent", content);
@@ -127,8 +126,8 @@ public class ContentServices {
      * This is a generic service for traversing a Content tree, typical of a blog response tree. It calls the ContentWorker.traverse method.
      */
     public static Map<String, Object> findContentParents(DispatchContext dctx, Map<String, ? extends Object> context) {
-        Map<String, Object> results = new HashMap<String, Object>();
-        List<Object> parentList = new LinkedList<Object>();
+        Map<String, Object> results = new HashMap<>();
+        List<Object> parentList = new LinkedList<>();
         results.put("parentList", parentList);
         LocalDispatcher dispatcher = dctx.getDispatcher();
         String contentId = (String)context.get("contentId");
@@ -137,7 +136,7 @@ public class ContentServices {
         if (UtilValidate.isEmpty(direction)) {
             direction="To";
         }
-        Map<String, Object> traversMap = new HashMap<String, Object>();
+        Map<String, Object> traversMap = new HashMap<>();
         traversMap.put("contentId", contentId);
         traversMap.put("direction", direction);
         traversMap.put("contentAssocTypeId", contentAssocTypeId);
@@ -146,7 +145,7 @@ public class ContentServices {
             if (ServiceUtil.isError(thisResults)) {
                 return ServiceUtil.returnError(ServiceUtil.getErrorMessage(thisResults));
             }
-            Map<String, Object> nodeMap = UtilGenerics.checkMap(thisResults.get("nodeMap"));
+            Map<String, Object> nodeMap = UtilGenerics.cast(thisResults.get("nodeMap"));
             walkParentTree(nodeMap, parentList);
         } catch (GenericServiceException e) {
             return ServiceUtil.returnFailure(e.getMessage());
@@ -155,7 +154,7 @@ public class ContentServices {
     }
 
     private static void walkParentTree(Map<String, Object> nodeMap, List<Object> parentList) {
-        List<Map<String, Object>> kids = UtilGenerics.checkList(nodeMap.get("kids"));
+        List<Map<String, Object>> kids = UtilGenerics.cast(nodeMap.get("kids"));
         if (UtilValidate.isEmpty(kids)) {
             parentList.add(nodeMap.get("contentId"));
         } else {
@@ -169,7 +168,7 @@ public class ContentServices {
      */
     public static Map<String, Object> traverseContent(DispatchContext dctx, Map<String, ? extends Object> context) {
         Delegator delegator = dctx.getDelegator();
-        Map<String, Object> results = new HashMap<String, Object>();
+        Map<String, Object> results = new HashMap<>();
         Locale locale = (Locale) context.get("locale");
 
         String contentId = (String) context.get("contentId");
@@ -204,7 +203,7 @@ public class ContentServices {
             thruDate = UtilDateTime.toTimestamp(thruDateStr);
         }
 
-        Map<String, Object> whenMap = new HashMap<String, Object>();
+        Map<String, Object> whenMap = new HashMap<>();
         whenMap.put("followWhen", context.get("followWhen"));
         whenMap.put("pickWhen", context.get("pickWhen"));
         whenMap.put("returnBeforePickWhen", context.get("returnBeforePickWhen"));
@@ -215,8 +214,8 @@ public class ContentServices {
             startContentAssocTypeId = "PUBLISH";
         }
 
-        Map<String, Object> nodeMap = new HashMap<String, Object>();
-        List<GenericValue> pickList = new LinkedList<GenericValue>();
+        Map<String, Object> nodeMap = new HashMap<>();
+        List<GenericValue> pickList = new LinkedList<>();
         ContentWorker.traverse(delegator, content, fromDate, thruDate, whenMap, 0, nodeMap, startContentAssocTypeId, pickList, direction);
 
         results.put("nodeMap", nodeMap);
@@ -250,7 +249,7 @@ public class ContentServices {
         Map<String, Object> context = UtilMisc.makeMapWritable(rcontext);
         Delegator delegator = dctx.getDelegator();
         LocalDispatcher dispatcher = dctx.getDispatcher();
-        Map<String, Object> result = new HashMap<String, Object>();
+        Map<String, Object> result = new HashMap<>();
         Locale locale = (Locale) context.get("locale");
         context.put("entityOperation", "_UPDATE");
         List<String> targetOperationList = ContentWorker.prepTargetOperationList(context, "_UPDATE");
@@ -284,7 +283,7 @@ public class ContentServices {
         contentAssoc.put("thruDate", UtilDateTime.nowTimestamp());
 
         String permissionStatus = null;
-        Map<String, Object> serviceInMap = new HashMap<String, Object>();
+        Map<String, Object> serviceInMap = new HashMap<>();
         serviceInMap.put("userLogin", context.get("userLogin"));
         serviceInMap.put("targetOperationList", targetOperationList);
         serviceInMap.put("contentPurposeList", contentPurposeList);
@@ -332,7 +331,7 @@ public class ContentServices {
         Locale locale = (Locale) context.get("locale");
         Timestamp nowTimestamp = UtilDateTime.nowTimestamp();
         String sequenceNum = null;
-        Map<String, Object> results = new HashMap<String, Object>();
+        Map<String, Object> results = new HashMap<>();
 
         try {
             GenericValue activeAssoc = null;
@@ -344,7 +343,7 @@ public class ContentServices {
                 sequenceNum = (String) activeAssoc.get("sequenceNum");
             }
 
-            List<EntityCondition> exprList = new LinkedList<EntityCondition>();
+            List<EntityCondition> exprList = new LinkedList<>();
             exprList.add(EntityCondition.makeCondition("mapKey", EntityOperator.EQUALS, mapKey));
             if (sequenceNum != null) {
                 exprList.add(EntityCondition.makeCondition("sequenceNum", EntityOperator.EQUALS, sequenceNum));
@@ -383,10 +382,10 @@ public class ContentServices {
      * matching content.
      */
     public static Map<String, Object> renderSubContentAsText(DispatchContext dctx, Map<String, ? extends Object> context) {
-        Map<String, Object> results = new HashMap<String, Object>();
+        Map<String, Object> results = new HashMap<>();
         LocalDispatcher dispatcher = dctx.getDispatcher();
 
-        Map<String,Object> templateContext = UtilGenerics.checkMap(context.get("templateContext"));
+        Map<String,Object> templateContext = UtilGenerics.cast(context.get("templateContext"));
         String contentId = (String) context.get("contentId");
 
         if (templateContext != null && UtilValidate.isEmpty(contentId)) {
@@ -409,7 +408,7 @@ public class ContentServices {
         Writer outWriter = new StringWriter();
 
         if (templateContext == null) {
-            templateContext = new HashMap<String, Object>();
+            templateContext = new HashMap<>();
         }
 
         try {
@@ -433,11 +432,11 @@ public class ContentServices {
      * matching content.
      */
     public static Map<String, Object> renderContentAsText(DispatchContext dctx, Map<String, ? extends Object> context) {
-        Map<String,Object> results = new HashMap<String, Object>();
+        Map<String,Object> results = new HashMap<>();
         LocalDispatcher dispatcher = dctx.getDispatcher();
         Writer out = (Writer) context.get("outWriter");
 
-        Map<String,Object> templateContext = UtilGenerics.checkMap(context.get("templateContext"));
+        Map<String,Object> templateContext = UtilGenerics.cast(context.get("templateContext"));
         String contentId = (String) context.get("contentId");
         if (templateContext != null && UtilValidate.isEmpty(contentId)) {
             contentId = (String) templateContext.get("contentId");
@@ -452,7 +451,7 @@ public class ContentServices {
         }
 
         if (templateContext == null) {
-            templateContext = new HashMap<String, Object>();
+            templateContext = new HashMap<>();
         }
 
         Writer outWriter = new StringWriter();
@@ -476,7 +475,7 @@ public class ContentServices {
     }
 
     public static Map<String, Object> linkContentToPubPt(DispatchContext dctx, Map<String, ? extends Object> context) {
-        Map<String, Object> results = new HashMap<String, Object>();
+        Map<String, Object> results = new HashMap<>();
         Delegator delegator = dctx.getDelegator();
         LocalDispatcher dispatcher = dctx.getDispatcher();
 
@@ -490,7 +489,7 @@ public class ContentServices {
         if (Debug.infoOn()) Debug.logInfo("in publishContent, statusId:" + statusId, module);
         if (Debug.infoOn()) Debug.logInfo("in publishContent, userLogin:" + userLogin, module);
 
-        Map<String, Object> mapIn = new HashMap<String, Object>();
+        Map<String, Object> mapIn = new HashMap<>();
         mapIn.put("contentId", contentId);
         mapIn.put("contentIdTo", contentIdTo);
         mapIn.put("contentAssocTypeId", contentAssocTypeId);
@@ -514,7 +513,7 @@ public class ContentServices {
                     content.put("statusId", statusId);
                     content.store();
 
-                    mapIn = new HashMap<String, Object>();
+                    mapIn = new HashMap<>();
                     mapIn.put("contentId", contentId);
                     mapIn.put("contentIdTo", contentIdTo);
                     mapIn.put("contentAssocTypeId", contentAssocTypeId);
@@ -544,7 +543,7 @@ public class ContentServices {
     }
 
     public static Map<String, Object> publishContent(DispatchContext dctx, Map<String, ? extends Object> context) throws GenericServiceException{
-        Map<String, Object> result = new HashMap<String, Object>();
+        Map<String, Object> result = new HashMap<>();
         GenericValue content = (GenericValue)context.get("content");
         
         try {
@@ -558,10 +557,10 @@ public class ContentServices {
     }
 
     public static Map<String, Object> getPrefixedMembers(DispatchContext dctx, Map<String, ? extends Object> context) throws GenericServiceException{
-        Map<String, Object> result = new HashMap<String, Object>();
-        Map<String, Object> mapIn = UtilGenerics.checkMap(context.get("mapIn"));
+        Map<String, Object> result = new HashMap<>();
+        Map<String, Object> mapIn = UtilGenerics.cast(context.get("mapIn"));
         String prefix = (String)context.get("prefix");
-        Map<String, Object> mapOut = new HashMap<String, Object>();
+        Map<String, Object> mapOut = new HashMap<>();
         result.put("mapOut", mapOut);
         if (mapIn != null) {
             Set<Map.Entry<String, Object>> entrySet = mapIn.entrySet();
@@ -577,8 +576,8 @@ public class ContentServices {
     }
 
     public static Map<String, Object> splitString(DispatchContext dctx, Map<String, ? extends Object> context) throws GenericServiceException{
-        Map<String, Object> result = new HashMap<String, Object>();
-        List<String> outputList = new LinkedList<String>();
+        Map<String, Object> result = new HashMap<>();
+        List<String> outputList = new LinkedList<>();
         String delimiter = UtilFormatOut.checkEmpty((String)context.get("delimiter"), "|");
         String inputString = (String)context.get("inputString");
         if (UtilValidate.isNotEmpty(inputString)) {
@@ -589,10 +588,10 @@ public class ContentServices {
     }
 
     public static Map<String, Object> joinString(DispatchContext dctx, Map<String, ? extends Object> context) throws GenericServiceException{
-        Map<String, Object> result = new HashMap<String, Object>();
+        Map<String, Object> result = new HashMap<>();
         String outputString = null;
         String delimiter = UtilFormatOut.checkEmpty((String)context.get("delimiter"), "|");
-        List<String> inputList = UtilGenerics.checkList(context.get("inputList"));
+        List<String> inputList = UtilGenerics.cast(context.get("inputList"));
         if (inputList != null) {
             outputString = StringUtil.join(inputList, delimiter);
         }
@@ -601,9 +600,9 @@ public class ContentServices {
     }
 
     public static Map<String, Object> urlEncodeArgs(DispatchContext dctx, Map<String, ? extends Object> context) throws GenericServiceException{
-        Map<String, Object> result = new HashMap<String, Object>();
-        Map<String, Object> mapFiltered = new HashMap<String, Object>();
-        Map<String, Object> mapIn = UtilGenerics.checkMap(context.get("mapIn"));
+        Map<String, Object> result = new HashMap<>();
+        Map<String, Object> mapFiltered = new HashMap<>();
+        Map<String, Object> mapIn = UtilGenerics.cast(context.get("mapIn"));
         if (mapIn != null) {
             Set<Map.Entry<String, Object>> entrySet = mapIn.entrySet();
             for (Map.Entry<String, Object> entry : entrySet) {

@@ -24,7 +24,7 @@ under the License.
                <#assign externalOrder = "(" + orderHeader.externalId + ")"/>
             </#if>
             <#assign orderType = orderHeader.getRelatedOne("OrderType", false)/>
-            <li class="h3">&nbsp;${(orderType.get("description", locale))?default(uiLabelMap.OrderOrder)}&nbsp;${uiLabelMap.CommonNbr}&nbsp;<a href="<@ofbizUrl>orderview?orderId=${orderId}</@ofbizUrl>">${orderId}</a> ${externalOrder!} [&nbsp;<a href="<@ofbizUrl>order.pdf?orderId=${orderId}</@ofbizUrl>" target="_blank">PDF</a>&nbsp;]</li>
+            <li class="h3">&nbsp;${(orderType.get("description", locale))?default(uiLabelMap.OrderOrder)}&nbsp;${uiLabelMap.CommonNbr}&nbsp;<a href="<@ofbizUrl>orderview?orderId=${orderId}</@ofbizUrl>">${orderId}</a> ${externalOrder!} [&nbsp;<a href="<@ofbizUrl>order.pdf?orderId=${orderId}</@ofbizUrl>" target="_blank">${uiLabelMap.CommonPdf}</a>&nbsp;]</li>
             <div class="basic-nav">
               <ul>
             <#if "ORDER_APPROVED" == currentStatus.statusId && "SALES_ORDER" == orderHeader.orderTypeId>
@@ -121,7 +121,7 @@ under the License.
                     <div>
                       ${loopStatusItem.get("description",locale)} <#if orderHeaderStatus.statusDatetime?has_content>- ${Static["org.apache.ofbiz.base.util.UtilFormatOut"].formatDateTime(orderHeaderStatus.statusDatetime, "", locale, timeZone)?default("0000-00-00 00:00:00")}</#if>
                       &nbsp;
-                      ${uiLabelMap.CommonBy} - <#--${Static["org.apache.ofbiz.party.party.PartyHelper"].getPartyName(delegator, userlogin.getString("partyId"), true)}--> [${orderHeaderStatus.statusUserLogin}]
+                      ${uiLabelMap.CommonBy} - ${Static["org.apache.ofbiz.party.party.PartyHelper"].getPartyName(delegator, userlogin.getString("partyId"), false)}
                     </div>
                   </#list>
                 </#if>
@@ -227,9 +227,21 @@ under the License.
             <#if orderContentWrapper.get("IMAGE_URL", "url")?has_content>
             <tr><td colspan="3"><hr /></td></tr>
             <tr>
-              <td class="label">&nbsp;${uiLabelMap.OrderImage}</td>
+              <td class="label">&nbsp;${uiLabelMap.CommonAttachments}</td>
               <td>
-                  <a href="<@ofbizUrl>viewimage?orderId=${orderId}&amp;orderContentTypeId=IMAGE_URL</@ofbizUrl>" target="_orderImage" class="buttontext">${uiLabelMap.OrderViewImage}</a>
+                <#assign orderContents = EntityQuery.use(delegator).from("OrderContent").where("orderId", orderId!).queryList()!>
+                <#if orderContents?has_content>
+                  <#list orderContents as orderContent>
+                    <div>
+                      <a href="<@ofbizUrl>stream?contentId=${orderContent.contentId!}</@ofbizUrl>" target="_blank" class="buttontext">${orderContent.contentId}</a>
+                    </div>
+                  </#list>
+                <#else>
+                  <div>
+                    ${uiLabelMap.CommonNo} ${uiLabelMap.CommonAttachments}
+                  </div>
+                </#if>
+                <a href="<@ofbizUrl>AddOrderAttachments?orderId=${orderId!}</@ofbizUrl>" class="buttontext">Add Attachment</a>
               </td>
             </tr>
             </#if>

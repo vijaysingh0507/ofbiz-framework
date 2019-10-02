@@ -40,7 +40,6 @@ public final class Config {
     public final String adminKey;
     public final int portOffset;
     public final int adminPort;
-    public final String containerConfig;
     public final List<String> loaders;
     public final String logDir;
     public final boolean shutdownAfterLoad;
@@ -49,7 +48,7 @@ public final class Config {
     Config(List<StartupCommand> ofbizCommands) throws StartupException {
 
         // fetch OFBiz Properties object
-        Properties props = getPropertiesFile(ofbizCommands);;
+        Properties props = getPropertiesFile(ofbizCommands);
 
         // set this class fields
         ofbizHome = getOfbizHome(getProperty(props, "ofbiz.home", "."));
@@ -57,8 +56,6 @@ public final class Config {
         adminKey = getProperty(props, "ofbiz.admin.key", "NA");
         portOffset = getPortOffsetValue(ofbizCommands, "0");
         adminPort = getAdminPort(props, 0, portOffset);
-        containerConfig = getAbsolutePath(props, "ofbiz.container.config",
-                "framework/base/config/ofbiz-containers.xml", ofbizHome);
         loaders = Arrays.asList(getProperty(props, "ofbiz.start.loaders", "").split(","));
         logDir = getAbsolutePath(props, "ofbiz.log.dir", "runtime/logs", ofbizHome);
         shutdownAfterLoad = getProperty(props, "ofbiz.auto.shutdown", "false").equalsIgnoreCase("true");
@@ -76,16 +73,16 @@ public final class Config {
         TimeZone.setDefault(getDefaultTimeZone(props));
     }
 
-    private String getProperty(Properties props, String key, String defaultValue) {
+    private static String getProperty(Properties props, String key, String defaultValue) {
         return Optional.ofNullable(System.getProperty(key))
                 .orElse(props.getProperty(key, defaultValue));
     }
 
-    private String getOfbizHome(String homeProp) {
+    private static String getOfbizHome(String homeProp) {
         return homeProp.equals(".") ? System.getProperty("user.dir").replace('\\', '/') : homeProp;
     }
 
-    private String getAbsolutePath(Properties props, String key, String defaultValue, String ofbizHome) {
+    private static String getAbsolutePath(Properties props, String key, String defaultValue, String ofbizHome) {
         return getProperty(props, key, ofbizHome + "/" + props.getProperty(key, defaultValue));
     }
 
@@ -104,7 +101,7 @@ public final class Config {
         return props;
     }
 
-    private String determineOfbizPropertiesFileName(List<StartupCommand> ofbizCommands) {
+    private static String determineOfbizPropertiesFileName(List<StartupCommand> ofbizCommands) {
         if(ofbizCommands.stream().anyMatch(
                 option -> option.getName().equals(StartupCommandUtil.StartupOption.LOAD_DATA.getName()))) {
             return "load-data.properties";
@@ -116,7 +113,7 @@ public final class Config {
         }
     }
 
-    private int getPortOffsetValue(List<StartupCommand> ofbizCommands, String defaultOffset) throws StartupException {
+    private static int getPortOffsetValue(List<StartupCommand> ofbizCommands, String defaultOffset) throws StartupException {
         String extractedPortOffset = ofbizCommands.stream()
             .filter(command -> command.getName().equals(StartupCommandUtil.StartupOption.PORTOFFSET.getName()))
             .findFirst()
@@ -129,7 +126,7 @@ public final class Config {
         }
     }
 
-    private int getAdminPort(Properties props, int defaultAdminPort, int portOffsetValue) {
+    private static int getAdminPort(Properties props, int defaultAdminPort, int portOffsetValue) {
         String adminPortStr = getProperty(props, "ofbiz.admin.port", String.valueOf(defaultAdminPort));
         try {
             return Integer.parseInt(adminPortStr) + portOffsetValue;
@@ -139,7 +136,7 @@ public final class Config {
         }
     }
 
-    private InetAddress getAdminAddress(String serverHost) throws StartupException {
+    private static InetAddress getAdminAddress(String serverHost) throws StartupException {
         try {
             return InetAddress.getByName(serverHost);
         } catch (UnknownHostException e) {
@@ -147,7 +144,7 @@ public final class Config {
         }
     }
 
-    private Locale getDefaultLocale(Properties props, String defaultLocale) {
+    private static Locale getDefaultLocale(Properties props, String defaultLocale) {
         String localeString = getProperty(props, "ofbiz.locale.default", defaultLocale);
         String locales[] = localeString.split("_");
         Locale locale = null;
@@ -168,7 +165,7 @@ public final class Config {
         return locale;
     }
 
-    private TimeZone getDefaultTimeZone(Properties props) {
+    private static TimeZone getDefaultTimeZone(Properties props) {
         String defaultTimezone = getProperty(props, "ofbiz.timeZone.default", TimeZone.getDefault().getID());
         return TimeZone.getTimeZone(defaultTimezone);
     }

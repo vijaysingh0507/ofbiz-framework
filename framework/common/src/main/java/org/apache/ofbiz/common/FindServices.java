@@ -18,7 +18,7 @@
  *******************************************************************************/
 package org.apache.ofbiz.common;
 
-import static org.apache.ofbiz.base.util.UtilGenerics.checkList;
+import static org.apache.ofbiz.base.util.UtilGenerics.checkCollection;
 import static org.apache.ofbiz.base.util.UtilGenerics.checkMap;
 
 import java.sql.Timestamp;
@@ -224,7 +224,7 @@ public class FindServices {
          * condition grouped by an {@link EntityOperator.OR}
          * That will allow union of search criteria, instead of default intersection.
          */
-        Map<String, List<EntityCondition>> savedGroups = new LinkedHashMap();
+        Map<String, List<EntityCondition>> savedGroups = new LinkedHashMap<>();
         for (ModelField modelField : fieldList) {
             fieldMap.put(modelField.getName(), modelField);
         }
@@ -366,7 +366,8 @@ public class FindServices {
                 fieldOp = entityOperators.get(operation);
             }
         } else {
-            if (UtilValidate.isNotEmpty(UtilGenerics.toList(fieldValue))) {
+            List<Object> fieldList = (fieldValue instanceof List) ? UtilGenerics.cast(fieldValue) : null;
+            if (UtilValidate.isNotEmpty(fieldList)) {
                 fieldOp = EntityOperator.IN;
             } else {
                 fieldOp = EntityOperator.EQUALS;
@@ -464,18 +465,18 @@ public class FindServices {
     public static Map<String, Object> performFindList(DispatchContext dctx, Map<String, Object> context) {
         Integer viewSize = (Integer) context.get("viewSize");
         if (viewSize == null) {
-            viewSize = Integer.valueOf(20);       // default
+            viewSize = 20;       // default
         }
         context.put("viewSize", viewSize);
         Integer viewIndex = (Integer) context.get("viewIndex");
         if (viewIndex == null) {
-            viewIndex = Integer.valueOf(0);  // default
+            viewIndex = 0;  // default
         }
         context.put("viewIndex", viewIndex);
 
         Map<String, Object> result = performFind(dctx,context);
 
-        int start = viewIndex.intValue() * viewSize.intValue();
+        int start = viewIndex * viewSize;
         List<GenericValue> list = null;
         Integer listSize = 0;
         try (EntityListIterator it = (EntityListIterator) result.get("listIt")) {
@@ -503,7 +504,7 @@ public class FindServices {
         Map<String, ?> inputFields = checkMap(context.get("inputFields"), String.class, Object.class); // Input
         String noConditionFind = (String) context.get("noConditionFind");
         String distinct = (String) context.get("distinct");
-        List<String> fieldList =  UtilGenerics.<String>checkList(context.get("fieldList"));
+        List<String> fieldList =  UtilGenerics.cast(context.get("fieldList"));
         GenericValue userLogin = (GenericValue) context.get("userLogin");
         Locale locale = (Locale) context.get("locale");
         Delegator delegator = dctx.getDelegator();
@@ -551,7 +552,7 @@ public class FindServices {
             return ServiceUtil.returnError(UtilProperties.getMessage(resource, "CommonFindErrorPreparingConditions", UtilMisc.toMap("errorString", gse.getMessage()), locale));
         }
         EntityConditionList<EntityCondition> exprList = UtilGenerics.cast(prepareResult.get("entityConditionList"));
-        List<String> orderByList = checkList(prepareResult.get("orderByList"), String.class);
+        List<String> orderByList = checkCollection(prepareResult.get("orderByList"), String.class);
 
         Map<String, Object> executeResult = null;
         try {
@@ -667,14 +668,14 @@ public class FindServices {
     public static Map<String, Object> executeFind(DispatchContext dctx, Map<String, ?> context) {
         String entityName = (String) context.get("entityName");
         EntityConditionList<EntityCondition> entityConditionList = UtilGenerics.cast(context.get("entityConditionList"));
-        List<String> orderByList = checkList(context.get("orderByList"), String.class);
+        List<String> orderByList = checkCollection(context.get("orderByList"), String.class);
         boolean noConditionFind = "Y".equals(context.get("noConditionFind"));
         boolean distinct = "Y".equals(context.get("distinct"));
-        List<String> fieldList =  UtilGenerics.checkList(context.get("fieldList"));
+        List<String> fieldList =  UtilGenerics.cast(context.get("fieldList"));
         Locale locale = (Locale) context.get("locale");
         Set<String> fieldSet = null;
         if (fieldList != null) {
-            fieldSet = UtilMisc.makeSetWritable(fieldList);
+            fieldSet = new LinkedHashSet<>(fieldList);
         }
         Integer maxRows = (Integer) context.get("maxRows");
         maxRows = maxRows != null ? maxRows : -1;

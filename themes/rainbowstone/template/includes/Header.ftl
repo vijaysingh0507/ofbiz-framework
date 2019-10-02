@@ -31,7 +31,11 @@ under the License.
     <#assign shortcutIcon = layoutSettings.VT_SHORTCUT_ICON/>
 </#if>
 <#if shortcutIcon?has_content>
-    <link rel="shortcut icon" href="<@ofbizContentUrl>${StringUtil.wrapString(shortcutIcon)}</@ofbizContentUrl>" />
+    <link rel="shortcut icon" href="<@ofbizContentUrl>${StringUtil.wrapString(shortcutIcon)+".ico"}</@ofbizContentUrl>" type="image/x-icon">
+    <link rel="icon" href="<@ofbizContentUrl>${StringUtil.wrapString(shortcutIcon)+".png"}</@ofbizContentUrl>" type="image/png">
+    <link rel="icon" sizes="32x32" href="<@ofbizContentUrl>${StringUtil.wrapString(shortcutIcon)+"-32.png"}</@ofbizContentUrl>" type="image/png">
+    <link rel="icon" sizes="64x64" href="<@ofbizContentUrl>${StringUtil.wrapString(shortcutIcon)+"-64.png"}</@ofbizContentUrl>" type="image/png">
+    <link rel="icon" sizes="96x96" href="<@ofbizContentUrl>${StringUtil.wrapString(shortcutIcon)+"-96.png"}</@ofbizContentUrl>" type="image/png">
 </#if>
 <#if layoutSettings.VT_STYLESHEET_LESS?has_content>
     <#list layoutSettings.VT_STYLESHEET_LESS as styleSheet>
@@ -41,7 +45,7 @@ under the License.
         <link rel="stylesheet/less" href="<@ofbizContentUrl>/rainbowstone/${visualTheme.visualThemeId?replace("_","-")?lower_case}.less</@ofbizContentUrl>"/>
 <#if layoutSettings.VT_HDR_JAVASCRIPT?has_content>
     <#list layoutSettings.VT_HDR_JAVASCRIPT as javaScript>
-        <script src="<@ofbizContentUrl>${StringUtil.wrapString(javaScript)}</@ofbizContentUrl>" type="text/javascript"></script>
+        <script src="<@ofbizContentUrl>${StringUtil.wrapString(javaScript)}</@ofbizContentUrl>" type="application/javascript"></script>
     </#list>
 </#if>
 <#if layoutSettings.javaScripts?has_content>
@@ -51,7 +55,7 @@ under the License.
     <#list layoutSettings.javaScripts as javaScript>
         <#if javaScriptsSet.contains(javaScript)>
             <#assign nothing = javaScriptsSet.remove(javaScript)/>
-            <script src="<@ofbizContentUrl>${StringUtil.wrapString(javaScript)}</@ofbizContentUrl>" type="text/javascript"></script>
+            <script src="<@ofbizContentUrl>${StringUtil.wrapString(javaScript)}</@ofbizContentUrl>" type="application/javascript"></script>
         </#if>
     </#list>
 </#if>
@@ -85,7 +89,7 @@ under the License.
 </#if>
 <#if lastParameters??><#assign parametersURL = "&amp;" + lastParameters></#if>
 <#if layoutSettings.WEB_ANALYTICS?has_content>
-    <script language="JavaScript" type="text/javascript">
+    <script type="application/javascript">
         <#list layoutSettings.WEB_ANALYTICS as webAnalyticsConfig>
     ${StringUtil.wrapString(webAnalyticsConfig.webAnalyticsCode!)}
     </#list>

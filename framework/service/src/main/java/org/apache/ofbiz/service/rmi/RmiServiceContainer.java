@@ -57,9 +57,10 @@ public class RmiServiceContainer implements Container {
         this.configFile = configFile;
     }
 
+    @Override
     public boolean start() throws ContainerException {
         // get the container config
-        ContainerConfig.Configuration cfg = ContainerConfig.getConfiguration(containerName, configFile);
+        ContainerConfig.Configuration cfg = ContainerConfig.getConfiguration(containerName);
         ContainerConfig.Configuration.Property initialCtxProp = cfg.getProperty("use-initial-context");
         ContainerConfig.Configuration.Property lookupHostProp = cfg.getProperty("bound-host");
         ContainerConfig.Configuration.Property lookupPortProp = cfg.getProperty("bound-port");
@@ -105,7 +106,7 @@ public class RmiServiceContainer implements Container {
         if (clientProp != null && UtilValidate.isNotEmpty(clientProp.value)) {
             try {
                 Class<?> c = loader.loadClass(clientProp.value);
-                csf = (RMIClientSocketFactory) c.newInstance();
+                csf = (RMIClientSocketFactory) c.getDeclaredConstructor().newInstance();
             } catch (Exception e) {
                 throw new ContainerException(e);
             }
@@ -113,7 +114,7 @@ public class RmiServiceContainer implements Container {
         if (serverProp != null && UtilValidate.isNotEmpty(serverProp.value)) {
             try {
                 Class<?> c = loader.loadClass(serverProp.value);
-                ssf = (RMIServerSocketFactory) c.newInstance();
+                ssf = (RMIServerSocketFactory) c.getDeclaredConstructor().newInstance();
             } catch (Exception e) {
                 throw new ContainerException(e);
             }
@@ -174,10 +175,12 @@ public class RmiServiceContainer implements Container {
         return true;
     }
 
-    public void stop() throws ContainerException {
+    @Override
+    public void stop() {
         remote.deregister();
     }
 
+    @Override
     public String getName() {
         return containerName;
     }

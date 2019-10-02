@@ -46,7 +46,7 @@ public class ServiceContainer implements Container {
     public void init(List<StartupCommand> ofbizCommands, String name, String configFile) throws ContainerException {
         this.name = name;
         // initialize the LocalDispatcherFactory
-        ContainerConfig.Configuration cfg = ContainerConfig.getConfiguration(name, configFile);
+        ContainerConfig.Configuration cfg = ContainerConfig.getConfiguration(name);
         ContainerConfig.Configuration.Property dispatcherFactoryProperty = cfg.getProperty("dispatcher-factory");
         if (dispatcherFactoryProperty == null || UtilValidate.isEmpty(dispatcherFactoryProperty.value)) {
             throw new ContainerException("Unable to initialize container " + name + ": dispatcher-factory property is not set");
@@ -54,19 +54,19 @@ public class ServiceContainer implements Container {
         ClassLoader loader = Thread.currentThread().getContextClassLoader();
         try {
             Class<?> c = loader.loadClass(dispatcherFactoryProperty.value);
-            dispatcherFactory = (LocalDispatcherFactory) c.newInstance();
+            dispatcherFactory = (LocalDispatcherFactory) c.getDeclaredConstructor().newInstance();
         } catch (Exception e) {
             throw new ContainerException(e);
         }
     }
 
     @Override
-    public boolean start() throws ContainerException {
+    public boolean start() {
         return true;
     }
 
     @Override
-    public void stop() throws ContainerException {
+    public void stop() {
         JobManager.shutDown();
         Set<String> dispatcherNames = getAllDispatcherNames();
         for (String dispatcherName: dispatcherNames) {

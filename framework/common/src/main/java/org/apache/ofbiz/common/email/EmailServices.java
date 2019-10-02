@@ -112,7 +112,7 @@ public class EmailServices {
 
         String partyId = (String) context.get("partyId");
         String body = (String) context.get("body");
-        List<Map<String, Object>> bodyParts = UtilGenerics.checkList(context.get("bodyParts"));
+        List<Map<String, Object>> bodyParts = UtilGenerics.cast(context.get("bodyParts"));
         GenericValue userLogin = (GenericValue) context.get("userLogin");
 
         results.put("communicationEventId", communicationEventId);
@@ -160,6 +160,9 @@ public class EmailServices {
         }
 
         String sendFrom = (String) context.get("sendFrom");
+        if (UtilValidate.isEmpty(sendFrom)) {
+            sendFrom = EntityUtilProperties.getPropertyValue("general", "defaultFromEmailAddress", delegator);
+        }
         String sendType = (String) context.get("sendType");
         String port = (String) context.get("port");
         String socketFactoryClass = (String) context.get("socketFactoryClass");
@@ -382,7 +385,7 @@ public class EmailServices {
         // pretty simple, get the content and then call the sendMail method below
         Map<String, Object> sendMailContext = UtilMisc.makeMapWritable(rcontext);
         String bodyUrl = (String) sendMailContext.remove("bodyUrl");
-        Map<String, Object> bodyUrlParameters = UtilGenerics.checkMap(sendMailContext.remove("bodyUrlParameters"));
+        Map<String, Object> bodyUrlParameters = UtilGenerics.cast(sendMailContext.remove("bodyUrlParameters"));
         Locale locale = (Locale) rcontext.get("locale");
         LocalDispatcher dispatcher = ctx.getDispatcher();
 
@@ -433,8 +436,8 @@ public class EmailServices {
         String bodyScreenUri = (String) serviceContext.remove("bodyScreenUri");
         String xslfoAttachScreenLocationParam = (String) serviceContext.remove("xslfoAttachScreenLocation");
         String attachmentNameParam = (String) serviceContext.remove("attachmentName");
-        List<String> xslfoAttachScreenLocationListParam = UtilGenerics.checkList(serviceContext.remove("xslfoAttachScreenLocationList"));
-        List<String> attachmentNameListParam = UtilGenerics.checkList(serviceContext.remove("attachmentNameList"));
+        List<String> xslfoAttachScreenLocationListParam = UtilGenerics.cast(serviceContext.remove("xslfoAttachScreenLocationList"));
+        List<String> attachmentNameListParam = UtilGenerics.cast(serviceContext.remove("attachmentNameList"));
         VisualTheme visualTheme = (VisualTheme) rServiceContext.get("visualTheme");
         if (visualTheme == null) {
             visualTheme = ThemeFactory.resolveVisualTheme(null);
@@ -457,7 +460,7 @@ public class EmailServices {
         
         List<String> attachmentTypeList = new LinkedList<>();
         String attachmentTypeParam = (String) serviceContext.remove("attachmentType");
-        List<String> attachmentTypeListParam = UtilGenerics.checkList(serviceContext.remove("attachmentTypeList"));
+        List<String> attachmentTypeListParam = UtilGenerics.cast(serviceContext.remove("attachmentTypeList"));
         if (UtilValidate.isNotEmpty(attachmentTypeParam)) {
             attachmentTypeList.add(attachmentTypeParam);
         }
@@ -466,7 +469,7 @@ public class EmailServices {
         }
         
         Locale locale = (Locale) serviceContext.get("locale");
-        Map<String, Object> bodyParameters = UtilGenerics.checkMap(serviceContext.remove("bodyParameters"));
+        Map<String, Object> bodyParameters = UtilGenerics.cast(serviceContext.remove("bodyParameters"));
         if (bodyParameters == null) {
             bodyParameters = MapStack.create();
         }
@@ -516,7 +519,7 @@ public class EmailServices {
 
         // check if attachment screen location passed in
         if (UtilValidate.isNotEmpty(xslfoAttachScreenLocationList)) {
-            List<Map<String, ? extends Object>> bodyParts = new LinkedList<Map<String, ? extends Object>>();
+            List<Map<String, ? extends Object>> bodyParts = new LinkedList<>();
             if (bodyText != null) {
                 bodyText = FlexibleStringExpander.expandString(bodyText, screenContext,  locale);
                 bodyParts.add(UtilMisc.<String, Object>toMap("content", bodyText, "type", UtilValidate.isNotEmpty(contentType) ? contentType : "text/html"));
@@ -538,8 +541,7 @@ public class EmailServices {
                 
                 isMultiPart = true;
                 // start processing fo pdf attachment
-                try {
-                    Writer writer = new StringWriter();
+                try (Writer writer = new StringWriter(); ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
                     // substitute the freemarker variables...
                     ScreenStringRenderer foScreenStringRenderer = null;
                     if(MimeConstants.MIME_PLAIN_TEXT.equals(attachmentType)){
@@ -552,7 +554,6 @@ public class EmailServices {
                     screensAtt.render(xslfoAttachScreenLocation);
 
                     // create the output stream for the generation
-                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
                     if (MimeConstants.MIME_PLAIN_TEXT.equals(attachmentType)) {
                         baos.write(writer.toString().getBytes("UTF-8"));
@@ -562,10 +563,6 @@ public class EmailServices {
                         Fop fop = ApacheFopWorker.createFopInstance(baos, attachmentType);
                         ApacheFopWorker.transform(src, null, fop);
                     }
-
-                    // and generate the attachment
-                    baos.flush();
-                    baos.close();
 
                     // store in the list of maps for sendmail....
                     bodyParts.add(UtilMisc.<String, Object>toMap("content", baos.toByteArray(), "type", attachmentType, "filename", attachmentName));
@@ -719,18 +716,22 @@ public class EmailServices {
             contentArray.close();
         }
 
+        @Override
         public String getContentType() {
             return contentType == null ? "application/octet-stream" : contentType;
         }
 
+        @Override
         public InputStream getInputStream() throws IOException {
             return new ByteArrayInputStream(contentArray.toByteArray());
         }
 
+        @Override
         public String getName() {
             return "stringDatasource";
         }
 
+        @Override
         public OutputStream getOutputStream() throws IOException {
             throw new IOException("Cannot write to this read-only resource");
         }
@@ -746,18 +747,22 @@ public class EmailServices {
             this.contentArray = content.clone();
         }
 
+        @Override
         public String getContentType() {
             return contentType == null ? "application/octet-stream" : contentType;
         }
 
+        @Override
         public InputStream getInputStream() {
             return new ByteArrayInputStream(contentArray);
         }
 
+        @Override
         public String getName() {
             return "ByteArrayDataSource";
         }
 
+        @Override
         public OutputStream getOutputStream() throws IOException {
             throw new IOException("Cannot write to this read-only resource");
         }

@@ -98,6 +98,18 @@ under the License.
         <menu-item name="entityImportReaders" title="${uiLabelMap.PageTitleEntityImportReaders}">
             <link target="EntityImportReaders"/>
         </menu-item>
+        <menu-item name="jsonDsDump" title="${uiLabelMap.PageTitleEntityExportJson}">
+            <link target="jsondsdump"/>
+        </menu-item>
+        <menu-item name="entityExportAllJson" title="${uiLabelMap.PageTitleEntityExportAllJson}">
+            <link target="EntityExportAllJson"/>
+        </menu-item>
+        <menu-item name="entityImportJson" title="${uiLabelMap.PageTitleEntityImportJson}">
+            <link target="EntityImportJson"/>
+        </menu-item>
+        <menu-item name="entityImportDirJson" title="${uiLabelMap.PageTitleEntityImportDirJson}">
+            <link target="EntityImportDirJson"/>
+        </menu-item>
     </menu>
     
     <menu name="ServiceTabBar" extends="CommonTabBarMenu" extends-resource="component://common/widget/CommonMenus.xml"
@@ -142,23 +154,6 @@ under the License.
           selected-menuitem-context-field-name="logMenuItem">
         <menu-item name="findUtilCache" title="${uiLabelMap.WebtoolsCacheMaintenance}">
             <link target="FindUtilCache"/>
-        </menu-item>
-    </menu>
-    <menu name="ListCacheForm" extends="CommonInlineBarMenu" extends-resource="component://common/widget/CommonMenus.xml">
-        <menu-item name="findUtilCacheElements" title="${uiLabelMap.WebtoolsElements}">
-            <link target="FindUtilCacheElements">
-                <parameter param-name="UTIL_CACHE_NAME" from-field="cacheName"/>
-            </link>
-        </menu-item>
-        <menu-item name="EditUtilCache" title="${uiLabelMap.CommonEdit}">
-            <link target="EditUtilCache">
-                <parameter param-name="UTIL_CACHE_NAME" from-field="cacheName"/>
-            </link>
-        </menu-item>
-        <menu-item name="FindUtilCacheClear" title="${uiLabelMap.CommonClear}">
-            <link target="FindUtilCacheClear" link-type="hidden-form">
-                <parameter param-name="UTIL_CACHE_NAME" from-field="cacheName"/>
-            </link>
         </menu-item>
     </menu>
 
@@ -229,18 +224,18 @@ under the License.
                     <if-compare field="viewEntity" operator="not-equals" value="Y"/>
                 </and>
             </condition>
-            <link target="ViewGeneric">
+            <link target="ViewGeneric" style="buttontext">
                 <parameter param-name="entityName"/>
                 <parameter param-name="enableEdit" value="true"/>
             </link>
         </menu-item>
         <menu-item name="relation" title="${uiLabelMap.WebtoolsReln}">
-            <link target="ViewRelations">
+            <link target="ViewRelations" style="buttontext">
                 <parameter param-name="entityName"/>
             </link>
         </menu-item>
         <menu-item name="all" title="${uiLabelMap.WebtoolsAll}">
-            <link target="FindGeneric">
+            <link target="FindGeneric" style="buttontext">
                 <parameter param-name="entityName"/>
                 <parameter param-name="noConditionFind" value="Y"/>
             </link>
@@ -286,6 +281,9 @@ under the License.
         </menu-item>
         <menu-item name="forceGarbageCollection" title="${uiLabelMap.WebtoolsRunGC}">
             <link target="ForceGarbageCollection"/>
+        </menu-item>
+        <menu-item name="clearSelectedCaches" title="${uiLabelMap.WebtoolsClearSelectedCaches}">
+            <link target="javascript: document.ListCache.submit()" url-mode="plain"/>
         </menu-item>
     </menu>
 

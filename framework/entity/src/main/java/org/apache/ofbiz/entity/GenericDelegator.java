@@ -22,11 +22,13 @@ import java.io.IOException;
 import java.net.URL;
 import java.sql.Timestamp;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -46,7 +48,6 @@ import org.apache.ofbiz.base.util.UtilDateTime;
 import org.apache.ofbiz.base.util.UtilFormatOut;
 import org.apache.ofbiz.base.util.UtilGenerics;
 import org.apache.ofbiz.base.util.UtilMisc;
-import org.apache.ofbiz.base.util.UtilObject;
 import org.apache.ofbiz.base.util.UtilProperties;
 import org.apache.ofbiz.base.util.UtilValidate;
 import org.apache.ofbiz.base.util.UtilXml;
@@ -80,6 +81,7 @@ import org.apache.ofbiz.entity.util.EntityListIterator;
 import org.apache.ofbiz.entity.util.EntityQuery;
 import org.apache.ofbiz.entity.util.EntityStoreOptions;
 import org.apache.ofbiz.entity.util.SequenceUtil;
+import org.apache.ofbiz.entityext.eca.EntityEcaUtil;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -281,12 +283,9 @@ public class GenericDelegator implements Delegator {
     }
 
     protected Callable<Void> createHelperCallable(final String groupName) {
-        return new Callable<Void>() {
-            @Override
-            public Void call() {
-                initializeOneGenericHelper(groupName);
-                return null;
-            }
+        return () -> {
+            initializeOneGenericHelper(groupName);
+            return null;
         };
     }
 
@@ -312,11 +311,7 @@ public class GenericDelegator implements Delegator {
             return;
         }
 
-        Callable<EntityEcaHandler<?>> creator = new Callable<EntityEcaHandler<?>>() {
-            public EntityEcaHandler<?> call() {
-                return createEntityEcaHandler();
-            }
-        };
+        Callable<EntityEcaHandler<?>> creator = () -> createEntityEcaHandler();
         FutureTask<EntityEcaHandler<?>> futureTask = new FutureTask<>(creator);
         if (this.entityEcaHandler.compareAndSet(null, futureTask)) {
             // This needs to use BATCH, as the service engine might add it's own items into a thread pool.
@@ -334,15 +329,11 @@ public class GenericDelegator implements Delegator {
 
             try {
                 Class<?> eecahClass = loader.loadClass(entityEcaHandlerClassName);
-                EntityEcaHandler<?> entityEcaHandler = UtilGenerics.cast(eecahClass.newInstance());
+                EntityEcaHandler<?> entityEcaHandler = UtilGenerics.cast(eecahClass.getDeclaredConstructor().newInstance());
                 entityEcaHandler.setDelegator(this);
                 return entityEcaHandler;
-            } catch (ClassNotFoundException e) {
+            } catch (ReflectiveOperationException e) {
                 Debug.logWarning(e, "EntityEcaHandler class with name " + entityEcaHandlerClassName + " was not found, Entity ECA Rules will be disabled", module);
-            } catch (InstantiationException e) {
-                Debug.logWarning(e, "EntityEcaHandler class with name " + entityEcaHandlerClassName + " could not be instantiated, Entity ECA Rules will be disabled", module);
-            } catch (IllegalAccessException e) {
-                Debug.logWarning(e, "EntityEcaHandler class with name " + entityEcaHandlerClassName + " could not be accessed (illegal), Entity ECA Rules will be disabled", module);
             } catch (ClassCastException e) {
                 Debug.logWarning(e, "EntityEcaHandler class with name " + entityEcaHandlerClassName + " does not implement the EntityEcaHandler interface, Entity ECA Rules will be disabled", module);
             }
@@ -578,24 +569,6 @@ public class GenericDelegator implements Delegator {
             throw new IllegalArgumentException("ModelFieldTypeReader not found for entity " + entity.getEntityName() + " with helper name " + helperName);
         }
         return modelFieldTypeReader;
-    }
-
-    /* (non-Javadoc)
-     * @see org.apache.ofbiz.entity.Delegator#getEntityFieldTypeNames(org.apache.ofbiz.entity.model.ModelEntity)
-     */
-    @Override
-    public Collection<String> getEntityFieldTypeNames(ModelEntity entity) throws GenericEntityException {
-        String helperName = getEntityHelperName(entity);
-
-        if (UtilValidate.isEmpty(helperName)) {
-            return null;
-        }
-        ModelFieldTypeReader modelFieldTypeReader = ModelFieldTypeReader.getModelFieldTypeReader(helperName);
-
-        if (modelFieldTypeReader == null) {
-            throw new GenericEntityException("ModelFieldTypeReader not found for entity " + entity.getEntityName() + " with helper name " + helperName);
-        }
-        return modelFieldTypeReader.getFieldTypeNames();
     }
 
     /* (non-Javadoc)
@@ -1102,14 +1075,28 @@ public class GenericDelegator implements Delegator {
             ModelEntity modelEntity = getModelReader().getModelEntity(entityName);
             GenericHelper helper = getEntityHelper(entityName);
 
-            List<GenericValue> removedEntities = null;
-            if (testMode) {
-                removedEntities = this.findList(entityName, condition, null, null, null, false);
-            }
+            // We check if there are eca rules for this entity
+            String entityEcaReaderName = EntityEcaUtil.getEntityEcaReaderName(this.delegatorBaseName);
+            boolean hasEntityEcaRules = UtilValidate.isNotEmpty(
+                    EntityEcaUtil.getEntityEcaCache(entityEcaReaderName).get(entityName));
 
-            int rowsAffected = helper.removeByCondition(this, modelEntity, condition);
-            if (rowsAffected > 0) {
-                this.clearCacheLine(entityName);
+            // When we delete in mass, if we are in test mode or the entity have an eeca linked we will remove one by one
+            // for test mode to help the rollback
+            // for eeca to analyse each value to check if a condition match
+            List<GenericValue> removedEntities = (testMode || hasEntityEcaRules)
+                ? findList(entityName, condition, null, null, null, false)
+                : Collections.emptyList();
+
+            int rowsAffected = 0;
+            if (! removedEntities.isEmpty()) {
+                for (GenericValue entity : removedEntities) {
+                    rowsAffected += removeValue(entity);
+                }
+            } else {
+                rowsAffected = helper.removeByCondition(this, modelEntity, condition);
+                if (rowsAffected > 0) {
+                    this.clearCacheLine(entityName);
+                }
             }
 
             if (testMode) {
@@ -1300,7 +1287,7 @@ public class GenericDelegator implements Delegator {
                 if (!primaryKey.isPrimaryKey()) {
                     throw new GenericModelException("[GenericDelegator.storeAll] One of the passed primary keys is not a valid primary key: " + primaryKey);
                 }
-                GenericValue existing = null;
+                GenericValue existing;
                 try {
                     existing = helper.findByPrimaryKey(primaryKey);
                 } catch (GenericEntityNotFoundException e) {
@@ -1325,7 +1312,7 @@ public class GenericDelegator implements Delegator {
                         if (value.containsKey(fieldName)) {
                             Object fieldValue = value.get(fieldName);
                             Object oldValue = existing.get(fieldName);
-                            if (!UtilObject.equalsHelper(oldValue, fieldValue)) {
+                            if (!Objects.equals(oldValue, fieldValue)) {
                                 toStore.put(fieldName, fieldValue);
                                 atLeastOneField = true;
                             }
@@ -2252,17 +2239,12 @@ public class GenericDelegator implements Delegator {
         return nextSeqLong.toString();
     }
 
-    /* (non-Javadoc)
-     * @see org.apache.ofbiz.entity.Delegator#getNextSeqIdLong(java.lang.String)
-     */
     @Override
     public Long getNextSeqIdLong(String seqName) {
         return this.getNextSeqIdLong(seqName, 1);
     }
 
-    /* (non-Javadoc)
-     * @see org.apache.ofbiz.entity.Delegator#getNextSeqIdLong(java.lang.String, long)
-     */
+    @Override
     public Long getNextSeqIdLong(String seqName, long staggerMax) {
         try {
             SequenceUtil sequencer = this.AtomicRefSequencer.get();
@@ -2338,8 +2320,8 @@ public class GenericDelegator implements Delegator {
                         }
                         try {
                             int seqVal = Integer.parseInt(currentSeqId);
-                            if (highestSeqVal == null || seqVal > highestSeqVal.intValue()) {
-                                highestSeqVal = Integer.valueOf(seqVal);
+                            if (highestSeqVal == null || seqVal > highestSeqVal) {
+                                highestSeqVal = seqVal;
                             }
                         } catch (NumberFormatException e) {
                             Debug.logWarning("Error in make-next-seq-id converting SeqId [" + currentSeqId + "] in field: " + seqFieldName + " from entity: " + value.getEntityName() + " to a number: " + e.toString(), module);
@@ -2347,7 +2329,7 @@ public class GenericDelegator implements Delegator {
                     }
                 }
 
-                int seqValToUse = (highestSeqVal == null ? 1 : highestSeqVal.intValue() + incrementBy);
+                int seqValToUse = (highestSeqVal == null ? 1 : highestSeqVal + incrementBy);
                 String newSeqId = sequencedIdPrefix + UtilFormatOut.formatPaddedNumber(seqValToUse, numericPadding);
                 value.set(seqFieldName, newSeqId);
 
@@ -2617,11 +2599,7 @@ public class GenericDelegator implements Delegator {
             return;
         }
 
-        Callable<DistributedCacheClear> creator = new Callable<DistributedCacheClear>() {
-            public DistributedCacheClear call() {
-                return createDistributedCacheClear();
-            }
-        };
+        Callable<DistributedCacheClear> creator = () -> createDistributedCacheClear();
         FutureTask<DistributedCacheClear> futureTask = new FutureTask<>(creator);
         if (distributedCacheClear.compareAndSet(null, futureTask)) {
             ExecutionPool.GLOBAL_BATCH.submit(futureTask);
@@ -2638,15 +2616,11 @@ public class GenericDelegator implements Delegator {
 
             try {
                 Class<?> dccClass = loader.loadClass(distributedCacheClearClassName);
-                DistributedCacheClear distributedCacheClear = UtilGenerics.cast(dccClass.newInstance());
+                DistributedCacheClear distributedCacheClear = UtilGenerics.cast(dccClass.getDeclaredConstructor().newInstance());
                 distributedCacheClear.setDelegator(this, this.delegatorInfo.getDistributedCacheClearUserLoginId());
                 return distributedCacheClear;
-            } catch (ClassNotFoundException e) {
+            } catch (ReflectiveOperationException e) {
                 Debug.logWarning(e, "DistributedCacheClear class with name " + distributedCacheClearClassName + " was not found, distributed cache clearing will be disabled", module);
-            } catch (InstantiationException e) {
-                Debug.logWarning(e, "DistributedCacheClear class with name " + distributedCacheClearClassName + " could not be instantiated, distributed cache clearing will be disabled", module);
-            } catch (IllegalAccessException e) {
-                Debug.logWarning(e, "DistributedCacheClear class with name " + distributedCacheClearClassName + " could not be accessed (illegal), distributed cache clearing will be disabled", module);
             } catch (ClassCastException e) {
                 Debug.logWarning(e, "DistributedCacheClear class with name " + distributedCacheClearClassName + " does not implement the DistributedCacheClear interface, distributed cache clearing will be disabled", module);
             }

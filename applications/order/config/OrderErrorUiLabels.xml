@@ -893,6 +893,21 @@
         <value xml:lang="zh">错误：无法存储状态修改： </value>
         <value xml:lang="zh-TW">錯誤：無法存儲狀態修改： </value>
     </property>
+    <property key="OrderErrorAllocationPlanIsNotAvailable">
+        <value xml:lang="en">ERROR : Allocation plan is not available.</value>
+    </property>
+    <property key="OrderErrorCouldNotChangeAllocationPlanItemStatus">
+        <value xml:lang="en">ERROR : Could not change allocation plan item status.</value>
+    </property>
+    <property key="OrderErrorCouldNotChangeAllocationPlanItemStatusStatusIsNotAValidChange">
+        <value xml:lang="en">ERROR : Could not change allocation plan item status; status is not a valid change. </value>
+    </property>
+    <property key="OrderErrorCouldNotChangeAllocationPlanStatus">
+        <value xml:lang="en">ERROR : Could not change allocation plan status.</value>
+    </property>
+    <property key="OrderErrorCouldNotChangeAllocationPlanStatusStatusIsNotAValidChange">
+        <value xml:lang="en">ERROR : Could not change allocation plan status; status is not a valid change. </value>
+    </property>
     <property key="OrderErrorCouldNotChangeItemStatus">
         <value xml:lang="ar">خطأ: لا يمكن تغيير حالة البند</value>
         <value xml:lang="de">FEHLER: Positionsstatus konnte nicht geändert werden : </value>
@@ -3180,6 +3195,14 @@
         <value xml:lang="vi">Thêm nhanh hạng mục hàng hóa đơn hàng</value>
         <value xml:lang="zh">快速添加订单明细</value>
         <value xml:lang="zh-TW">快速添加訂單明細</value>
+    </property>
+    <property key="OrderQuoteGetNextIdError">
+        <value xml:lang="en">Error during id creation</value>
+        <value xml:lang="fr">Erreur durant la création de l'ID.</value>
+    </property>
+    <property key="OrderQuoteIdAlreadyExists">
+        <value xml:lang="en">ERROR: Quote with ID ${quoteId} already exists</value>
+        <value xml:lang="fr">ERREUR : Un devis avec la référence ${quoteId} existe déjà.</value>
     </property>
     <property key="OrderQuotePercent">
         <value xml:lang="ar">نسبة عرض السعر</value>

@@ -45,6 +45,15 @@ under the License.
 
 <#macro renderTextField name className alert value="" textSize="" maxlength="" id="" event="" action="" disabled="" clientAutocomplete="" ajaxUrl="" ajaxEnabled="" mask="" tabindex="" readonly="" placeholder="" delegatorName="default">
   <input type="text" name="${name?default("")?html}"<#t/>
+  <#if ajaxEnabled?has_content && ajaxEnabled && ajaxUrl?has_content>
+    <#local defaultMinLength = modelTheme.getAutocompleterDefaultMinLength()>
+    <#local defaultDelay = modelTheme.getAutocompleterDefaultDelay()>
+    <#local className = className + " ajaxAutoCompleter"/>
+     data-show-description="false"<#rt/>
+     data-default-minlength="${defaultMinLength!2}"<#rt/>
+     data-ajax-url="${ajaxUrl!}"<#rt/>
+     data-default-delay="${defaultDelay!300}"<#rt/>
+  </#if>
     <@renderClass className alert />
     <#if value?has_content> value="${value}"</#if><#rt/>
     <#if textSize?has_content> size="${textSize}"</#if><#rt/>
@@ -59,11 +68,6 @@ under the License.
     <#if tabindex?has_content> tabindex="${tabindex}"</#if><#rt/>
     require
   /><#t/>
-  <#if ajaxEnabled?has_content && ajaxEnabled>
-    <#assign defaultMinLength = modelTheme.getAutocompleterDefaultMinLength()>
-    <#assign defaultDelay = modelTheme.getAutocompleterDefaultDelay()>
-    <script language="JavaScript" type="text/javascript">ajaxAutoCompleter('${ajaxUrl!}', false, ${defaultMinLength!2}, ${defaultDelay!300});</script><#lt/>
-  </#if>
 </#macro>
 
 <#macro renderTextareaField name className alert cols="" rows="" maxlength="" id="" readonly="" value="" visualEditorEnable="" buttons="" tabindex="" language="">
@@ -94,102 +98,31 @@ under the License.
         <#if size?has_content> size="${size}"</#if><#rt/>
         <#if maxlength?has_content>  maxlength="${maxlength}"</#if>
         <#if id?has_content> id="${id}_i18n"</#if>/><#rt/>
+        <#local className = className + " date-time-picker"/>
     </#if>
     <input type="hidden" <#if tabindex?has_content> tabindex="${tabindex}"</#if> name="${name}" <#if event?has_content && action?has_content> ${event}="${action}"</#if> <@renderClass className alert /><#rt/>
       <#if title?has_content> title="${title}"</#if>
       <#if value?has_content> value="${value}"</#if>
       <#if size?has_content> size="${size}"</#if><#rt/>
       <#if maxlength?has_content>  maxlength="${maxlength}"</#if>
+      <#if mask?has_content> data-mask="${mask}"</#if><#rt/>
+      data-shortdate="${shortDateInput?string}"
       <#if id?has_content> id="${id}"</#if>/><#rt/>
-    <#if dateType!="time" >
-      <script type="text/javascript">
-        <#-- If language specific lib is found, use date / time converter else just copy the value fields -->
-        if (Date.CultureInfo != undefined) {
-          var initDate = <#if value?has_content>jQuery("#${id}").val()<#else>""</#if>;
-          if (initDate != "") {
-            var dateFormat = Date.CultureInfo.formatPatterns.shortDate<#if shortDateInput?? && !shortDateInput> + " " + Date.CultureInfo.formatPatterns.longTime</#if>;
-            <#-- The JS date parser doesn't understand the dot before ms in the date/time string. The ms here should be always 000 -->
-            if (initDate.indexOf('.') != -1) {
-              initDate = initDate.substring(0, initDate.indexOf('.'));
-            }
-            jQuery("#${id}").val(initDate);
-            var ofbizTime = "<#if shortDateInput?? && shortDateInput>yyyy-MM-dd<#else>yyyy-MM-dd HH:mm:ss</#if>";
-            var dateObj = Date.parseExact(initDate, ofbizTime);
-            var formatedObj = dateObj.toString(dateFormat);
-            jQuery("#${id}_i18n").val(formatedObj);
-          }
-
-          jQuery("#${id}").change(function() {
-            var ofbizTime = "<#if shortDateInput?? && shortDateInput>yyyy-MM-dd<#else>yyyy-MM-dd HH:mm:ss</#if>";
-            var newValue = ""
-            if (this.value != "") {
-              var dateObj = Date.parseExact(this.value, ofbizTime);
-              var dateFormat = Date.CultureInfo.formatPatterns.shortDate<#if shortDateInput?? && !shortDateInput> + " " + Date.CultureInfo.formatPatterns.longTime</#if>;
-              newValue = dateObj.toString(dateFormat);
-            }
-            jQuery("#${id}_i18n").val(newValue);
-          });
-          jQuery("#${id}_i18n").change(function() {
-            var dateFormat = Date.CultureInfo.formatPatterns.shortDate<#if shortDateInput?? && !shortDateInput> + " " + Date.CultureInfo.formatPatterns.longTime</#if>,
-            newValue = "",
-            dateObj = Date.parseExact(this.value, dateFormat),
-            ofbizTime;
-            if (this.value != "" && dateObj !== null) {
-              ofbizTime = "<#if shortDateInput?? && shortDateInput>yyyy-MM-dd<#else>yyyy-MM-dd HH:mm:ss</#if>";
-              newValue = dateObj.toString(ofbizTime);
-            }
-            else { // invalid input
-              jQuery("#${id}_i18n").val("");
-            }
-            jQuery("#${id}").val(newValue);
-          });
-        } else {
-          <#-- fallback if no language specific js date file is found -->
-          jQuery("#${id}").change(function() {
-          jQuery("#${id}_i18n").val(this.value);
-        });
-        jQuery("#${id}_i18n").change(function() {
-          jQuery("#${id}").val(this.value);
-        });
-      }
-
-      <#if shortDateInput?? && shortDateInput>
-        jQuery("#${id}").datepicker({
-      <#else>
-        jQuery("#${id}").datetimepicker({
-          showSecond: true,
-          <#-- showMillisec: true, -->
-          timeFormat: 'HH:mm:ss',
-          stepHour: 1,
-          stepMinute: 1,
-          stepSecond: 1,
-      </#if>
-          showWeek: true,
-          showOn: 'button',
-          buttonImage: '',
-          buttonText: '',
-          buttonImageOnly: false,
-          dateFormat: 'yy-mm-dd'
-        })
-        <#if mask?has_content>.mask("${mask}")</#if>
-        ;
-      </script>
-    </#if>
     <#if timeDropdown?has_content && timeDropdown=="time-dropdown">
       <select name="${timeHourName}" <#if classString?has_content>class="${classString}"</#if>><#rt/>
         <#if isTwelveHour>
-          <#assign x=11>
+          <#local x=11>
           <#list 0..x as i>
             <option value="${i}"<#if hour1?has_content><#if i=hour1> selected="selected"</#if></#if>>${i}</option><#rt/>
           </#list>
         <#else>
-          <#assign x=23>
+          <#local x=23>
           <#list 0..x as i>
             <option value="${i}"<#if hour2?has_content><#if i=hour2> selected="selected"</#if></#if>>${i}</option><#rt/>
           </#list>
         </#if>
         </select>:<select name="${timeMinutesName}" <#if classString?has_content>class="${classString}"</#if>><#rt/>
-          <#assign values = Static["org.apache.ofbiz.base.util.StringUtil"].toList(timeValues)>
+          <#local values = Static["org.apache.ofbiz.base.util.StringUtil"].toList(timeValues)>
           <#list values as i>
             <option value="${i}"<#if minutes?has_content><#if i?number== minutes ||((i?number==(60 -step?number)) && (minutes &gt; 60 - (step?number/2))) || ((minutes &gt; i?number )&& (minutes &lt; i?number+(step?number/2))) || ((minutes &lt; i?number )&& (minutes &gt; i?number-(step?number/2)))> selected="selected"</#if></#if>>${i}</option><#rt/>
           </#list>
@@ -207,12 +140,17 @@ under the License.
   </span>
 </#macro>
 
-<#macro renderDropDownField name className alert id formName otherFieldName action explicitDescription options fieldName otherFieldName otherValue otherFieldSize ajaxEnabled ajaxOptions frequency minChars choices autoSelect partialSearch partialChars ignoreCase fullSearch conditionGroup="" tabindex="" multiple="" event="" size="" firstInList="" currentValue="" allowEmpty="" dDFCurrent="" noCurrentSelectedKey="">
+<#macro renderDropDownField name className alert id formName action explicitDescription options fieldName otherFieldName otherValue otherFieldSize ajaxEnabled ajaxOptions frequency minChars choices autoSelect partialSearch partialChars ignoreCase fullSearch conditionGroup="" tabindex="" multiple="" event="" size="" firstInList="" currentValue="" allowEmpty="" dDFCurrent="" noCurrentSelectedKey="">
   <#if conditionGroup?has_content>
     <input type="hidden" name="${name}_grp" value="${conditionGroup}"/>
   </#if>
   <span class="ui-widget">
-    <select name="${name?default("")}<#rt/>" <@renderClass className alert /><#if id?has_content> id="${id}"</#if><#if multiple?has_content> multiple="multiple"</#if><#if otherFieldSize gt 0> onchange="process_choice(this,document.${formName}.${otherFieldName})"</#if><#if event?has_content> ${event}="${action}"</#if><#if size?has_content> size="${size}"</#if><#if tabindex?has_content> tabindex="${tabindex}"</#if><#rt/>>
+    <select name="${name?default("")}<#rt/>" <@renderClass className alert /><#if id?has_content> id="${id}"</#if><#if multiple?has_content> multiple="multiple"</#if><#if ajaxEnabled> class="autoCompleteDropDown"</#if><#if event?has_content> ${event}="${action}"</#if><#if size?has_content> size="${size}"</#if><#if tabindex?has_content> tabindex="${tabindex}"</#if><#rt/>
+    <#if otherFieldName?has_content>
+    data-other-field-name="${otherFieldName}"
+    data-other-field-value='${otherValue?js_string}'
+    data-other-field-size='${otherFieldSize}'
+    </#if>>
       <#if firstInList?has_content && currentValue?has_content && !multiple?has_content>
         <option selected="selected" value="${currentValue}">${explicitDescription?replace("&#x5c;&#x27;","&#x27;")}</option><#rt/><#-- replace("&#x5c;&#x27;","&#x27;") related to OFBIZ-6504 -->
       </#if>
@@ -232,23 +170,6 @@ under the License.
   </span>
   <#if otherFieldName?has_content>
     <noscript><input type='text' name='${otherFieldName}' /></noscript>
-    <script type='text/javascript' language='JavaScript'><!--
-      disa = ' disabled';
-      if(other_choice(document.${formName}.${fieldName}))
-        disa = '';
-      document.write("<input type='text' name='${otherFieldName}' value='${otherValue?js_string}' size='${otherFieldSize}'"+disa+" onfocus='check_choice(document.${formName}.${fieldName})' />");
-      if(disa && document.styleSheets)
-      document.${formName}.${otherFieldName}.style.visibility  = 'hidden';
-    //--></script>
-  </#if>
-
-  <#if ajaxEnabled>
-    <script language="JavaScript" type="text/javascript">
-      ajaxAutoCompleteDropDown();
-      jQuery(function() {
-        jQuery("#${id}").combobox();
-      });
-    </script>
   </#if>
 </#macro>
 
@@ -469,35 +390,24 @@ under the License.
   </#if>
 </#macro>
 
-<#macro renderDateFindField className alert name dateType formName value defaultDateTimeString imgSrc localizedIconTitle defaultOptionFrom defaultOptionThru opEquals opSameDay opGreaterThanFromDayStart opGreaterThan opGreaterThan opLessThan opUpToDay opUpThruDay opIsEmpty conditionGroup="" localizedInputTitle="" value2="" size="" maxlength="" titleStyle="" tabindex="">
+<#macro renderDateFindField className alert id name dateType formName value defaultDateTimeString imgSrc localizedIconTitle defaultOptionFrom defaultOptionThru opEquals opSameDay opGreaterThanFromDayStart opGreaterThan opGreaterThan opLessThan opUpToDay opUpThruDay opIsEmpty conditionGroup="" localizedInputTitle="" value2="" size="" maxlength="" titleStyle="" tabindex="">
   <#if conditionGroup?has_content>
     <input type="hidden" name="${name}_grp" value="${conditionGroup}"/>
   </#if>
+  <#if dateType != "time">
+    <#local className = className + " date-time-picker"/>
+  </#if>
+  <#local shortDateInput = "date" == dateType/>
   <span class="view-calendar">
-    <input id="${name?html}_fld0_value" type="text" <@renderClass className alert /><#if name?has_content> name="${name?html}_fld0_value"</#if><#if localizedInputTitle?has_content> title="${localizedInputTitle}"</#if><#if value?has_content> value="${value}"</#if><#if size?has_content> size="${size}"</#if><#if maxlength?has_content> maxlength="${maxlength}"</#if>/><#if tabindex?has_content> tabindex="${tabindex}"</#if><#rt/>
-    <#if dateType != "time">
-      <script type="text/javascript">
-        <#if "date" == dateType>
-          jQuery("#${name?html}_fld0_value").datepicker({
-        <#else>
-          jQuery("#${name?html}_fld0_value").datetimepicker({
-            showSecond: true,
-            <#-- showMillisec: true, -->
-            timeFormat: 'HH:mm:ss',
-            stepHour: 1,
-            stepMinute: 5,
-            stepSecond: 10,
-        </#if>
-            showWeek: true,
-            showOn: 'button',
-            buttonImage: '',
-            buttonText: '',
-            buttonImageOnly: false,
-            dateFormat: 'yy-mm-dd'
-          });
-      </script>
-      <#rt/>
-    </#if>
+    <input id="${id}_fld0_value" type="text" <@renderClass className alert />
+        <#if name?has_content> name="${name?html}_fld0_value"</#if>
+        <#if localizedInputTitle?has_content> title="${localizedInputTitle}"</#if>
+        <#if value?has_content> value="${value}"</#if>
+        <#if size?has_content> size="${size}"</#if>
+        <#if maxlength?has_content> maxlength="${maxlength}"</#if>
+        <#if tabindex?has_content> tabindex="${tabindex}"</#if><#rt/>
+         data-shortdate="${shortDateInput?string}"
+    />
     <#if titleStyle?has_content>
       <span class="${titleStyle}"><#rt/>
     </#if>
@@ -511,30 +421,14 @@ under the License.
       </span><#rt/>
     </#if>
     <#rt/>
-    <input id="${name?html}_fld1_value" type="text" <@renderClass className alert /><#if name?has_content> name="${name}_fld1_value"</#if><#if localizedInputTitle??> title="${localizedInputTitle?html}"</#if><#if value2?has_content> value="${value2}"</#if><#if size?has_content> size="${size}"</#if><#if maxlength?has_content> maxlength="${maxlength}"</#if>/><#rt/>
-    <#if dateType != "time">
-      <script type="text/javascript">
-        <#if "date" == dateType>
-          jQuery("#${name?html}_fld1_value").datepicker({
-        <#else>
-          jQuery("#${name?html}_fld1_value").datetimepicker({
-            showSecond: true,
-            <#-- showMillisec: true, -->
-            timeFormat: 'HH:mm:ss',
-            stepHour: 1,
-            stepMinute: 5,
-            stepSecond: 10,
-        </#if>
-            showWeek: true,
-            showOn: 'button',
-            buttonImage: '',
-            buttonText: '',
-            buttonImageOnly: false,
-            dateFormat: 'yy-mm-dd'
-          });
-      </script>
-      <#rt/>
-    </#if>
+    <input id="${id}_fld1_value" type="text" <@renderClass className alert />
+        <#if name?has_content> name="${name}_fld1_value"</#if>
+        <#if localizedInputTitle??> title="${localizedInputTitle?html}"</#if>
+        <#if value2?has_content> value="${value2}"</#if>
+        <#if size?has_content> size="${size}"</#if>
+        <#if maxlength?has_content> maxlength="${maxlength}"</#if>
+         data-shortdate="${shortDateInput?string}"
+    /><#rt/>
     <#if titleStyle?has_content>
       <span class="${titleStyle}"><#rt/>
     </#if>
@@ -649,19 +543,19 @@ Parameter: delegatorName, String, optional - name of the delegator in context.
     <#if presentation?has_content && descriptionFieldName?has_content && "window" == presentation>
       data-lookup-field-formname="${fieldFormName}" data-lookup-form-name="${formName?html}" <#if descriptionFieldName?has_content>data-lookup-description-field="${descriptionFieldName}"</#if> <#rt>
       <#if targetParameterIter?has_content>
-        <#assign args = "${targetParameterIter?join(', ')}">
+        <#local args = "${targetParameterIter?join(', ')}">
       </#if>
       data-lookup-args="${args!}" <#rt>
     <#elseif presentation?has_content && "window" == presentation>
       data-lookup-field-formname="${fieldFormName}" <#rt>
       <#if targetParameterIter?has_content>
-        <#assign args = "${targetParameterIter?join(', ')}">
+        <#local args = "${targetParameterIter?join(', ')}">
       </#if>
       data-lookup-args="${args!}" <#rt>
     <#else>
       <#if ajaxEnabled?has_content && ajaxEnabled>
-        <#assign defaultMinLength = modelTheme.getAutocompleterDefaultMinLength()>
-        <#assign defaultDelay = modelTheme.getAutocompleterDefaultDelay()>
+        <#local defaultMinLength = modelTheme.getAutocompleterDefaultMinLength()>
+        <#local defaultDelay = modelTheme.getAutocompleterDefaultDelay()>
         <#if !ajaxUrl?contains("searchValueFieldName=")>
           <#if descriptionFieldName?has_content && "true" == showDescription>
             <#local ajaxUrl = ajaxUrl + "&amp;searchValueFieldName=" + descriptionFieldName />
@@ -678,7 +572,7 @@ Parameter: delegatorName, String, optional - name of the delegator in context.
       data-lookup-default-minlength="${defaultMinLength!2}" <#rt>
       data-lookup-default-delay="${defaultDelay!300}" <#rt>
       <#if targetParameterIter?has_content>
-        <#assign args = "${targetParameterIter?join(', ')}">
+        <#local args = "${targetParameterIter?join(', ')}">
       </#if>
       data-lookup-args="${args!}"
     </#if>
@@ -700,17 +594,16 @@ Parameter: delegatorName, String, optional - name of the delegator in context.
       <ul>
         <li class="${paginateFirstStyle}<#if viewIndex gt 0>"><a href="javascript:void(0)" onclick="<#if ajaxEnabled>ajaxUpdateAreas('${ajaxFirstUrl}')<#else>submitPagination(this, '${firstUrl}')</#if>">${paginateFirstLabel}</a><#else>-disabled"><span>${paginateFirstLabel}</span></#if></li>
         <li class="${paginatePreviousStyle}<#if viewIndex gt 0>"><a href="javascript:void(0)" onclick="<#if ajaxEnabled>ajaxUpdateAreas('${ajaxPreviousUrl}')<#else>submitPagination(this, '${previousUrl}')</#if>">${paginatePreviousLabel}</a><#else>-disabled"><span>${paginatePreviousLabel}</span></#if></li>
-        <#if listSize gt 0 && javaScriptEnabled><li class="nav-page-select">${pageLabel} <select name="page" size="1" onchange="<#if ajaxEnabled>ajaxUpdateAreas('${ajaxSelectUrl}')<#else>submitPagination(this, '${selectUrl}'+this.value)</#if>"><#rt/>
-          <#assign x=(listSize/viewSize)?ceiling>
-            <#list 1..x as i>
-              <#if i == (viewIndex+1)><option selected="selected" value="<#else><option value="</#if>${i-1}">${i}</option>
-            </#list>
-          </select></li>
+        <#if listSize gt 0 && javaScriptEnabled>
+          <li class="nav-page-select">
+            ${pageLabel}
+            <input type="text" placeholder="${viewIndex+1} of ${(listSize/viewSize)?ceiling}" size="15" onchange="<#if ajaxEnabled>ajaxUpdateAreas('${ajaxSelectUrl}')<#else>submitPagination(this, '${selectUrl}'+(this.value-1))</#if>"/>
+          </li>
         </#if>
         <li class="${paginateNextStyle}<#if highIndex lt listSize>"><a href="javascript:void(0)" onclick="<#if ajaxEnabled>ajaxUpdateAreas('${ajaxNextUrl}')<#else>submitPagination(this, '${nextUrl}')</#if>">${paginateNextLabel}</a><#else>-disabled"><span>${paginateNextLabel}</span></#if></li>
         <li class="${paginateLastStyle}<#if highIndex lt listSize>"><a href="javascript:void(0)" onclick="<#if ajaxEnabled>ajaxUpdateAreas('${ajaxLastUrl}')<#else>submitPagination(this, '${lastUrl}')</#if>">${paginateLastLabel}</a><#else>-disabled"><span>${paginateLastLabel}</span></#if></li>
         <#if javaScriptEnabled><li class="nav-pagesize"><select name="pageSize" size="1" onchange="<#if ajaxEnabled>ajaxUpdateAreas('${ajaxSelectSizeUrl}')<#else>submitPagination(this, '${selectSizeUrl}')</#if>"><#rt/>
-            <#assign availPageSizes = [20, 30, 50, 100, 200]>
+            <#local availPageSizes = [20, 30, 50, 100, 200]>
           <#list availPageSizes as ps>
             <option <#if viewSize == ps> selected="selected" </#if> value="${ps}">${ps}</option>
           </#list>
@@ -747,11 +640,8 @@ Parameter: delegatorName, String, optional - name of the delegator in context.
     <div class="fieldgroup-title-bar">
       <#if collapsible>
         <ul>
-          <li class="<#if collapsed>collapsed">
-                      <a onclick="javascript:toggleCollapsiblePanel(this, '${collapsibleAreaId}', '${expandToolTip}', '${collapseToolTip}');">
-                    <#else>expanded">
-                      <a onclick="javascript:toggleCollapsiblePanel(this, '${collapsibleAreaId}', '${expandToolTip}', '${collapseToolTip}');">
-                    </#if>
+          <li data-collapsible-area-id="${collapsibleAreaId}" data-expand-tooltip="${expandToolTip}" data-collapse-tooltip="${collapseToolTip}"
+                  class="<#if collapsed>collapsed"><#else>expanded"></#if>
             &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<#if title?has_content>${title}</#if></a>
           </li>
         </ul>
@@ -791,7 +681,7 @@ Parameter: delegatorName, String, optional - name of the delegator in context.
 <#macro makeHiddenFormLinkForm actionUrl name parameters targetWindow="">
   <form method="post" action="${actionUrl}" <#if targetWindow?has_content>target="${targetWindow}"</#if> onsubmit="javascript:submitFormDisableSubmits(this)" name="${name}">
     <#list parameters as parameter>
-      <input name="${parameter.name}" value="${parameter.value}" type="hidden"/>
+      <input name="${parameter.name}" value="${parameter.value?html}" type="hidden"/>
     </#list>
   </form>
 </#macro>
@@ -803,15 +693,15 @@ Parameter: delegatorName, String, optional - name of the delegator in context.
 </#macro>
 <#macro makeHyperlinkString hiddenFormName imgSrc title  alternate linkUrl description linkStyle="" event="" action="" targetParameters="" targetWindow="" confirmation="" uniqueItemName="" height="" width="" id="">
     <#if uniqueItemName?has_content>
-        <#local params = "{ 'presentation': 'layer'">
+        <#local params = "{&quot;presentation&quot;: &quot;layer&quot;">
         <#if targetParameters?has_content>
-          <#assign parameterMap = targetParameters?eval>
-          <#assign parameterKeys = parameterMap?keys>
+          <#local parameterMap = targetParameters?eval>
+          <#local parameterKeys = parameterMap?keys>
           <#list parameterKeys as key>
-            <#local params += ",'${key}': '${parameterMap[key]}'">
+            <#local params += ",&quot;${key}&quot;: &quot;${parameterMap[key]}&quot;">
           </#list>
         </#if>
-        <#local params += " }">
+        <#local params += "}">
         <a href="javascript:void(0);" id="${uniqueItemName}_link"
            data-dialog-params="${params}"
            data-dialog-width="${width}"

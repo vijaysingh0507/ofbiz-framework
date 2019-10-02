@@ -17,7 +17,7 @@ specific language governing permissions and limitations
 under the License.
 -->
 
-<script language="JavaScript" type="text/javascript">
+<script type="application/javascript">
     function clearLine(facilityId, orderId, orderItemSeqId, productId, shipGroupSeqId, inventoryItemId, packageSeqId) {
         document.clearPackLineForm.facilityId.value = facilityId;
         document.clearPackLineForm.orderId.value = orderId;
@@ -59,7 +59,7 @@ under the License.
                     <#list invoiceIds as invoiceId>
                       <li>
                         ${uiLabelMap.CommonNbr}<a href="/accounting/control/invoiceOverview?invoiceId=${invoiceId}${StringUtil.wrapString(externalKeyParam)}" target="_blank" class="buttontext">${invoiceId}</a>
-                        (<a href="/accounting/control/invoice.pdf?invoiceId=${invoiceId}${StringUtil.wrapString(externalKeyParam)}" target="_blank" class="buttontext">PDF</a>)
+                        (<a href="/accounting/control/invoice.pdf?invoiceId=${invoiceId}${StringUtil.wrapString(externalKeyParam)}" target="_blank" class="buttontext">${uiLabelMap.CommonPdf}</a>)
                       </li>
                     </#list>
                     </ul>
@@ -86,7 +86,6 @@ under the License.
                 <tr>
                   <td colspan="2">&nbsp;</td>
                   <td colspan="2">
-                    <input type="image" src="<@ofbizContentUrl>/images/spacer.gif</@ofbizContentUrl>" onclick="javascript:document.selectOrderForm.submit();" />
                     <a href="javascript:document.selectOrderForm.submit();" class="buttontext">${uiLabelMap.ProductPackOrder}</a>
                     <a href="javascript:document.selectOrderForm.action='<@ofbizUrl>WeightPackageOnly</@ofbizUrl>';document.selectOrderForm.submit();" class="buttontext">${uiLabelMap.ProductWeighPackageOnly}</a>
                   </td>
@@ -111,7 +110,6 @@ under the License.
                 <tr>
                   <td colspan="2">&nbsp;</td>
                   <td colspan="1">
-                    <input type="image" src="<@ofbizContentUrl>/images/spacer.gif</@ofbizContentUrl>" onclick="javascript:document.selectPicklistBinForm.submit();" />
                     <a href="javascript:document.selectPicklistBinForm.submit();" class="buttontext">${uiLabelMap.ProductPackOrder}</a>
                     <a href="javascript:document.selectPicklistBinForm.action='<@ofbizUrl>WeightPackageOnly</@ofbizUrl>';document.selectPicklistBinForm.submit();" class="buttontext">${uiLabelMap.ProductWeighPackageOnly}</a>
                   </td>
@@ -410,7 +408,7 @@ under the License.
                           <#if "true" == forceComplete?default("false")>
                             <#assign buttonName = "${uiLabelMap.ProductCompleteForce}">
                           </#if>
-                          <input type="button" value="${buttonName}" onclick="javascript:document.completePackForm.submit();"/>
+                          <input type="submit" value="${buttonName}"/>
                         </div>
                       </td>
                     </tr>
@@ -518,11 +516,11 @@ under the License.
   </#if>
 
   <#if orderId?has_content>
-    <script language="javascript" type="text/javascript">
+    <script type="application/javascript">
       document.singlePackForm.productId.focus();
     </script>
   <#else>
-    <script language="javascript" type="text/javascript">
+    <script type="application/javascript">
       document.selectOrderForm.orderId.focus();
     </script>
   </#if>

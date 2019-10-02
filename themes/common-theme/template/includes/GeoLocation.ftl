@@ -41,12 +41,12 @@ under the License.
          style="border:1px solid #979797; background-color:#e5e3df; width:${geoChart.width}; height:${geoChart.height}; margin:2em auto;">
         <div style="padding:1em; color:gray;">${uiLabelMap.CommonLoading}</div>
     </div>
-    <script src="https://maps.googleapis.com/maps/api/js?sensor=false" type="text/javascript"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?sensor=false" type="application/javascript"></script>
     </#if>
 
   <#-- ========================== Here we go with different types of maps renderer ===========================-->
     <#if "GEOPT_GOOGLE" == geoChart.dataSourceId>
-    <script type="text/javascript">
+    <script type="application/javascript">
         function showAllMarkers(map, points) {
             if (points.length > 1) {
                 var latlngbounds = new google.maps.LatLngBounds();
@@ -90,7 +90,7 @@ under the License.
     <#elseif  "GEOPT_MICROSOFT" == geoChart.dataSourceId>
     <#elseif  "GEOPT_MAPTP" == geoChart.dataSourceId>
     <#elseif  "GEOPT_ADDRESS_GOOGLE" == geoChart.dataSourceId>
-    <script type="text/javascript">
+    <script type="application/javascript">
         var geocoder = new google.maps.Geocoder();
         var map = new google.maps.Map(document.getElementById("${id}"),
                 {
@@ -113,34 +113,66 @@ under the License.
         });
     </script>
     <#elseif "GEOPT_OSM" == geoChart.dataSourceId>
-    <div id="${id}" style="border:1px solid #979797; background-color:#e5e3df; width:${geoChart.width}; height:${geoChart.height}; margin:2em auto;"></div>
-    <#--
-    due to https://github.com/openlayers/openlayers/issues/1025
-    rather use a local version loaded by framework/common/widget/CommonScreens.xml -->
-    <#-- script src="//www.openlayers.org/api/OpenLayers.js"></script-->
-    <script type="text/javascript">
-        map = new OpenLayers.Map("${id}");
-        map.addLayer(new OpenLayers.Layer.OSM());
-        var zoom = ${zoom};
-        var center = new OpenLayers.LonLat(${center.lon},${center.lat})
-              .transform(new OpenLayers.Projection("EPSG:4326"), // transform from WGS 1984
-                      map.getProjectionObject() // to Spherical Mercator Projection
-        );
-        var markers = new OpenLayers.Layer.Markers("Markers");
-        map.addLayer(markers);
-        <#if geoChart.points?has_content>
-          <#list geoChart.points as point>
-              markers.addMarker(new OpenLayers.Marker(new OpenLayers.LonLat(${point.lon},${point.lat}).transform(
-                    new OpenLayers.Projection("EPSG:4326"), map.getProjectionObject())));
-          </#list>
-        </#if>
-        map.addControl(new OpenLayers.Control.PanZoomBar());
-        map.addControl(new OpenLayers.Control.NavToolbar());
+    <div id="${id}" class="map" style="border:1px solid #979797; background-color:#e5e3df; width:${geoChart.width}; height:${geoChart.height}; margin:2em auto;"></div>
+    <script type="application/javascript">
+        var iconFeatures=[];
 
-        map.setCenter(center, zoom);
-        var newBound = markers.getDataExtent();
-        map.zoomToExtent(newBound);
+        <#if geoChart.points?has_content>
+            <#list geoChart.points as point>
+            iconFeatures.push(
+                    new ol.Feature({
+                        geometry: new ol.geom.Point(ol.proj.transform([${point.lon},${point.lat}],
+                                'EPSG:4326', 'EPSG:900913'))
+                    })
+            );
+            </#list>
+        </#if>
+
+        var vectorSource = new ol.source.Vector({
+            features: iconFeatures
+        });
+
+        var iconStyle = new ol.style.Style({
+            image: new ol.style.Icon(({
+                anchor: [0.5, 25],
+                anchorXUnits: 'fraction',
+                anchorYUnits: 'pixels',
+                opacity: 0.75,
+                src: '<@ofbizContentUrl>/images/img/marker.png</@ofbizContentUrl>'
+            }))
+        });
+
+        var vectorLayer = new ol.layer.Vector({
+            source: vectorSource,
+            style: iconStyle
+        });
+
+        var map = new ol.Map({
+            target: '${id}',
+            layers: [
+                new ol.layer.Tile({
+                    source: new ol.source.OSM()
+                }),
+                vectorLayer
+            ],
+            view: new ol.View({
+                center: ol.proj.fromLonLat([${center.lon}, ${center.lat}]),
+                zoom: ${zoom}
+            }),
+            controls: [
+                new ol.control.Zoom(),
+                new ol.control.ZoomSlider(),
+                new ol.control.ZoomToExtent(),
+                new ol.control.OverviewMap(),
+                new ol.control.ScaleLine(),
+                new ol.control.FullScreen()
+            ]
+        });
+
+        // fit to show all markers (optional)
+        map.getView().fit(vectorSource.getExtent(), map.getSize());
     </script>
+
     </#if>
   </#if>
 <#else>

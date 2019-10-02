@@ -134,7 +134,7 @@ public class ProductionRun {
             productionRun.set("description",this.description);
             try {
                 if (quantityIsUpdated) {
-                    productionRun.set("quantityToProduce",(BigDecimal) this.quantity);
+                    productionRun.set("quantityToProduce", this.quantity);
                     productionRunProduct.set("estimatedQuantity",this.quantity.doubleValue());
                     productionRunProduct.store();
                     quantityIsUpdated = false;
@@ -282,7 +282,7 @@ public class ProductionRun {
      */
     public Timestamp recalculateEstimatedCompletionDate() {
         this.updateCompletionDate = false;
-        return recalculateEstimatedCompletionDate(Long.valueOf(0), estimatedStartDate);
+        return recalculateEstimatedCompletionDate(0L, estimatedStartDate);
     }
     /**
      * get the productionRunName property.
@@ -333,7 +333,7 @@ public class ProductionRun {
                 if (productionRunRoutingTasks == null)  this.getProductionRunRoutingTasks();
                 if (productionRunRoutingTasks != null) {
                     try {
-                        productionRunComponents = new LinkedList<GenericValue>();
+                        productionRunComponents = new LinkedList<>();
                         GenericValue routingTask;
                         for (Iterator<GenericValue> iter = productionRunRoutingTasks.iterator(); iter.hasNext();) {
                             routingTask = iter.next();
@@ -408,10 +408,10 @@ public class ProductionRun {
         double taskTime = 1;
         double totalTaskTime = 0;
         if (task.get("estimatedSetupMillis") != null) {
-            setupTime = task.getDouble("estimatedSetupMillis").doubleValue();
+            setupTime = task.getDouble("estimatedSetupMillis");
         }
         if (task.get("estimatedMilliSeconds") != null) {
-            taskTime = task.getDouble("estimatedMilliSeconds").doubleValue();
+            taskTime = task.getDouble("estimatedMilliSeconds");
         }
         totalTaskTime = (setupTime + taskTime * quantity.doubleValue());
         

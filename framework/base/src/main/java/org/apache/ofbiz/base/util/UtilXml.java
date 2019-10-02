@@ -73,11 +73,6 @@ import org.xml.sax.SAXParseException;
 import org.xml.sax.helpers.DefaultHandler;
 
 import com.thoughtworks.xstream.XStream;
-import com.thoughtworks.xstream.converters.Converter;
-import com.thoughtworks.xstream.converters.MarshallingContext;
-import com.thoughtworks.xstream.converters.UnmarshallingContext;
-import com.thoughtworks.xstream.io.HierarchicalStreamReader;
-import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
 
 /**
  * Utilities methods to simplify dealing with JAXP and DOM XML parsing
@@ -91,7 +86,15 @@ public final class UtilXml {
 
     private static XStream createXStream() {
         XStream xstream = new XStream();
-        xstream.registerConverter(new UnsupportedClassConverter());
+        /* This method is a pure helper method for XStream 1.4.x. 
+         * It initializes an XStream instance with a white list of well-known and simple types of the Java runtime
+         *  as it is done in XStream 1.5.x by default. This method will do therefore nothing in XStream 1.5
+         *  and could be removed them  
+         */ 
+        XStream.setupDefaultSecurity(xstream); 
+        /* You may want to enhance the white list created by XStream::setupDefaultSecurity (or by default with XStream 1.5) 
+         * using xstream::allowTypesByWildcard with your own classes
+         */  
         return xstream;
     }
 
@@ -384,10 +387,9 @@ public final class UtilXml {
             Debug.logWarning("[UtilXml.readXmlDocument] URL was null, doing nothing", module);
             return null;
         }
-        InputStream is = url.openStream();
-        Document document = readXmlDocument(is, validate, url.toString());
-        is.close();
-        return document;
+        try (InputStream is = url.openStream()) {
+            return readXmlDocument(is, validate, url.toString());
+        }
     }
 
     public static Document readXmlDocument(URL url, boolean validate, boolean withPosition)
@@ -1045,6 +1047,7 @@ public final class UtilXml {
          * @param systemId - System ID of DTD
          * @return InputSource of DTD
          */
+        @Override
         public InputSource resolveEntity(String publicId, String systemId) throws SAXException, IOException {
             hasDTD = false;
             String dtd = UtilProperties.getSplitPropertyValue(UtilURL.fromResource("localdtds.properties"), publicId);
@@ -1127,6 +1130,7 @@ public final class UtilXml {
             this.localResolver = localResolver;
         }
 
+        @Override
         public void error(SAXParseException exception) {
             String exceptionMessage = exception.getMessage();
             Pattern valueFlexExpr = Pattern.compile("value '\\$\\{.*\\}'");
@@ -1142,6 +1146,7 @@ public final class UtilXml {
             }
         }
 
+        @Override
         public void fatalError(SAXParseException exception) {
             if (localResolver.hasDTD()) {
                 Debug.logError("XmlFileLoader: File "
@@ -1154,6 +1159,7 @@ public final class UtilXml {
             }
         }
 
+        @Override
         public void warning(SAXParseException exception) {
             if (localResolver.hasDTD()) {
                 Debug.logError("XmlFileLoader: File "
@@ -1167,31 +1173,10 @@ public final class UtilXml {
         }
     }
 
-    private static class UnsupportedClassConverter implements Converter {
-
-        @Override
-        public boolean canConvert(@SuppressWarnings("rawtypes") Class arg0) {
-            if (java.lang.ProcessBuilder.class.equals(arg0)) {
-                return true;
-            }
-            return false;
-        }
-
-        @Override
-        public void marshal(Object arg0, HierarchicalStreamWriter arg1, MarshallingContext arg2) {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public Object unmarshal(HierarchicalStreamReader arg0, UnmarshallingContext arg1) {
-            throw new UnsupportedOperationException();
-        }
-    }
-
     /**
      * get node name without any prefix
      * @param node
-     * @return
+     * @return nodeName
      */
     public static String getNodeNameIgnorePrefix(Node node){
         if (node==null) {
@@ -1208,8 +1193,8 @@ public final class UtilXml {
     /**
      * get tag name without any prefix
      * @param element
-     * @return
-     */
+     * @return tagName
+     */ 
     public static String getTagNameIgnorePrefix(Element element){
         if (element==null) {
             return null;
@@ -1225,7 +1210,7 @@ public final class UtilXml {
     /**
      * get attribute value ignoring prefix in attribute name
      * @param element
-     * @return
+     * @return The value of the node, depending on its type; see the table Node class
      */
     public static String getAttributeValueIgnorePrefix(Element element, String attributeName){
         if (element==null) {

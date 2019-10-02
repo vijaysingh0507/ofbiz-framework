@@ -1071,16 +1071,6 @@
         <value xml:lang="zh">在${serviceName}中更新内容时出错</value>
         <value xml:lang="zh-TW">在${serviceName}中更新內容時出錯</value>
     </property>
-    <property key="ContentContents">
-        <value xml:lang="ar">المحتويات</value>
-        <value xml:lang="en">Contents</value>
-        <value xml:lang="fr">Contenus</value>
-        <value xml:lang="ja">コンテンツ</value>
-        <value xml:lang="pt">Conteúdo</value>
-        <value xml:lang="vi">Các nội dung</value>
-        <value xml:lang="zh">内容</value>
-        <value xml:lang="zh-TW">內容</value>
-    </property>
     <property key="ContentContentsAssociatedToDataResource">
         <value xml:lang="da">Indholdselementer tilknyttet til denne data ressource</value>
         <value xml:lang="de">Inhaltseinträge zugeordnet zu dieser Datenressource</value>
@@ -1165,18 +1155,6 @@
         <value xml:lang="vi">Tạo mới biểu mẫu cho tài liệu kết hợp gốc</value>
         <value xml:lang="zh">新建根合成文档模板</value>
         <value xml:lang="zh-TW">新建根複合檔模板</value>
-    </property>
-    <property key="ContentCreateNewWebSite">
-        <value xml:lang="da">Opret ny Webside</value>
-        <value xml:lang="en">Create New WebSite</value>
-        <value xml:lang="fr">Créer un nouveau Site Web</value>
-        <value xml:lang="it">Nuovo sito web</value>
-        <value xml:lang="ja">新規Webサイトを作成</value>
-        <value xml:lang="nl">Aanmaken nieuwe website</value>
-        <value xml:lang="pt">Criar novo site</value>
-        <value xml:lang="vi">Tạo mới trang thông tin</value>
-        <value xml:lang="zh">创建新网站</value>
-        <value xml:lang="zh-TW">新建網站</value>
     </property>
     <property key="ContentDataBaseText">
         <value xml:lang="da">Database tekst</value>
@@ -1387,18 +1365,6 @@
         <value xml:lang="vi">Trang trí</value>
         <value xml:lang="zh">修饰程序</value>
         <value xml:lang="zh-TW">修飾程式</value>
-    </property>
-    <property key="ContentDeleteFolder">
-        <value xml:lang="da">Slet folder</value>
-        <value xml:lang="en">Delete Folder</value>
-        <value xml:lang="fr">Suppression de répertoire</value>
-        <value xml:lang="it">Cancella cartella</value>
-        <value xml:lang="ja">フォルダを削除</value>
-        <value xml:lang="pt">Excluir a pasta</value>
-        <value xml:lang="th">ลบกล่อง</value>
-        <value xml:lang="vi">Xóa thư mục</value>
-        <value xml:lang="zh">删除文件夹</value>
-        <value xml:lang="zh-TW">刪除檔案夾</value>
     </property>
     <property key="ContentDocumentType">
         <value xml:lang="da">Dokumenttype</value>
@@ -1828,21 +1794,6 @@
         <value xml:lang="zh">为其下的所有内容建立索引：</value>
         <value xml:lang="zh-TW">為其下的所有內容建立索引:</value>
     </property>
-    <property key="ContentIndexEnteredIds">
-        <value xml:lang="ar">التعاريف المدخلة للدليل</value>
-        <value xml:lang="da">Indeks indtastede id'er</value>
-        <value xml:lang="de">Angegebene IDs indexieren</value>
-        <value xml:lang="en">Index Entered Ids</value>
-        <value xml:lang="fr">Indexez les réfs. entrées</value>
-        <value xml:lang="it">Inserire Codici da Indicizzare</value>
-        <value xml:lang="ja">入力されたIDの索引を作成</value>
-        <value xml:lang="pt">Indexar Ids fornecidos</value>
-        <value xml:lang="ro">Introduceti Coduri de Indicizare</value>
-        <value xml:lang="th">ดัชนีเข้าสู่รหัส</value>
-        <value xml:lang="vi">Đánh chỉ mục với các Id nội dung đã nhập</value>
-        <value xml:lang="zh">为输入的标识建立索引</value>
-        <value xml:lang="zh-TW">為輸入的識別建立索引</value>
-    </property>
     <property key="ContentIndexingTreeError">
         <value xml:lang="en">Error indexing tree: ${errorString}</value>
         <value xml:lang="fr">Erreur dans l'indexation de l'arbre : ${errorString}</value>
@@ -1964,21 +1915,6 @@
         <value xml:lang="vi">Mới nhất</value>
         <value xml:lang="zh">最新</value>
         <value xml:lang="zh-TW">最新</value>
-    </property>
-    <property key="ContentLayout">
-        <value xml:lang="ar">الوضعية</value>
-        <value xml:lang="da">Layout</value>
-        <value xml:lang="de">Layout</value>
-        <value xml:lang="en">Layout</value>
-        <value xml:lang="fr">Mise en page</value>
-        <value xml:lang="it">Layout</value>
-        <value xml:lang="ja">レイアウト</value>
-        <value xml:lang="pt">Layout</value>
-        <value xml:lang="ro">Layout</value>
-        <value xml:lang="th">แผนงาน</value>
-        <value xml:lang="vi">Bố cục</value>
-        <value xml:lang="zh">版式</value>
-        <value xml:lang="zh-TW">佈局</value>
     </property>
     <property key="ContentListOwnCreatedTemplates">
         <value xml:lang="da">Vis egne oprettede skabeloner</value>
@@ -2139,19 +2075,6 @@
         <value xml:lang="vi">Hệ thống chưa nhận được thông tin Nội dung hoặc và Id Nội dung</value>
         <value xml:lang="zh">没有提供内容或内容标识</value>
         <value xml:lang="zh-TW">沒有提供內容或內容識別</value>
-    </property>
-    <property key="ContentNewContentInFolder">
-        <value xml:lang="da">Nyt indhold i folder</value>
-        <value xml:lang="de">New Content in Folder</value>
-        <value xml:lang="en">New Content in Folder</value>
-        <value xml:lang="fr">New Content in Folder</value>
-        <value xml:lang="it">New Content in Folder</value>
-        <value xml:lang="ja">フォルダに新規コンテンツ</value>
-        <value xml:lang="pt">Novo conteúdo na pasta</value>
-        <value xml:lang="th">สร้างเนื้อหาใหม่ในกล่อง</value>
-        <value xml:lang="vi">Tạo Nội dung trong Thư mục</value>
-        <value xml:lang="zh">新建内容属于文件夹</value>
-        <value xml:lang="zh-TW">新建內容屬於檔案夾</value>
     </property>
     <property key="ContentNewFolder">
         <value xml:lang="da">Ny folder</value>
@@ -2479,7 +2402,6 @@
         <value xml:lang="ja">シンプルメソッド呼び出し ${resourceDescription} で、必須項目 ${requiredField} が正しくありません</value>
         <value xml:lang="pt">Campo obrigatório ${requiredField} está ausente na chamada do método simples ${resourceDescription}</value>
         <value xml:lang="vi">Trường bắt buộc ${requiredField} bị thiếu khi gọi hàm ${resourceDescription}</value>
-        <!--value xml:lang="zh">在用简单方法调用 ${resourceDescription} 时，缺少必须的数据项 ${requiredField}</value-->
         <value xml:lang="zh">在呼叫簡單方法 ${resourceDescription} 時，缺少必要的欄位 ${requiredField}</value>
         <value xml:lang="zh-TW">在呼叫簡單方法 ${resourceDescription} 時,缺少必要的欄位 ${requiredField}</value>
     </property>
@@ -3603,6 +3525,9 @@
         <value xml:lang="zh">网站</value>
         <value xml:lang="zh-TW">網站</value>
     </property>
+    <property key="ContentWebSiteAddError">
+        <value xml:lang="en">Web Site Add Error</value>
+    </property>
     <property key="ContentWebSiteAddMenu">
         <value xml:lang="da">Opret menu</value>
         <value xml:lang="de">Menü hinzufügen</value>
@@ -3615,6 +3540,9 @@
         <value xml:lang="vi">Thêm thực đơn</value>
         <value xml:lang="zh">添加菜单</value>
         <value xml:lang="zh-TW">增加選單</value>
+    </property>
+    <property key="ContentWebSiteAddNewErrors">
+        <value xml:lang="en">Web Site Add New Errors</value>
     </property>
     <property key="ContentWebSiteAddNewMenus">
         <value xml:lang="da">Højreklik for at oprette ny menu</value>
@@ -3692,12 +3620,6 @@
         <value xml:lang="zh">联系方式列表视图</value>
         <value xml:lang="zh-TW">聯絡清單檢視</value>
     </property>
-    <property key="ContentWebSitePathAliasCreate">
-        <value xml:lang="de">Neuen Pfad Alias erstellen</value>
-        <value xml:lang="en">Create New Path Alias</value>
-        <value xml:lang="nl">Aanmaken Nieuwe Path Alias</value>
-        <value xml:lang="zh">新建路径别名</value>
-    </property>  
     <property key="ContentWebSiteContent">
         <value xml:lang="da">Webside indhold</value>
         <value xml:lang="de">Webseite Inhalt</value>
@@ -3714,12 +3636,6 @@
     </property>
     <property key="ContentWebSiteErrors">
         <value xml:lang="en">Web Site Errors</value>
-    </property>
-    <property key="ContentWebSiteAddNewErrors">
-        <value xml:lang="en">Web Site Add New Errors</value>
-    </property>
-    <property key="ContentWebSiteAddError">
-        <value xml:lang="en">Web Site Add Error</value>
     </property>
     <property key="ContentWebSiteGenerateMissingSeoUrl">
         <value xml:lang="en">Generate missing seo url's</value>
@@ -3741,6 +3657,12 @@
         <value xml:lang="vi">Thực đơn trang thông tin</value>
         <value xml:lang="zh">网站菜单</value>
         <value xml:lang="zh-TW">網站選單</value>
+    </property>
+    <property key="ContentWebSitePathAliasCreate">
+        <value xml:lang="de">Neuen Pfad Alias erstellen</value>
+        <value xml:lang="en">Create New Path Alias</value>
+        <value xml:lang="nl">Aanmaken Nieuwe Path Alias</value>
+        <value xml:lang="zh">新建路径别名</value>
     </property>
     <property key="ContentWebSites">
         <value xml:lang="ar">مواقع الويب</value>
@@ -7097,6 +7019,12 @@
         <value xml:lang="zh">编辑网站会员</value>
         <value xml:lang="zh-TW">編輯網站團體</value>
     </property>
+    <property key="PageTitleEditWebSitePathAlias">
+        <value xml:lang="de">WebSite Pfad Alias bearbeiten</value>
+        <value xml:lang="en">Edit WebSite Path Alias</value>
+        <value xml:lang="nl">Wijzigen WebSite Path Alias</value>
+        <value xml:lang="zh">编辑网站路径别名</value>
+    </property>
     <property key="PageTitleFindCMSContent">
         <value xml:lang="da">Find CMS indhold</value>
         <value xml:lang="de">CMS Inhalt suchen</value>
@@ -7398,12 +7326,6 @@
         <value xml:lang="zh">站点列表</value>
         <value xml:lang="zh-TW">網站清單</value>
     </property>
-    <property key="PageTitleEditWebSitePathAlias">
-        <value xml:lang="de">WebSite Pfad Alias bearbeiten</value>
-        <value xml:lang="en">Edit WebSite Path Alias</value>
-        <value xml:lang="nl">Wijzigen WebSite Path Alias</value>
-        <value xml:lang="zh">编辑网站路径别名</value>
-    </property> 
     <property key="PageTitleLookupContent">
         <value xml:lang="ar">البحث عن المحتوى</value>
         <value xml:lang="da">Søg indhold</value>

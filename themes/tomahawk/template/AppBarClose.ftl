@@ -16,7 +16,7 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 -->
-<#assign appModelMenu = Static["org.apache.ofbiz.widget.model.MenuFactory"].getMenuFromLocation(applicationMenuLocation,applicationMenuName)>
+<#assign appModelMenu = Static["org.apache.ofbiz.widget.model.MenuFactory"].getMenuFromLocation(applicationMenuLocation,applicationMenuName,visualTheme)>
 <#if person?has_content>
   <#assign userName = (person.firstName!) + " " + (person.middleName!) + " " + person.lastName!>
 <#elseif partyGroup?has_content>
@@ -75,7 +75,7 @@ under the License.
       <#--if webSiteId?? && requestAttributes._CURRENT_VIEW_?? && helpTopic??-->
       <#if parameters.componentName?? && requestAttributes._CURRENT_VIEW_?? && helpTopic??>
         <#include "component://common-theme/template/includes/HelpLink.ftl" />
-        <li><a class="help-link <#if pageAvail?has_content> alert</#if>" href="javascript:lookup_popup1('showHelp?helpTopic=${helpTopic}&amp;portalPageId=${parameters.portalPageId!}','help' ,500,500);" title="${uiLabelMap.CommonHelp}"></a></li>
+        <li><a class="help-link <#if pageAvail?has_content> alert</#if>" href="javascript:lookup_popup1('showHelp?helpTopic=${helpTopic}&amp;portalPageId=${(parameters.portalPageId!)?html}','help' ,500,500);" title="${uiLabelMap.CommonHelp}"></a></li>
       </#if>
       <li><a href="<@ofbizUrl>logout</@ofbizUrl>">${uiLabelMap.CommonLogout}</a></li>
       <li><a href="<@ofbizUrl>ListVisualThemes</@ofbizUrl>">${uiLabelMap.CommonVisualThemes}</a></li>
@@ -106,7 +106,7 @@ under the License.
 </div>
 
 <#if userLogin??>
-<script type="text/javascript">
+<script type="application/javascript">
   var mainmenu = new DropDownMenu(jQuery('#main-navigation'));
   var appmenu = new DropDownMenu(jQuery('#app-navigation'));
 </script>

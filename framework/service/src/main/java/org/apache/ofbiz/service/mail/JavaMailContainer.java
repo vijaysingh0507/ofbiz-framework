@@ -73,32 +73,18 @@ public class JavaMailContainer implements Container {
     protected String configFile = null;
     protected Map<Store, Session> stores = null;
     private String name;
-    /**
-     * Initialize the container
-     *
-     * @param ofbizCommands command line arguments
-     * @param configFile Location of master OFBiz configuration file
-     * @throws org.apache.ofbiz.base.container.ContainerException
-     *
-     */
+
     @Override
-    public void init(List<StartupCommand> ofbizCommands, String name, String configFile) throws ContainerException {
+    public void init(List<StartupCommand> ofbizCommands, String name, String configFile) {
         this.name = name;
         this.configFile = configFile;
         this.stores = new LinkedHashMap<>();
         this.pollTimer = Executors.newScheduledThreadPool(1);
     }
 
-    /**
-     * Start the container
-     *
-     * @return true if server started
-     * @throws org.apache.ofbiz.base.container.ContainerException
-     *
-     */
     @Override
     public boolean start() throws ContainerException {
-        ContainerConfig.Configuration cfg = ContainerConfig.getConfiguration(name, configFile);
+        ContainerConfig.Configuration cfg = ContainerConfig.getConfiguration(name);
         String dispatcherName = ContainerConfig.getPropertyValue(cfg, "dispatcher-name", "JavaMailDispatcher");
         String delegatorName = ContainerConfig.getPropertyValue(cfg, "delegator-name", "default");
         this.deleteMail = "true".equals(ContainerConfig.getPropertyValue(cfg, "delete-mail", "false"));
@@ -139,14 +125,8 @@ public class JavaMailContainer implements Container {
         return true;
     }
 
-    /**
-     * Stop the container
-     *
-     * @throws org.apache.ofbiz.base.container.ContainerException
-     *
-     */
     @Override
-    public void stop() throws ContainerException {
+    public void stop() {
         // stop the poller
         this.pollTimer.shutdown();
         Debug.logWarning("stop JavaMail poller", module);

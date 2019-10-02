@@ -21,6 +21,7 @@
 import org.apache.ofbiz.entity.util.EntityUtilProperties
 
 import java.sql.Timestamp
+import java.util.Objects
 
 import org.apache.ofbiz.base.util.UtilDateTime
 import org.apache.ofbiz.base.util.UtilProperties
@@ -28,6 +29,7 @@ import org.apache.ofbiz.base.util.UtilValidate
 import org.apache.ofbiz.entity.GenericValue
 import org.apache.ofbiz.entity.condition.EntityCondition
 import org.apache.ofbiz.entity.condition.EntityOperator
+import org.apache.ofbiz.entity.condition.EntityConditionBuilder
 import org.apache.ofbiz.entity.util.EntityUtil
 import org.apache.ofbiz.service.ModelService
 import org.apache.ofbiz.service.ServiceUtil
@@ -134,12 +136,11 @@ def addProductToCategories() {
 def removeProductFromCategory() {
     // If the associated category was the primary category for the product, clear that field
     GenericValue product = from("Product").where(parameters).queryOne()
-    if (UtilValidate.areEqual(product?.primaryProductCategoryId, parameters.productCategoryId)) {
+    if (Objects.equals(product?.primaryProductCategoryId, parameters.productCategoryId)) {
         product.primaryProductCategoryId = null
         product.store()
     }
-    Map lookupPKMap = makeValue("ProductCategoryMember", parameters)
-    GenericValue lookedUpValue = findOne("ProductCategoryMember", lookupPKMap, false)
+    GenericValue lookedUpValue = from('ProductCategoryMember').where(parameters).queryOne()
     lookedUpValue.remove()
     return success()
 }
@@ -529,9 +530,14 @@ def duplicateProductCategory() {
         return error(UtilProperties.getMessage("ProductUiLabels", "ProductCatalogCreatePermissionError",
                 [resourceDescription: resourceDescription], parameters.locale))
     }
+    
+    if (findOne("ProductCategory", [productCategoryId: parameters.productCategoryId], false)) {
+        return error(UtilProperties.getMessage("ProductUiLabels", "ProductCategoryAlreadyExists",
+            [resourceDescription: resourceDescription], parameters.locale))
+    }
 
     // look up the old product category and clone it
-    GenericValue oldCategory = findOne("ProductCategory", [productCategoryId: parameters.oldProductCategoryId], false)
+    GenericValue oldCategory = from('ProductCategory').where([productCategoryId: parameters.oldProductCategoryId]).queryOne()
     GenericValue newCategory = oldCategory.clone()
 
     // set the new product category id, and write it to the datasource
@@ -596,12 +602,24 @@ def duplicateProductCategory() {
  * Create an attribute for a product category
  */
 def createProductCategoryAttribute() {
+ 
     def resourceDescription = parameters.resourceDescription ?: "createProductCategoryAttribute"
     if (!(security.hasEntityPermission("CATALOG", "_CREATE", parameters.userLogin))) {
         return error(UtilProperties.getMessage("ProductUiLabels", "ProductCatalogCreatePermissionError",
             [resourceDescription: resourceDescription], parameters.locale))
     }
-
+    
+    // check if the new attribute-name is unique to the product-category-id
+    exprBldr = new EntityConditionBuilder()
+    condition = exprBldr.AND() {
+        EQUALS(productCategoryId: parameters.productCategoryId)
+        EQUALS(attrName: parameters.attrName)
+    }
+    List existingData = from('ProductCategoryAttribute').where(condition).queryList()
+    if (existingData) {
+        return error(UtilProperties.getMessage("ProductUiLabels", "ProductCategoryAttrAlreadyExists",
+            [resourceDescription: resourceDescription], parameters.locale))
+    }
     GenericValue newEntity = makeValue("ProductCategoryAttribute", parameters)
     newEntity.create()
     return success()
@@ -762,7 +780,7 @@ def checkCategoryPermissionWithViewPurchaseAllow() {
     String failMessage = ""
     for (Map prodCatalogCategory : prodCatalogCategoryList) {
         // Do not do a permission check, unless the ProdCatalog requires it
-        def prodCatalog = findOne("ProdCatalog", [prodCatalogId: prodCatalogCategory.prodCatalogId], false)
+        def prodCatalog = from('ProdCatalog').where([prodCatalogId: prodCatalogCategory.prodCatalogId]).queryOne()
         if (prodCatalog.viewAllowPermReqd.equals("Y")
             && !security.hasEntityPermission("CATALOG_VIEW", "_ALLOW", parameters.userLogin)) {
             logVerbose("Permission check failed, user does not have permission")
@@ -795,7 +813,7 @@ def getAssociatedProductsList() {
     productsList = EntityUtil.orderBy(productsList, ["sequenceNum"])
     List products = []
     for (Map productMember : productsList) {
-        GenericValue product = findOne("Product", [productId: productMember.productId], false)
+        GenericValue product = from('Product').where([productId: productMember.productId]).queryOne()
         String productName = "${product.internalName}: ${product.productId}"
         products.add(productName)
     }

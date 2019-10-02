@@ -22,7 +22,7 @@ under the License.
 <#macro renderItemField value cellType cellStyle=""><td class="${cellType!}" <#if cellStyle?has_content>${cellStyle!}</#if>>${value!}</td></#macro>
 
 <#macro renderDisplayField type imageLocation idName description title class alert inPlaceEditorUrl="" inPlaceEditorParams="">
-<#if type=="currency"><#assign value = StringUtil.makeStringWrapper(description!)><@renderItemField value "cf" class/>
+<#if type=="currency"><#local value = StringUtil.makeStringWrapper(description!)><@renderItemField value "cf" class/>
 <#elseif type=="date"><@renderItemField description "dt" class/>
 <#elseif type=="date-time"><@renderItemField description "dtf" class/>
 <#elseif type=="accounting-number"><@renderItemField description "nf" class/>
@@ -55,6 +55,7 @@ under the License.
 <#macro renderIgnoredField></#macro>
 
 <#macro renderFieldTitle style title id fieldHelpText="" for=""><@renderItemField title "txf" style/></#macro>
+<#macro renderEmptyFormDataMessage message></#macro>
 
 <#macro renderSingleFormFieldTitle></#macro>
 
@@ -114,7 +115,7 @@ under the License.
 
 <#macro renderTextFindField name value defaultOption opEquals opBeginsWith opContains opIsEmpty opNotEqual className alert size maxlength autocomplete titleStyle hideIgnoreCase ignCase ignoreCase conditionGroup tabindex></#macro>
 
-<#macro renderDateFindField className alert name localizedInputTitle value value2 size maxlength dateType formName defaultDateTimeString imgSrc localizedIconTitle titleStyle defaultOptionFrom defaultOptionThru opEquals opSameDay opGreaterThanFromDayStart opGreaterThan opGreaterThan opLessThan opUpToDay opUpThruDay opIsEmpty conditionGroup tabindex></#macro>
+<#macro renderDateFindField className alert id name localizedInputTitle value value2 size maxlength dateType formName defaultDateTimeString imgSrc localizedIconTitle titleStyle defaultOptionFrom defaultOptionThru opEquals opSameDay opGreaterThanFromDayStart opGreaterThan opGreaterThan opLessThan opUpToDay opUpThruDay opIsEmpty conditionGroup tabindex></#macro>
 
 <#macro renderRangeFindField className alert name value size maxlength autocomplete titleStyle defaultOptionFrom opEquals opGreaterThan opGreaterThanEquals opLessThan opLessThanEquals value2 defaultOptionThru conditionGroup tabindex></#macro>
 

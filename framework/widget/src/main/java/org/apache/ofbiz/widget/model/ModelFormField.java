@@ -35,6 +35,8 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.TimeZone;
+import java.util.function.Consumer;
+import java.util.function.Predicate;
 
 import org.apache.ofbiz.base.conversion.ConversionException;
 import org.apache.ofbiz.base.conversion.DateTimeConverters;
@@ -75,6 +77,7 @@ import org.apache.ofbiz.widget.renderer.FormRenderer;
 import org.apache.ofbiz.widget.renderer.FormStringRenderer;
 import org.apache.ofbiz.widget.renderer.MenuStringRenderer;
 import org.apache.ofbiz.widget.renderer.ScreenRenderer;
+import org.apache.ofbiz.widget.renderer.VisualTheme;
 import org.codehaus.groovy.control.CompilationFailedException;
 import org.w3c.dom.Element;
 
@@ -100,6 +103,18 @@ public class ModelFormField {
      */
 
     public static final String module = ModelFormField.class.getName();
+
+    /**
+     * Constructs a form field model from a builder specification.
+     *
+     * @param spec  the specification of form field definition
+     * @return the form field model corresponding to the specification.
+     */
+    public static ModelFormField from(Consumer<ModelFormFieldBuilder> spec) {
+        ModelFormFieldBuilder builder = new ModelFormFieldBuilder();
+        spec.accept(builder);
+        return new ModelFormField(builder);
+    }
 
     public static ModelFormField from(ModelFormFieldBuilder builder) {
         return new ModelFormField(builder);
@@ -226,6 +241,13 @@ public class ModelFormField {
         return this.name;
     }
 
+
+    /**
+     * Gets the current id name of the {@link ModelFormField} and if in
+     * a multi type {@link ModelForm}, suffixes it with the index row.
+     * @param context
+     * @return
+     */
     public String getCurrentContainerId(Map<String, Object> context) {
         ModelForm modelForm = this.getModelForm();
         String idName = FlexibleStringExpander.expandString(this.getIdName(), context);
@@ -234,7 +256,7 @@ public class ModelFormField {
             Integer itemIndex = (Integer) context.get("itemIndex");
             if ("list".equals(modelForm.getType()) || "multi".equals(modelForm.getType())) {
                 if (itemIndex != null) {
-                    return idName + modelForm.getItemIndexSeparator() + itemIndex.intValue();
+                    return idName + modelForm.getItemIndexSeparator() + itemIndex;
                 }
             }
         }
@@ -329,7 +351,7 @@ public class ModelFormField {
 
             // this is a special case to fill in fields during a create by default from parameters passed in
             if (dataMapIsContext && retVal == null && !Boolean.FALSE.equals(useRequestParameters)) {
-                Map<String, ? extends Object> parameters = UtilGenerics.checkMap(context.get("parameters"));
+                Map<String, ? extends Object> parameters = UtilGenerics.cast(context.get("parameters"));
                 if (parameters != null) {
                     if (UtilValidate.isNotEmpty(this.entryAcsr)) {
                         retVal = this.entryAcsr.get(parameters);
@@ -358,7 +380,7 @@ public class ModelFormField {
                     DateFormat df = UtilDateTime.toDateTimeFormat("EEE MMM dd hh:mm:ss z yyyy", timeZone, null);
                     return df.format((java.util.Date) retVal);
                 } else if (retVal instanceof Collection) {
-                    Collection<Object> col = UtilGenerics.checkCollection(retVal);
+                    Collection<Object> col = UtilGenerics.cast(retVal);
                     Iterator<Object> iter = col.iterator();
                     List<Object> newCol = new ArrayList<>(col.size());
                     while (iter.hasNext()) {
@@ -435,6 +457,14 @@ public class ModelFormField {
         return headerLinkStyle;
     }
 
+    /**
+     * Gets the id name of the {@link ModelFormField} that is :
+     * <ul>
+     *     <li>The id-name" specified on the field definition
+     *     <li>Else the concatenation of the formName and fieldName
+     * </ul>
+     * @return
+     */
     public String getIdName() {
         if (UtilValidate.isNotEmpty(idName)) {
             return idName;
@@ -526,7 +556,7 @@ public class ModelFormField {
 
         Integer itemIndex = (Integer) context.get("itemIndex");
         if (itemIndex != null && "multi".equals(this.modelForm.getType())) {
-            return baseName + this.modelForm.getItemIndexSeparator() + itemIndex.intValue();
+            return baseName + this.modelForm.getItemIndexSeparator() + itemIndex;
         }
         return baseName;
     }
@@ -535,7 +565,7 @@ public class ModelFormField {
         if (this.position == null) {
             return 1;
         }
-        return position.intValue();
+        return position;
     }
 
     public String getRedWhen() {
@@ -620,7 +650,7 @@ public class ModelFormField {
         }
 
         // search for a localized label for the field's name
-        Map<String, String> uiLabelMap = UtilGenerics.checkMap(context.get("uiLabelMap"));
+        Map<String, String> uiLabelMap = UtilGenerics.cast(context.get("uiLabelMap"));
         if (uiLabelMap != null) {
             String titleFieldName = "FormFieldTitle_" + this.name;
             String localizedName = uiLabelMap.get(titleFieldName);
@@ -753,7 +783,7 @@ public class ModelFormField {
     }
 
     public boolean isSortField() {
-        return this.sortField != null && this.sortField.booleanValue();
+        return this.sortField != null && this.sortField;
     }
 
     public boolean isUseWhenEmpty() {
@@ -897,7 +927,7 @@ public class ModelFormField {
             // retVal should be a Boolean, if not something weird is up...
             if (retVal instanceof Boolean) {
                 Boolean boolVal = (Boolean) retVal;
-                condTrue = boolVal.booleanValue();
+                condTrue = boolVal;
             } else {
                 throw new IllegalArgumentException("Return value from use-when condition eval was not a Boolean: "
                         + (retVal != null ? retVal.getClass().getName() : "null") + " [" + retVal + "] on the field " + this.name
@@ -911,6 +941,27 @@ public class ModelFormField {
             Debug.logError(e, errMsg, module);
             throw new IllegalArgumentException(errMsg);
         }
+    }
+
+    /**
+     * Provides a stateful predicate checking if a field must be used.
+     *
+     * @param context the context determining if the field must be used
+     * @return a stateful predicate checking if a field must be used.
+     */
+    public static Predicate<ModelFormField> usedFields(Map<String, Object> context) {
+        HashMap<String, Boolean> seenUseWhen = new HashMap<>();
+        return field -> {
+            if (!field.isUseWhenEmpty()) {
+                String name = field.getName();
+                boolean shouldUse = field.shouldUse(context);
+                if (seenUseWhen.containsKey(name)) {
+                    return shouldUse != seenUseWhen.get(name);
+                }
+                seenUseWhen.put(name, shouldUse);
+            }
+            return true;
+        };
     }
 
     /**
@@ -1023,7 +1074,7 @@ public class ModelFormField {
         public Boolean isAllChecked(Map<String, Object> context) {
             String allCheckedStr = this.allChecked.expandString(context);
             if (!allCheckedStr.isEmpty()) {
-                return Boolean.valueOf("true".equals(allCheckedStr));
+                return "true".equals(allCheckedStr);
             }
             return null;
         }
@@ -1434,6 +1485,7 @@ public class ModelFormField {
         private final FlexibleStringExpander defaultValue;
         private final FlexibleStringExpander description;
         private final FlexibleStringExpander imageLocation;
+        private final FlexibleStringExpander format;
         private final InPlaceEditor inPlaceEditor;
         private final String size; // maximum number of characters to display
         private final String type; // matches type of field, currently text or currency
@@ -1447,6 +1499,7 @@ public class ModelFormField {
             this.description = original.description;
             this.imageLocation = original.imageLocation;
             this.inPlaceEditor = original.inPlaceEditor;
+            this.format = original.format;
             this.size = original.size;
             this.type = original.type;
         }
@@ -1459,6 +1512,7 @@ public class ModelFormField {
             this.defaultValue = FlexibleStringExpander.getInstance(element.getAttribute("default-value"));
             this.description = FlexibleStringExpander.getInstance(element.getAttribute("description"));
             this.imageLocation = FlexibleStringExpander.getInstance(element.getAttribute("image-location"));
+            this.format = FlexibleStringExpander.getInstance(element.getAttribute("format"));
             Element inPlaceEditorElement = UtilXml.firstChildElement(element, "in-place-editor");
             if (inPlaceEditorElement != null) {
                 this.inPlaceEditor = new InPlaceEditor(inPlaceEditorElement);
@@ -1477,6 +1531,7 @@ public class ModelFormField {
             this.defaultValue = FlexibleStringExpander.getInstance("");
             this.description = FlexibleStringExpander.getInstance("");
             this.imageLocation = FlexibleStringExpander.getInstance("");
+            this.format = FlexibleStringExpander.getInstance("");
             this.inPlaceEditor = null;
             this.size = "";
             this.type = "";
@@ -1490,6 +1545,7 @@ public class ModelFormField {
             this.defaultValue = FlexibleStringExpander.getInstance("");
             this.description = FlexibleStringExpander.getInstance("");
             this.imageLocation = FlexibleStringExpander.getInstance("");
+            this.format = FlexibleStringExpander.getInstance("");
             this.inPlaceEditor = null;
             this.size = "";
             this.type = "";
@@ -1503,6 +1559,7 @@ public class ModelFormField {
             this.defaultValue = FlexibleStringExpander.getInstance("");
             this.description = FlexibleStringExpander.getInstance("");
             this.imageLocation = FlexibleStringExpander.getInstance("");
+            this.format = FlexibleStringExpander.getInstance("");
             this.inPlaceEditor = null;
             this.size = "";
             this.type = "";
@@ -1567,7 +1624,7 @@ public class ModelFormField {
                 }
 
                 try {
-                    BigDecimal parsedRetVal = (BigDecimal) ObjectType.simpleTypeConvert(retVal, "BigDecimal", null, null, locale,
+                    BigDecimal parsedRetVal = (BigDecimal) ObjectType.simpleTypeOrObjectConvert(retVal, "BigDecimal", null, null, locale,
                             true);
                     retVal = UtilFormatOut.formatCurrency(parsedRetVal, isoCode, locale, 10); // we set the max to 10 digits as an hack to not round numbers in the ui
                 } catch (GeneralException e) {
@@ -1575,7 +1632,7 @@ public class ModelFormField {
                     Debug.logError(e, errMsg, module);
                     throw new IllegalArgumentException(errMsg);
                 }
-            } else if ("date".equals(this.type) && retVal.length() > 10) {
+            } else if ("date".equals(this.type) && retVal.length() > 9) {
                 Locale locale = (Locale) context.get("locale");
                 if (locale == null) {
                     locale = Locale.getDefault();
@@ -1620,16 +1677,24 @@ public class ModelFormField {
                     // create default date/time value from timestamp string
                     retVal = retVal.substring(0, 16);
                 }
-            } else if ("accounting-number".equals(this.type)) {
+            } else if ("number".equals(this.type) ||
+                    (this.type != null && this.type.endsWith("-number"))) {
                 Locale locale = (Locale) context.get("locale");
                 if (locale == null) {
                     locale = Locale.getDefault();
                 }
+                String formatVal;
+                if (! this.format.isEmpty()) {
+                    formatVal = this.format.expandString(context);
+                } else {
+                    formatVal = this.type.endsWith("-number")?
+                        this.type.replaceFirst("-number", "")
+                        :"default";
+                }
+                Delegator delegator = (Delegator) context.get("delegator");
                 try {
-                    Double parsedRetVal = (Double) ObjectType.simpleTypeConvert(retVal, "Double", null, locale, false);
-                    String template = UtilProperties.getPropertyValue("arithmetic", "accounting-number.format",
-                            "#,##0.00;(#,##0.00)");
-                    retVal = UtilFormatOut.formatDecimalNumber(parsedRetVal.doubleValue(), template, locale);
+                    Double parsedRetVal = (Double) ObjectType.simpleTypeOrObjectConvert(retVal, "Double", null, locale, false);
+                    retVal = UtilFormatOut.formatNumber(parsedRetVal, formatVal, delegator, locale);
                 } catch (GeneralException e) {
                     String errMsg = "Error formatting number [" + retVal + "]: " + e.toString();
                     Debug.logError(e, errMsg, module);
@@ -1845,7 +1910,7 @@ public class ModelFormField {
             baseName += "_OTHER";
             Integer itemIndex = (Integer) context.get("itemIndex");
             if (itemIndex != null && "multi".equals(getModelFormField().modelForm.getType())) {
-                return baseName + getModelFormField().modelForm.getItemIndexSeparator() + itemIndex.intValue();
+                return baseName + getModelFormField().modelForm.getItemIndexSeparator() + itemIndex;
             }
             return baseName;
         }
@@ -3019,7 +3084,7 @@ public class ModelFormField {
 
         @Override
         public void addOptionValues(List<OptionValue> optionValues, Map<String, Object> context, Delegator delegator) {
-            List<? extends Object> dataList = UtilGenerics.checkList(this.listAcsr.get(context));
+            List<? extends Object> dataList = UtilGenerics.cast(this.listAcsr.get(context));
             if (dataList != null && dataList.size() != 0) {
                 for (Object data : dataList) {
                     Map<String, Object> localContext = new HashMap<>();
@@ -3027,7 +3092,7 @@ public class ModelFormField {
                     if (UtilValidate.isNotEmpty(this.listEntryName)) {
                         localContext.put(this.listEntryName, data);
                     } else {
-                        Map<String, Object> dataMap = UtilGenerics.checkMap(data);
+                        Map<String, Object> dataMap = UtilGenerics.cast(data);
                         localContext.putAll(dataMap);
                     }
                     Object keyObj = keyAcsr.get(localContext);
@@ -3036,7 +3101,7 @@ public class ModelFormField {
                         key = (String) keyObj;
                     } else {
                         try {
-                            key = (String) ObjectType.simpleTypeConvert(keyObj, "String", null, null);
+                            key = (String) ObjectType.simpleTypeOrObjectConvert(keyObj, "String", null, null);
                         } catch (GeneralException e) {
                             String errMsg = "Could not convert field value for the field: [" + this.keyAcsr.toString()
                                     + "] to String for the value [" + keyObj + "]: " + e.toString();
@@ -3267,7 +3332,7 @@ public class ModelFormField {
             String location = this.getMenuLocation(context);
             ModelMenu modelMenu = null;
             try {
-                modelMenu = MenuFactory.getMenuFromLocation(location, name);
+                modelMenu = MenuFactory.getMenuFromLocation(location, name, (VisualTheme) context.get("visualTheme"));
             } catch (Exception e) {
                 String errMsg = "Error rendering menu named [" + name + "] at location [" + location + "]: ";
                 Debug.logError(e, errMsg, module);
@@ -3774,7 +3839,7 @@ public class ModelFormField {
                     // retVal should be a Boolean, if not something weird is up...
                     if (retVal instanceof Boolean) {
                         Boolean boolVal = (Boolean) retVal;
-                        shouldUse = boolVal.booleanValue();
+                        shouldUse = boolVal;
                     } else {
                         throw new IllegalArgumentException("Return value from target condition eval was not a Boolean: "
                                 + retVal.getClass().getName() + " [" + retVal + "]");

@@ -55,7 +55,7 @@ public class OrderTestServices {
         LocalDispatcher dispatcher = dctx.getDispatcher();
         Integer numberOfOrders = (Integer) context.get("numberOfOrders");
 
-        int numberOfOrdersInt = numberOfOrders.intValue();
+        int numberOfOrdersInt = numberOfOrders;
         for (int i = 1; i <= numberOfOrdersInt; i++) {
             try {
                 ModelService modelService = dctx.getModelService("createTestSalesOrderSingle");
@@ -89,7 +89,7 @@ public class OrderTestServices {
             salesChannel = "WEB_SALES_CHANNEL";
         }
 
-        List<String> productsList = new LinkedList<String>();
+        List<String> productsList = new LinkedList<>();
         try {
             if (UtilValidate.isNotEmpty(productId)) {
                 productsList.add(productId);
@@ -100,7 +100,7 @@ public class OrderTestServices {
                     return ServiceUtil.returnError(ServiceUtil.getErrorMessage(result));
                 }
                 if (result.get("categoryMembers") != null) {
-                    List<GenericValue> productCategoryMembers = UtilGenerics.checkList(result.get("categoryMembers"));
+                    List<GenericValue> productCategoryMembers = UtilGenerics.cast(result.get("categoryMembers"));
                     if (productCategoryMembers != null) {
                         for (GenericValue prodCatMemb : productCategoryMembers) {
                             if (prodCatMemb != null) {
@@ -137,7 +137,7 @@ public class OrderTestServices {
         } catch (Exception exc) {
             Debug.logWarning("Error setting userLogin in the cart: " + exc.getMessage(), module);
         }
-        int numberOfProductsPerOrderInt = numberOfProductsPerOrder.intValue();
+        int numberOfProductsPerOrderInt = numberOfProductsPerOrder;
         for (int j = 1; j <= numberOfProductsPerOrderInt; j++) {
             // get a product
             int k = r.nextInt(productsList.size());
@@ -163,7 +163,7 @@ public class OrderTestServices {
             resultMap.put("orderId", orderId);
         }
         Boolean shipOrder = (Boolean) context.get("shipOrder");
-        if (shipOrder.booleanValue() && UtilValidate.isNotEmpty(orderId)) {
+        if (shipOrder && UtilValidate.isNotEmpty(orderId)) {
             try {
                 Map<String, Object> result = dispatcher.runSync("quickShipEntireOrder", UtilMisc.toMap("orderId", orderId, "userLogin", userLogin));
                 if (ServiceUtil.isError(result)) {

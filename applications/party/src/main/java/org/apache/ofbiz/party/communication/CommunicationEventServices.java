@@ -705,7 +705,7 @@ public class CommunicationEventServices {
             communicationEventId = (String) createResult.get("communicationEventId");
 
             //add content to newly created commEvent
-            Map createCommEventContentMap = new HashMap<>();
+            Map<String, Object> createCommEventContentMap = new HashMap<>();
             createCommEventContentMap.put("userLogin", userLogin);
             createCommEventContentMap.put("contentId", contentId);
             createCommEventContentMap.put("communicationEventId", communicationEventId);
@@ -1169,10 +1169,10 @@ public class CommunicationEventServices {
                 emailAddressesBCC.add(((InternetAddress) element).getAddress());
             }
         }
-        String fromString = StringUtil.join(UtilMisc.toList(emailAddressesFrom), ",");
-        String toString = StringUtil.join(UtilMisc.toList(emailAddressesTo), ",");
-        String ccString = StringUtil.join(UtilMisc.toList(emailAddressesCC), ",");
-        String bccString = StringUtil.join(UtilMisc.toList(emailAddressesBCC), ",");
+        String fromString = StringUtil.join(emailAddressesFrom, ",");
+        String toString = StringUtil.join(emailAddressesTo, ",");
+        String ccString = StringUtil.join(emailAddressesCC, ",");
+        String bccString = StringUtil.join(emailAddressesBCC, ",");
 
         if (UtilValidate.isNotEmpty(fromString)) {
             commEventMap.put("fromString", fromString);
@@ -1611,8 +1611,9 @@ public class CommunicationEventServices {
         URL imageUrl;
         try {
             imageUrl = FlexibleLocation.resolveLocation("component://common-theme/webapp/images/spacer.gif");
-            InputStream imageStream = imageUrl.openStream();
+            try (InputStream imageStream = imageUrl.openStream()) {
             UtilHttp.streamContentToBrowser(response, imageStream, 43, "image/gif", null);
+            }
         } catch (MalformedURLException e) {
             Debug.logError(e, module);
         } catch (IOException e) {

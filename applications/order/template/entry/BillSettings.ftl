@@ -17,7 +17,7 @@ specific language governing permissions and limitations
 under the License.
 -->
 
-<script type="text/javascript">
+<script type="application/javascript">
 //<![CDATA[
 function shipBillAddr() {
     if (document.checkoutsetupform.useShipAddr.checked) {
@@ -43,7 +43,7 @@ function makeExpDate() {
             <table width="100%" cellpadding="1" cellspacing="0" border="0">
               <tr>
                 <td colspan="2">
-                  <a href="<@ofbizUrl>setBilling?createNew=Y</@ofbizUrl>" class="buttontext">${uiLabelMap.CommonCreateNew}</a>
+                  <a href="<@ofbizUrl>setBilling?createNew=Y</@ofbizUrl>" class="buttontext">${uiLabelMap.CommonCreate}</a>
                 </td>
               </tr>
               <tr><td colspan="3"><hr /></td></tr>
@@ -228,7 +228,7 @@ function makeExpDate() {
               <td width="26%" align="right" valign="top"><div>${uiLabelMap.CommonStateProvince}</div></td>
               <td width="5">&nbsp;</td>
               <td width="74%">
-                <select name="stateProvinceGeoId" <#if requestParameters.useShipAddr??>disabled="disabled"</#if>>
+                <select id="checkoutsetupform_stateProvinceGeoId" name="stateProvinceGeoId" <#if requestParameters.useShipAddr??>disabled="disabled"</#if>>
                   <#if postalFields.stateProvinceGeoId??>
                   <option>${postalFields.stateProvinceGeoId}</option>
                   <option value="${postalFields.stateProvinceGeoId}">---</option>
@@ -249,7 +249,7 @@ function makeExpDate() {
               <td width="26%" align="right" valign="top"><div>${uiLabelMap.CommonCountry}</div></td>
               <td width="5">&nbsp;</td>
               <td width="74%">
-                <select name="countryGeoId" <#if requestParameters.useShipAddr??>disabled="disabled"</#if>>
+                <select id="checkoutsetupform_countryGeoId" name="countryGeoId" <#if requestParameters.useShipAddr??>disabled="disabled"</#if>>
                   <#if postalFields.countryGeoId??>
                   <option>${postalFields.countryGeoId}</option>
                   <option value="${postalFields.countryGeoId}">---</option>
@@ -452,7 +452,7 @@ function makeExpDate() {
         <#else>
           <#-- initial screen show a list of options -->
 
-          <script type="text/javascript">
+          <script type="application/javascript">
 
               function setCheckoutPaymentId( selectedValue ) {
                   checkoutForm = document.getElementById('checkoutsetupform');

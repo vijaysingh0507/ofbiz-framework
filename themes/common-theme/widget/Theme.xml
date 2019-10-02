@@ -51,13 +51,13 @@ under the License.
         <property name="jgrowlHeight" value="" type="Integer"/>
         <property name="jgrowlSpeed" value="100" type="Integer"/>
         <!--templates location-->
-        <property name="VT_SHORTCUT_ICON" value="/images/ofbiz.ico"/>
+        <property name="VT_SHORTCUT_ICON" value="/images/favicon"/>
         <property name="VT_HDR_TMPLT_LOC" value="component://flatgrey/template/Header.ftl"/><!--use flatgrey to wait the new design-->
         <property name="VT_FTR_TMPLT_LOC" value="component://flatgrey/template/Footer.ftl"/>
         <property name="VT_NAV_TMPLT_LOC" value="component://flatgrey/template/AppBar.ftl"/>
         <property name="VT_MSG_TMPLT_LOC" value="component://common-theme/template/includes/Messages.ftl"/>
         <!--javascript libs-->
-        <property name="VT_HDR_JAVASCRIPT['add']" value="/common/js/jquery/jquery-3.2.1.min.js"/>
+        <property name="VT_HDR_JAVASCRIPT['add']" value="/common/js/jquery/jquery-3.4.1.min.js"/>
         <property name="VT_HDR_JAVASCRIPT['add']" value="/common/js/jquery/jquery-migrate-3.0.0.min.js"/>
         <property name="VT_HDR_JAVASCRIPT['add']" value="/common/js/jquery/plugins/browser-plugin/jquery.browser-0.1.0.min.js"/>
         <property name="VT_HDR_JAVASCRIPT['add']" value="/common/js/jquery/ui/jquery-ui-1.12.1.min.js"/>
@@ -67,7 +67,7 @@ under the License.
         <property name="VT_HDR_JAVASCRIPT['add']" value="/common/js/jquery/plugins/mask/jquery.mask-1.14.13.min.js"/>
         <property name="VT_HDR_JAVASCRIPT['add']" value="/common/js/jquery/plugins/jeditable/jquery.jeditable-1.7.3.js"/>
         <property name="VT_HDR_JAVASCRIPT['add']" value="/common/js/jquery/plugins/validate/jquery.validate.min.js"/>
-        <property name="VT_HDR_JAVASCRIPT['add']" value="/common/js/plugins/OpenLayers-2.13.1-modified-for-CSP-.js"/>
+        <property name="VT_HDR_JAVASCRIPT['add']" value="/common/js/plugins/OpenLayers-5.3.0.js"/>
         <property name="VT_HDR_JAVASCRIPT['add']" value="/common/js/jquery/plugins/elrte-1.3/js/elrte.min.js"/>
         <property name="VT_HDR_JAVASCRIPT['add']" value="/common/js/util/OfbizUtil.js"/>
         <property name="VT_HDR_JAVASCRIPT['add']" value="/common/js/util/fieldlookup.js"/>
@@ -93,6 +93,7 @@ under the License.
             <template-file widget="form" location="component://common-theme/template/macro/HtmlFormMacroLibrary.ftl"/>
             <template-file widget="tree" location="component://common-theme/template/macro/HtmlTreeMacroLibrary.ftl"/>
             <template-file widget="menu" location="component://common-theme/template/macro/HtmlMenuMacroLibrary.ftl"/>
+            <template-file widget="error" location="component://common-theme/template/ErrorPage.ftl"/>
         </template>
         <template name="screenxml" type="xml" content-type="UTF-8" encoding="none" encoder="xml">
             <template-file widget="screen" location="component://common-theme/template/macro/XmlScreenMacroLibrary.ftl"/>
@@ -148,6 +149,7 @@ under the License.
             <screen name="ajaxAutocompleteOptions"/>
             <screen name="FoError"/>
             <screen name="login"/>
+            <screen name="impersonated"/>
             <screen name="ajaxNotLoggedIn"/>
             <screen name="requirePasswordChange"/>
             <screen name="forgotPassword_step1"/>
@@ -165,4 +167,12 @@ under the License.
             <screen name="ShowHelp" location="component://common-theme/widget/HelpScreens.xml"/>
         </generic-screen>
     </common-screens>
+    <common-menus><!--list all common menu to each application that each theme can be surcharge or not and use the menu present on common theme-->
+        <root-decorator default-location="component://common-theme/widget/CommonMenus.xml">
+            <menu name="CommonAppBarMenu"/>
+            <menu name="CommonTabBarMenu"/>
+            <menu name="CommonButtonBarMenu"/>
+            <menu name="CommonInlineBarMenu"/>
+        </root-decorator>
+    </common-menus>
 </theme>

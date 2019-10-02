@@ -84,8 +84,8 @@ public class ShoppingCartServices {
             return ServiceUtil.returnSuccess();
         }
 
-        cart.positionItemToGroup(itemIndex.intValue(), quantity,
-                fromGroupIndex.intValue(), toGroupIndex.intValue(), clearEmptyGroups.booleanValue());
+        cart.positionItemToGroup(itemIndex, quantity,
+                fromGroupIndex, toGroupIndex, clearEmptyGroups);
         Debug.logInfo("Called cart.positionItemToGroup()", module);
 
         return ServiceUtil.returnSuccess();
@@ -102,9 +102,9 @@ public class ShoppingCartServices {
         Boolean isGift = (Boolean) context.get("isGift");
         Locale locale = (Locale) context.get("locale");
 
-        ShoppingCart.CartShipInfo csi = cart.getShipInfo(groupIndex.intValue());
+        ShoppingCart.CartShipInfo csi = cart.getShipInfo(groupIndex);
         if (csi != null) {
-            int idx = groupIndex.intValue();
+            int idx = groupIndex;
 
             if (UtilValidate.isNotEmpty(shipmentMethodString)) {
                 int delimiterPos = shipmentMethodString.indexOf('@');
@@ -184,7 +184,7 @@ public class ShoppingCartServices {
         try {
             orderHeader = EntityQuery.use(delegator).from("OrderHeader").where("orderId", orderId).queryOne();
             orderTerms = orderHeader.getRelated("OrderTerm", null, null, false);
-            orderContactMechs = orderHeader.getRelated("OrderContactMech", null, null, false);
+            orderContactMechs = EntityQuery.use(delegator).select("orderId", "contactMechId", "contactMechPurposeTypeId").from("OrderAndPartyContactMech").where("orderId", orderId).filterByDate("contactFromDate", "contactThruDate").distinct().queryList();
         } catch (GenericEntityException e) {
             Debug.logError(e, module);
             return ServiceUtil.returnError(e.getMessage());
@@ -332,8 +332,11 @@ public class ShoppingCartServices {
         List<GenericValue> orderItemShipGroupList = orh.getOrderItemShipGroups();
         for (GenericValue orderItemShipGroup: orderItemShipGroupList) {
             // should be sorted by shipGroupSeqId
-            int newShipInfoIndex = cart.addShipInfo();
-            CartShipInfo cartShipInfo = cart.getShipInfo(newShipInfoIndex);
+            int groupIdx = Integer.parseInt(orderItemShipGroup.getString("shipGroupSeqId"));
+            CartShipInfo cartShipInfo = cart.getShipInfo(groupIdx-1);
+            if (cartShipInfo == null) {
+                cartShipInfo = cart.getShipInfo(cart.addShipInfo());
+            }
             cartShipInfo.shipAfterDate = orderItemShipGroup.getTimestamp("shipAfterDate");
             cartShipInfo.shipBeforeDate = orderItemShipGroup.getTimestamp("shipByDate");
             cartShipInfo.shipmentMethodTypeId = orderItemShipGroup.getString("shipmentMethodTypeId");
@@ -521,11 +524,13 @@ public class ShoppingCartServices {
                 cartItem.setDesiredDeliveryDate(item.getTimestamp("estimatedDeliveryDate"));
                 cartItem.setShipBeforeDate(item.getTimestamp("shipBeforeDate"));
                 cartItem.setShipAfterDate(item.getTimestamp("shipAfterDate"));
+                cartItem.setReserveAfterDate(item.getTimestamp("reserveAfterDate"));
                 cartItem.setShoppingList(item.getString("shoppingListId"), item.getString("shoppingListItemSeqId"));
                 cartItem.setIsModifiedPrice("Y".equals(item.getString("isModifiedPrice")));
                 cartItem.setName(item.getString("itemDescription"));
                 cartItem.setExternalId(item.getString("externalId"));
                 cartItem.setListPrice(item.getBigDecimal("unitListPrice"));
+                cartItem.setSupplierProductId(item.getString("supplierProductId"));
 
                 // load order item attributes
                 List<GenericValue> orderItemAttributesList = null;
@@ -880,7 +885,7 @@ public class ShoppingCartServices {
                         configWrapper = ProductConfigWorker.loadProductConfigWrapper(delegator, dispatcher, quoteItem.getString("configId"), productId, productStoreId, null, null, currency, locale, userLogin);
                     }
                     try {
-                            itemIndex = cart.addItemToEnd(productId, amount, quantity, quoteUnitPrice, reservStart, reservLength, reservPersons,null,null, null, null, null, configWrapper, null, dispatcher, Boolean.valueOf(!applyQuoteAdjustments), Boolean.valueOf(quoteUnitPrice.compareTo(BigDecimal.ZERO) == 0), Boolean.FALSE, Boolean.FALSE);
+                            itemIndex = cart.addItemToEnd(productId, amount, quantity, quoteUnitPrice, reservStart, reservLength, reservPersons,null,null, null, null, null, configWrapper, null, dispatcher, !applyQuoteAdjustments, quoteUnitPrice.compareTo(BigDecimal.ZERO) == 0, Boolean.FALSE, Boolean.FALSE);
 
                     } catch (ItemNotFoundException | CartItemModifyException e) {
                         Debug.logError(e, module);
@@ -1197,7 +1202,7 @@ public class ShoppingCartServices {
 
             if (UtilValidate.isEmpty(vendorProduct)) {
                 if (vendorMap.containsKey("_NA_")) {
-                    index = ((Integer) vendorMap.get("_NA_")).intValue();
+                    index = (Integer) vendorMap.get("_NA_");
                     cart.positionItemToGroup(item, item.getQuantity(), 0, index, true);
                 } else {
                     index = cart.addShipInfo();
@@ -1212,7 +1217,7 @@ public class ShoppingCartServices {
             if (vendorProduct != null) {
                 String vendorPartyId = vendorProduct.getString("vendorPartyId");
                 if (vendorMap.containsKey(vendorPartyId)) {
-                    index = ((Integer) vendorMap.get(vendorPartyId)).intValue();
+                    index = (Integer) vendorMap.get(vendorPartyId);
                     cart.positionItemToGroup(item, item.getQuantity(), 0, index, true);
                 } else {
                     index = cart.addShipInfo();

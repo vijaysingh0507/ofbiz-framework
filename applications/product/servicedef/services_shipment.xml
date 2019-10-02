@@ -73,6 +73,7 @@ under the License.
         <attribute name="eventDate" type="Timestamp" mode="IN" optional="true"/>
         <!-- A List of Maps, each with a shipmentId,a facilityId, and a shipGroupSeqId for each shipment created -->
         <attribute name="shipmentShipGroupFacilityList" type="List" mode="OUT" optional="false"/>
+        <attribute name="shipmentIds" type="List" mode="OUT" optional="true"/>
     </service>
     <service name="quickShipOrderByItem" engine="simple"
             location="component://product/minilang/shipment/shipment/ShipmentServices.xml" invoke="quickShipOrderByItem" auth="true">
@@ -84,8 +85,8 @@ under the License.
         <attribute name="setPackedOnly" type="String" mode="IN" optional="true"/>
         <attribute name="shipmentId" type="String" mode="OUT" optional="false"/>
     </service>
-    <service name="quickShipPurchaseOrder" engine="simple"
-            location="component://product/minilang/shipment/shipment/ShipmentServices.xml" invoke="quickShipPurchaseOrder" auth="true">
+    <service name="quickReceivePurchaseOrder" engine="simple"
+            location="component://product/minilang/shipment/shipment/ShipmentServices.xml" invoke="quickReceivePurchaseOrder" auth="true">
         <description>The mirror of quickShipEntireOrder, this service automatically creates shipments for an entire purchase order.
           All order items on each ship group is created as a Shipment.  All items on a Shipment are automatically issued to a Package.
           The shipment's status is first set to CREATED and then set as SHIPPED.  The facilityId is used to set the destinationFacilityId
@@ -93,6 +94,7 @@ under the License.
         </description>
         <attribute name="orderId" type="String" mode="IN" optional="false"/>
         <attribute name="facilityId" type="String" mode="IN" optional="false"/>
+        <attribute name="shipmentIds" type="List" mode="OUT" optional="true"/>
     </service>
     <service name="createShipmentForReturn" default-entity-name="ReturnHeader" engine="simple"
             location="component://product/minilang/shipment/shipment/ShipmentServices.xml" invoke="createShipmentForReturn">
@@ -1080,6 +1082,28 @@ under the License.
     </service>
     <service name="deleteShipmentCostEstimate" engine="entity-auto" invoke="delete" default-entity-name="ShipmentCostEstimate" auth="true">
         <description>Delete a ShipmentCostEstimate record</description>
+        <auto-attributes include="pk" mode="IN"/>
+    </service>
+
+    <!-- ShipmentTimeEstimate  -->
+
+    <service name="createShipmentTimeEstimate" engine="entity-auto" invoke="create" default-entity-name="ShipmentTimeEstimate" auth="true">
+        <description>Create a ShipmentTimeEstimate</description>
+        <auto-attributes include="pk" mode="IN"/>
+        <auto-attributes include="nonpk" mode="IN" optional="true"/>
+        <override name="fromDate" optional="true"/>
+    </service>
+    <service name="updateShipmentTimeEstimate" engine="entity-auto" invoke="update" default-entity-name="ShipmentTimeEstimate" auth="true">
+        <description>Update a ShipmentTimeEstimate</description>
+        <auto-attributes include="pk" mode="IN"/>
+        <auto-attributes include="nonpk" mode="IN" optional="true"/>
+    </service>
+    <service name="removeShipmentTimeEstimate" engine="entity-auto" invoke="delete" default-entity-name="ShipmentTimeEstimate" auth="true">
+        <description>Remove a ShipmentTimeEstimate</description>
+        <auto-attributes include="pk" mode="IN"/>
+    </service>
+    <service name="expireShipmentTimeEstimate" engine="entity-auto" invoke="expire" default-entity-name="ShipmentTimeEstimate" auth="true">
+        <description>Expire a ShipmentTimeEstimate</description>
         <auto-attributes include="pk" mode="IN"/>
     </service>
 

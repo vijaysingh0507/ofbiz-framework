@@ -146,7 +146,7 @@ public final class UtilProperties implements Serializable {
             return defaultNumber;
         }
         try {
-            return (Number)(ObjectType.simpleTypeConvert(str, type, null, null));
+            return (Number)(ObjectType.simpleTypeOrObjectConvert(str, type, null, null));
         } catch (GeneralException e) {
             Debug.logWarning("Error converting String \"" + str + "\" to " + type + "; using defaultNumber " + defaultNumber + ".", module);
         }
@@ -370,11 +370,7 @@ public final class UtilProperties implements Serializable {
      */
     public static boolean propertyValueEquals(URL url, String name, String compareString) {
         String value = getPropertyValue(url, name);
-
-        if (value == null) {
-            return false;
-        }
-        return value.trim().equals(compareString);
+        return !(value == null) && value.trim().equals(compareString);
     }
 
     /** Compares Ignoring Case the specified property to the compareString, returns true if they are the same, false otherwise
@@ -385,11 +381,7 @@ public final class UtilProperties implements Serializable {
      */
     public static boolean propertyValueEqualsIgnoreCase(URL url, String name, String compareString) {
         String value = getPropertyValue(url, name);
-
-        if (value == null) {
-            return false;
-        }
-        return value.trim().equalsIgnoreCase(compareString);
+        return !(value == null) && value.trim().equalsIgnoreCase(compareString);
     }
 
     /** Returns the value of the specified property name from the specified resource/properties file.
@@ -566,8 +558,6 @@ public final class UtilProperties implements Serializable {
                      +"# The comments have been removed, you may still find them on the OFBiz repository... \n"
                      +"#");
              }
-
-             propFile.close();
          } catch (FileNotFoundException e) {
              Debug.logInfo(e, "Unable to located the resource file.", module);
          } catch (IOException e) {
@@ -621,7 +611,9 @@ public final class UtilProperties implements Serializable {
         if (bundle.containsKey(name)) {
             value = bundle.getString(name);
         } else {
-            Debug.logInfo(name + " misses in " + resource + " for locale " + locale, module);
+            if (Debug.warningOn()) { 
+                Debug.logWarning(name + " is missing in " + resource + " for locale " + locale, module);
+            }
             return name;
         }
         return value.trim();
@@ -692,7 +684,7 @@ public final class UtilProperties implements Serializable {
     }
 
     public static String getMessageMap(String resource, String name, Locale locale, Object... context) {
-        return getMessage(resource, name, UtilGenerics.toMap(String.class, context), locale);
+        return getMessage(resource, name, UtilMisc.toMap(context), locale);
     }
 
     private static Set<String> resourceNotFoundMessagesShown = new HashSet<>();
@@ -1165,9 +1157,11 @@ public final class UtilProperties implements Serializable {
         public Enumeration<String> getKeys() {
             return new Enumeration<String>() {
                 Iterator<String> i = UtilGenerics.cast(properties.keySet().iterator());
+                @Override
                 public boolean hasMoreElements() {
                     return (i.hasNext());
                 }
+                @Override
                 public String nextElement() {
                     return i.next();
                 }
@@ -1187,22 +1181,16 @@ public final class UtilProperties implements Serializable {
             super(defaults);
         }
         public ExtendedProperties(URL url, Locale locale) throws IOException, InvalidPropertiesFormatException {
-            InputStream in = null;
-            try {
-                in = new BufferedInputStream(url.openStream());
+            try (InputStream in = new BufferedInputStream(url.openStream())) {
                 if (url.getFile().endsWith(".xml")) {
                     xmlToProperties(in, locale, this);
                 } else {
                     load(in);
                 }
-            } finally {
-                if (in != null) {
-                    in.close();
-                }
             }
         }
         @Override
-        public void loadFromXML(InputStream in) throws IOException, InvalidPropertiesFormatException {
+        public synchronized void loadFromXML(InputStream in) throws IOException, InvalidPropertiesFormatException {
             try {
                 xmlToProperties(in, null, this);
             } finally {

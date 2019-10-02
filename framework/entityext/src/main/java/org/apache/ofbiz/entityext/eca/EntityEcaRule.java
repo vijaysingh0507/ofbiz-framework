@@ -23,6 +23,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 import org.apache.ofbiz.base.util.Debug;
@@ -51,7 +52,7 @@ public final class EntityEcaRule implements java.io.Serializable {
     private final List<EntityEcaCondition> conditions;
     private final List<Object> actionsAndSets;
     private boolean enabled = true;
-    private final List<String> conditionFieldNames  = new ArrayList<String>();
+    private final List<String> conditionFieldNames  = new ArrayList<>();
 
     public EntityEcaRule(Element eca) {
         this.entityName = eca.getAttribute("entity");
@@ -59,8 +60,8 @@ public final class EntityEcaRule implements java.io.Serializable {
         this.eventName = eca.getAttribute("event");
         this.runOnError = "true".equals(eca.getAttribute("run-on-error"));
         this.enabled = !"false".equals(eca.getAttribute("enabled"));
-        ArrayList<EntityEcaCondition> conditions = new ArrayList<EntityEcaCondition>();
-        ArrayList<Object> actionsAndSets = new ArrayList<Object>();
+        ArrayList<EntityEcaCondition> conditions = new ArrayList<>();
+        ArrayList<Object> actionsAndSets = new ArrayList<>();
         for (Element element: UtilXml.childElementList(eca)) {
             if ("condition".equals(element.getNodeName())) {
                 EntityEcaCondition ecaCond = new EntityEcaCondition(element, true, false);
@@ -130,7 +131,7 @@ public final class EntityEcaRule implements java.io.Serializable {
             return;
         }
         // Are fields tested in a condition missing? If so, we need to load them
-        List<String> fieldsToLoad = new ArrayList<String>();
+        List<String> fieldsToLoad = new ArrayList<>();
         for( String conditionFieldName : conditionFieldNames) {
             if( value.get(conditionFieldName) == null) {
                 fieldsToLoad.add(conditionFieldName);
@@ -147,7 +148,7 @@ public final class EntityEcaRule implements java.io.Serializable {
             }
         }
 
-        Map<String, Object> context = new HashMap<String, Object>();
+        Map<String, Object> context = new HashMap<>();
         context.putAll(value);
 
         boolean allCondTrue = true;
@@ -182,6 +183,7 @@ public final class EntityEcaRule implements java.io.Serializable {
      * @deprecated Not thread-safe, no replacement.
      * @param enabled
      */
+    @Deprecated
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
     }
@@ -209,13 +211,13 @@ public final class EntityEcaRule implements java.io.Serializable {
     public boolean equals(Object obj) {
     if (obj instanceof EntityEcaRule) {
             EntityEcaRule other = (EntityEcaRule) obj;
-            if (!UtilValidate.areEqual(this.entityName, other.entityName)) {
+            if (!Objects.equals(this.entityName, other.entityName)) {
                 return false;
             }
-            if (!UtilValidate.areEqual(this.operationName, other.operationName)) {
+            if (!Objects.equals(this.operationName, other.operationName)) {
                 return false;
             }
-            if (!UtilValidate.areEqual(this.eventName, other.eventName)) {
+            if (!Objects.equals(this.eventName, other.eventName)) {
                 return false;
             }
             if (!this.conditions.equals(other.conditions)) {

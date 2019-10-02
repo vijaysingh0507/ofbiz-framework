@@ -22,18 +22,19 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import org.apache.ofbiz.base.util.Debug;
 import org.apache.ofbiz.base.util.ObjectType;
+import org.apache.ofbiz.base.util.UtilMisc;
 import org.apache.ofbiz.base.util.UtilValidate;
 import org.apache.ofbiz.entity.GenericEntity;
 import org.apache.ofbiz.entity.GenericEntityException;
 import org.apache.ofbiz.service.DispatchContext;
 import org.apache.ofbiz.service.GenericServiceException;
-import org.w3c.dom.Element;
-import org.apache.ofbiz.base.util.UtilMisc;
 import org.apache.ofbiz.service.LocalDispatcher;
 import org.apache.ofbiz.service.ServiceUtil;
+import org.w3c.dom.Element;
 
 /**
  * EntityEcaCondition
@@ -91,7 +92,7 @@ public final class EntityEcaCondition implements java.io.Serializable {
                 } else {
                     conditionReply = (Boolean) conditionServiceResult.get("conditionReply");
                 }
-                return conditionReply.booleanValue();
+                return conditionReply;
             } catch (GenericServiceException gse) {
                 throw new GenericEntityException("Error in calling condition service "+conditionService+". "+gse.getMessage());
             }
@@ -109,7 +110,7 @@ public final class EntityEcaCondition implements java.io.Serializable {
         if (Debug.verboseOn()) Debug.logVerbose("Comparing : " + lhsValue + " " + operator + " " + rhsValue, module);
 
         // evaluate the condition & invoke the action(s)
-        List<Object> messages = new LinkedList<Object>();
+        List<Object> messages = new LinkedList<>();
         Boolean cond = ObjectType.doRealCompare(lhsValue, rhsValue, operator, compareType, format, messages, null, dctx.getClassLoader(), constant);
 
         // if any messages were returned send them out
@@ -118,11 +119,7 @@ public final class EntityEcaCondition implements java.io.Serializable {
                 Debug.logWarning((String) message, module);
             }
         }
-        if (cond != null) {
-            return cond.booleanValue();
-        } else {
-            return false;
-        }
+        return cond;
     }
 
     public String getLValue() {
@@ -170,12 +167,12 @@ public final class EntityEcaCondition implements java.io.Serializable {
         if (obj instanceof EntityEcaCondition) {
             EntityEcaCondition other = (EntityEcaCondition) obj;
 
-            if (!UtilValidate.areEqual(this.conditionService, other.conditionService)) return false;
-            if (!UtilValidate.areEqual(this.lhsValueName, other.lhsValueName)) return false;
-            if (!UtilValidate.areEqual(this.rhsValueName, other.rhsValueName)) return false;
-            if (!UtilValidate.areEqual(this.operator, other.operator)) return false;
-            if (!UtilValidate.areEqual(this.compareType, other.compareType)) return false;
-            if (!UtilValidate.areEqual(this.format, other.format)) return false;
+            if (!Objects.equals(this.conditionService, other.conditionService)) return false;
+            if (!Objects.equals(this.lhsValueName, other.lhsValueName)) return false;
+            if (!Objects.equals(this.rhsValueName, other.rhsValueName)) return false;
+            if (!Objects.equals(this.operator, other.operator)) return false;
+            if (!Objects.equals(this.compareType, other.compareType)) return false;
+            if (!Objects.equals(this.format, other.format)) return false;
             if (this.constant != other.constant) return false;
             if (this.isService != other.isService) return false;
 
@@ -186,7 +183,7 @@ public final class EntityEcaCondition implements java.io.Serializable {
     }
     
     protected List<String> getFieldNames() {
-        List<String> fieldNameList = new ArrayList<String>();
+        List<String> fieldNameList = new ArrayList<>();
         if( UtilValidate.isNotEmpty(lhsValueName) ) {
             fieldNameList.add(lhsValueName);
         }

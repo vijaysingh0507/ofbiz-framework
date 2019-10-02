@@ -31,7 +31,7 @@ under the License.
                 <option value="${contactMechType.contactMechTypeId}">${contactMechType.get("description",locale)}</option>
               </#list>
             </select>
-            <a href="javascript:document.createcontactmechform.submit()" class="smallSubmit">${uiLabelMap.CommonCreate}</a>
+            <input type="submit" value="${uiLabelMap.CommonCreate}"/>
           </td>
         </tr>
       </table>
@@ -77,14 +77,14 @@ under the License.
                       <#if partyContactMechPurpose.thruDate?has_content>(${uiLabelMap.CommonExpire}: ${partyContactMechPurpose.thruDate.toString()}</#if>
                     </td>
                     <td class="button-col">
-                      <form name="deletePartyContactMechPurpose_${partyContactMechPurpose.contactMechPurposeTypeId}" method="post" action="<@ofbizUrl>deletePartyContactMechPurpose</@ofbizUrl>" >
+                      <form name="expirePartyContactMechPurpose_${partyContactMechPurpose.contactMechPurposeTypeId}" method="post" action="<@ofbizUrl>expirePartyContactMechPurpose</@ofbizUrl>" >
                          <input type="hidden" name="partyId" value="${partyId}" />
                          <input type="hidden" name="contactMechId" value="${contactMechId}" />
                          <input type="hidden" name="contactMechPurposeTypeId" value="${partyContactMechPurpose.contactMechPurposeTypeId}" />
                          <input type="hidden" name="fromDate" value="${partyContactMechPurpose.fromDate.toString()}" />
                          <input type="hidden" name="DONE_PAGE" value="${donePage?replace("=","%3d")}" />
                          <input type="hidden" name="useValues" value="true" />
-                         <a href="javascript:document.deletePartyContactMechPurpose_${partyContactMechPurpose.contactMechPurposeTypeId}.submit()" class="buttontext">${uiLabelMap.CommonDelete}</a> 
+                         <input type="submit" value="${uiLabelMap.CommonDelete}"/>
                        </form>
                     </td>
                   </tr>

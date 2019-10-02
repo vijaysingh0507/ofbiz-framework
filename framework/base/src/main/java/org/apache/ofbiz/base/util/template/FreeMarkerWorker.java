@@ -43,6 +43,7 @@ import org.apache.ofbiz.base.util.UtilMisc;
 import org.apache.ofbiz.base.util.UtilProperties;
 import org.apache.ofbiz.base.util.UtilValidate;
 import org.apache.ofbiz.base.util.cache.UtilCache;
+import org.apache.ofbiz.widget.model.ModelWidget;
 
 import freemarker.cache.MultiTemplateLoader;
 import freemarker.cache.StringTemplateLoader;
@@ -70,7 +71,7 @@ public final class FreeMarkerWorker {
 
     public static final String module = FreeMarkerWorker.class.getName();
 
-    public static final Version version = Configuration.VERSION_2_3_27;
+    public static final Version version = Configuration.VERSION_2_3_29;
 
     private FreeMarkerWorker () {}
 
@@ -108,7 +109,11 @@ public final class FreeMarkerWorker {
             newConfig.setAutoImports(freemarkerImports);
         }
         newConfig.setLogTemplateExceptions(false);
-        newConfig.setTemplateExceptionHandler(new FreeMarkerWorker.OFBizTemplateExceptionHandler());
+        boolean verboseTemplate = ModelWidget.widgetBoundaryCommentsEnabled(null)
+                || UtilProperties.getPropertyAsBoolean("widget", "widget.freemarker.template.verbose", false);
+        newConfig.setTemplateExceptionHandler(verboseTemplate
+                ? FreeMarkerWorker::handleTemplateExceptionVerbosily
+                : FreeMarkerWorker::handleTemplateException);
         try {
             newConfig.setSetting("datetime_format", "yyyy-MM-dd HH:mm:ss.SSS");
             newConfig.setSetting("number_format", "0.##########");
@@ -146,7 +151,7 @@ public final class FreeMarkerWorker {
                 Debug.logVerbose("Adding FTL Transform " + key + " with class " + className, module);
             }
             try {
-                config.setSharedVariable(key, loader.loadClass(className).newInstance());
+                config.setSharedVariable(key, loader.loadClass(className).getDeclaredConstructor().newInstance());
             } catch (Exception e) {
                 Debug.logError(e, "Could not pre-initialize dynamically loaded class: " + className + ": " + e, module);
             }
@@ -336,7 +341,7 @@ public final class FreeMarkerWorker {
 
     @SuppressWarnings("unchecked")
     public static <T> T unwrap(Object o) {
-        Object returnObj = null;
+        Object returnObj;
 
         if (o == TemplateModel.NOTHING) {
             returnObj = null;
@@ -344,6 +349,8 @@ public final class FreeMarkerWorker {
             returnObj = o.toString();
         } else if (o instanceof BeanModel) {
             returnObj = ((BeanModel) o).getWrappedObject();
+        } else {
+            returnObj = null;
         }
 
         return (T) returnObj;
@@ -353,7 +360,7 @@ public final class FreeMarkerWorker {
         Map<String, Object> templateRoot = new HashMap<>();
         Set<String> varNames = null;
         try {
-            varNames = UtilGenerics.checkSet(env.getKnownVariableNames());
+            varNames = UtilGenerics.cast(env.getKnownVariableNames());
         } catch (TemplateModelException e1) {
             Debug.logError(e1, "Error getting FreeMarker variable names, will not put pass current context on to sub-content", module);
         }
@@ -369,9 +376,9 @@ public final class FreeMarkerWorker {
         for (String key: saveKeyNames) {
             Object o = context.get(key);
             if (o instanceof Map<?, ?>) {
-                o = UtilMisc.makeMapWritable(UtilGenerics.checkMap(o));
+                o = UtilMisc.makeMapWritable(UtilGenerics.cast(o));
             } else if (o instanceof List<?>) {
-                o = UtilMisc.makeListWritable(UtilGenerics.checkList(o));
+                o = UtilMisc.makeListWritable(UtilGenerics.cast(o));
             }
             saveMap.put(key, o);
         }
@@ -382,9 +389,9 @@ public final class FreeMarkerWorker {
         for (String key: saveKeyNames) {
             Object o = context.get(key);
             if (o instanceof Map<?, ?>) {
-                o = UtilMisc.makeMapWritable(UtilGenerics.checkMap(o));
+                o = UtilMisc.makeMapWritable(UtilGenerics.cast(o));
             } else if (o instanceof List<?>) {
-                o = UtilMisc.makeListWritable(UtilGenerics.checkList(o));
+                o = UtilMisc.makeListWritable(UtilGenerics.cast(o));
             }
             saveMap.put(key, o);
         }
@@ -396,10 +403,10 @@ public final class FreeMarkerWorker {
             String key = entry.getKey();
             Object o = entry.getValue();
             if (o instanceof Map<?, ?>) {
-                context.put(key, UtilMisc.makeMapWritable(UtilGenerics.checkMap(o)));
+                context.put(key, UtilMisc.makeMapWritable(UtilGenerics.cast(o)));
             } else if (o instanceof List<?>) {
                 List<Object> list = new ArrayList<>();
-                list.addAll(UtilGenerics.checkList(o));
+                list.addAll(UtilGenerics.cast(o));
                 context.put(key, list);
             } else {
                 context.put(key, o);
@@ -491,16 +498,45 @@ public final class FreeMarkerWorker {
     }
 
     /**
-     * OFBiz specific TemplateExceptionHandler.
+     * Handles template exceptions quietly.
+     * <p>
+     * This is done by suppressing the exception and replacing it by a generic char for quiet alert.
+     * Note that exception is still logged.
+     * <p>
+     * This implements the {@link TemplateExceptionHandler} functional interface.
+     *
+     * @param te  the exception that occurred
+     * @param env  the runtime environment of the template
+     * @param out  this is where the output of the template is written
      */
-    static class OFBizTemplateExceptionHandler implements TemplateExceptionHandler {
-        public void handleTemplateException(TemplateException te, Environment env, Writer out) throws TemplateException {
-            try {
-                out.write(te.getMessage());
-                Debug.logError(te, module);
-            } catch (IOException e) {
-                Debug.logError(e, module);
-            }
+    private static void handleTemplateException(TemplateException te, Environment env, Writer out) {
+        try {
+            out.write(UtilProperties.getPropertyValue("widget", "widget.freemarker.template.exception.message", "∎"));
+            Debug.logError(te, module);
+        } catch (IOException e) {
+            Debug.logError(e, module);
+        }
+    }
+
+    /**
+     * Handles template exceptions verbosely.
+     * <p>
+     * This is done by suppressing the exception and keeping the rendering going on.  Messages
+     * present in the stack trace are sanitized before printing them to the output writer.
+     * Note that exception is still logged.
+     * <p>
+     * This implements the {@link TemplateExceptionHandler} functional interface.
+     *
+     * @param te  the exception that occurred
+     * @param env  the runtime environment of the template
+     * @param out  this is where the output of the template is written
+     */
+    private static void handleTemplateExceptionVerbosily(TemplateException te, Environment env, Writer out) {
+        try {
+            out.write(te.getMessage());
+            Debug.logError(te, module);
+        } catch (IOException e) {
+            Debug.logError(e, module);
         }
     }
 }

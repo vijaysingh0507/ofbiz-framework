@@ -34,9 +34,9 @@ import org.apache.ofbiz.base.util.UtilHttp;
 import org.apache.ofbiz.base.util.UtilValidate;
 import org.apache.ofbiz.entity.GenericEntityException;
 import org.apache.ofbiz.entity.GenericValue;
-import org.apache.ofbiz.entity.util.EntityUtilProperties;
 import org.apache.ofbiz.service.DispatchContext;
 import org.apache.ofbiz.service.LocalDispatcher;
+import org.apache.ofbiz.widget.model.ThemeFactory;
 import org.apache.ofbiz.widget.renderer.ScreenRenderer;
 import org.apache.ofbiz.widget.renderer.ScreenStringRenderer;
 import org.apache.ofbiz.widget.renderer.VisualTheme;
@@ -89,6 +89,9 @@ public class FoPrintServerEvents {
     public static byte[] getXslFo(DispatchContext dctx, String screen, Map<String, Object> parameters) throws GeneralException {
         // run as the system user
         VisualTheme visualTheme = (VisualTheme) parameters.get("visualTheme");
+        if (visualTheme == null) {
+            visualTheme = ThemeFactory.resolveVisualTheme(null);
+        }        
         GenericValue system = null;
         try {
             system = dctx.getDelegator().findOne("UserLogin", false, "userLoginId", "system");

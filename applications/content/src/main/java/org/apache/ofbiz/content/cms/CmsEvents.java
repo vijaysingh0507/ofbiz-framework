@@ -24,9 +24,7 @@ import java.io.Writer;
 import java.util.List;
 import java.util.Locale;
 
-import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -167,7 +165,7 @@ public class CmsEvents {
 
             GenericValue pathAlias = null;
             try {
-                pathAlias = EntityQuery.use(delegator).from("WebSitePathAlias").where("webSiteId", webSiteId, "pathAlias", pathInfo).orderBy("-fromDate").cache().filterByDate().queryOne();
+                pathAlias = EntityQuery.use(delegator).from("WebSitePathAlias").where("webSiteId", webSiteId, "pathAlias", pathInfo).orderBy("-fromDate").cache().filterByDate().queryFirst();
             } catch (GenericEntityException e) {
                 Debug.logError(e, module);
             }
@@ -179,16 +177,20 @@ public class CmsEvents {
                     if (!alias.startsWith("/")) {
                         alias = "/" + alias;
                     }
-                    RequestDispatcher rd = request.getRequestDispatcher(request.getServletPath() + alias);
-                    try {
-                        rd.forward(request, response);
-                    } catch (ServletException e) {
-                        Debug.logError(e, module);
-                        return "error";
-                    } catch (IOException e) {
-                        Debug.logError(e, module);
-                        return "error";
-                    }
+
+                    String context = request.getContextPath();
+                    String location = context + request.getServletPath();
+                    GenericValue webSite = WebSiteWorker.getWebSite(request);
+                    if (webSite != null && webSite.getString("hostedPathAlias") != null && !"ROOT".equals(pathInfo))
+                        location += "/" + webSite.getString("hostedPathAlias");
+
+                    String uriWithContext = request.getRequestURI();
+                    String uri = uriWithContext.substring(context.length());
+                    uri = uri.substring(0, uri.lastIndexOf('/'));
+
+                    response.setStatus(HttpServletResponse.SC_MOVED_TEMPORARILY);
+                    response.setHeader("Location", location + uri + alias);
+                    response.setHeader("Connection", "close");
 
                     return null; // null to not process any views
                 }
@@ -284,9 +286,12 @@ public class CmsEvents {
                 templateMap.put("statusCode", statusCode);
 
                 // make the link prefix
-                ServletContext ctx = (ServletContext) request.getAttribute("servletContext");
-                RequestHandler rh = (RequestHandler) ctx.getAttribute("_REQUEST_HANDLER_");
-                templateMap.put("_REQUEST_HANDLER_", rh);
+                templateMap.put("_REQUEST_HANDLER_", RequestHandler.from(request));
+
+                //Cache Headers
+                UtilHttp.setResponseBrowserProxyNoCache(response);
+                //Security Headers
+                UtilHttp.setResponseBrowserDefaultSecurityHeaders(response, null);
 
                 response.setStatus(statusCode);
 

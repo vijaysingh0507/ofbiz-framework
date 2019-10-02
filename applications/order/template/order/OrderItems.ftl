@@ -182,6 +182,19 @@ under the License.
                                 <#-- now show status details per line item -->
                                 <#assign currentItemStatus = orderItem.getRelatedOne("StatusItem", false)>
                                 <td colspan="1" valign="top">
+                                    <#if "SALES_ORDER" == orderHeader.orderTypeId!>
+                                      <table>
+                                          <tr>
+                                              <td class="label">
+                                                  <span class="label">${uiLabelMap.OrderReserveAfterDate}</span>
+                                              </td>
+                                              <td>
+                                                  ${orderItem.reserveAfterDate!}
+                                              </td>
+                                          </tr>
+                                      </table>
+                                    </#if>
+
                                     <div class="screenlet order-item-status-list<#if currentItemStatus.statusCode?has_content> ${currentItemStatus.statusCode}</#if>">
                                         <div class="screenlet-body">
                                             <div class="current-status">

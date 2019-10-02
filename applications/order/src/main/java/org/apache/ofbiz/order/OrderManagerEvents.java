@@ -47,7 +47,6 @@ import org.apache.ofbiz.entity.util.EntityQuery;
 import org.apache.ofbiz.order.order.OrderChangeHelper;
 import org.apache.ofbiz.service.GenericServiceException;
 import org.apache.ofbiz.service.LocalDispatcher;
-import org.apache.ofbiz.service.ModelService;
 import org.apache.ofbiz.service.ServiceUtil;
 /**
  * Order Manager Events
@@ -67,7 +66,7 @@ public class OrderManagerEvents {
 
         if (session.getAttribute("OFFLINE_PAYMENTS") != null) {
             String orderId = (String) request.getAttribute("orderId");
-            List<GenericValue> toBeStored = new LinkedList<GenericValue>();
+            List<GenericValue> toBeStored = new LinkedList<>();
             List<GenericValue> paymentPrefs = null;
             GenericValue placingCustomer = null;
             try {
@@ -186,7 +185,7 @@ public class OrderManagerEvents {
             if (UtilValidate.isNotEmpty(paymentMethodAmountStr)) {
                 BigDecimal paymentMethodAmount = BigDecimal.ZERO;
                 try {
-                    paymentMethodAmount = (BigDecimal) ObjectType.simpleTypeConvert(paymentMethodAmountStr, "BigDecimal", null, locale);
+                    paymentMethodAmount = (BigDecimal) ObjectType.simpleTypeOrObjectConvert(paymentMethodAmountStr, "BigDecimal", null, locale);
                 } catch (GeneralException e) {
                     request.setAttribute("_ERROR_MESSAGE_", UtilProperties.getMessage(resource_error, "OrderProblemsPaymentParsingAmount", locale));
                     return "error";
@@ -218,7 +217,7 @@ public class OrderManagerEvents {
             }
         }
 
-        List<GenericValue> toBeStored = new LinkedList<GenericValue>();
+        List<GenericValue> toBeStored = new LinkedList<>();
         for (GenericValue paymentMethodType : paymentMethodTypes) {
             String paymentMethodTypeId = paymentMethodType.getString("paymentMethodTypeId");
             String amountStr = request.getParameter(paymentMethodTypeId + "_amount");
@@ -226,7 +225,7 @@ public class OrderManagerEvents {
             if (UtilValidate.isNotEmpty(amountStr)) {
                 BigDecimal paymentTypeAmount = BigDecimal.ZERO;
                 try {
-                    paymentTypeAmount = (BigDecimal) ObjectType.simpleTypeConvert(amountStr, "BigDecimal", null, locale);
+                    paymentTypeAmount = (BigDecimal) ObjectType.simpleTypeOrObjectConvert(amountStr, "BigDecimal", null, locale);
                 } catch (GeneralException e) {
                     request.setAttribute("_ERROR_MESSAGE_", UtilProperties.getMessage(resource_error, "OrderProblemsPaymentParsingAmount", locale));
                     return "error";

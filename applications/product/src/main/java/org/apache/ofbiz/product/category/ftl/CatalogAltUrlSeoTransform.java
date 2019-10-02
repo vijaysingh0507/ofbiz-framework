@@ -80,21 +80,25 @@ public class CatalogAltUrlSeoTransform implements TemplateTransformModel {
     }
 
     @Override
-    public Writer getWriter(final Writer out, final Map args) throws TemplateModelException, IOException {
+    public Writer getWriter(Writer out, @SuppressWarnings("rawtypes") Map args)
+            throws TemplateModelException, IOException {
         final StringBuilder buf = new StringBuilder();
         final boolean fullPath = checkArg(args, "fullPath", false);
         final boolean secure = checkArg(args, "secure", false);
 
         return new Writer(out) {
 
+            @Override
             public void write(char[] cbuf, int off, int len) throws IOException {
                 buf.append(cbuf, off, len);
             }
 
+            @Override
             public void flush() throws IOException {
                 out.flush();
             }
 
+            @Override
             public void close() throws IOException {
                 try {
                     Environment env = Environment.getCurrentEnvironment();

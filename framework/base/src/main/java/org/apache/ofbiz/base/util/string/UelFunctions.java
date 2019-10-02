@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Method;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.util.Collection;
@@ -44,7 +45,6 @@ import org.apache.ofbiz.base.location.FlexibleLocation;
 import org.apache.ofbiz.base.util.Debug;
 import org.apache.ofbiz.base.util.FileUtil;
 import org.apache.ofbiz.base.util.UtilDateTime;
-import org.apache.ofbiz.base.util.UtilIO;
 import org.apache.ofbiz.base.util.UtilProperties;
 import org.apache.ofbiz.base.util.UtilXml;
 import org.cyberneko.html.parsers.DOMParser;
@@ -55,7 +55,8 @@ import org.xml.sax.SAXException;
 /** Implements Unified Expression Language functions.
  * <p>Built-in functions are divided into a number of
  * namespace prefixes:</p>
- * <table border="1" summary="">
+ * <table border="1">
+ * <caption>Miscellaneous date/time functions</caption>
  * <tr><td colspan="2"><b><code>date:</code> contains miscellaneous date/time functions</b></td></tr>
  * <tr><td><code>date:second(Timestamp, TimeZone, Locale)</code></td><td>Returns the second value of <code>Timestamp</code> (0 - 59).</td></tr>
  * <tr><td><code>date:minute(Timestamp, TimeZone, Locale)</code></td><td>Returns the minute value of <code>Timestamp</code> (0 - 59).</td></tr>
@@ -260,7 +261,6 @@ public class UelFunctions {
                 this.functionMap.put("util:defaultLocale", Locale.class.getMethod("getDefault"));
                 this.functionMap.put("util:defaultTimeZone", TimeZone.class.getMethod("getDefault"));
                 this.functionMap.put("util:label", UelFunctions.class.getMethod("label", String.class, String.class, Locale.class));
-                this.functionMap.put("util:urlExists", UelFunctions.class.getMethod("urlExists", String.class));
                 this.functionMap.put("dom:readHtmlDocument", UelFunctions.class.getMethod("readHtmlDocument", String.class));
                 this.functionMap.put("dom:readXmlDocument", UelFunctions.class.getMethod("readXmlDocument", String.class));
                 this.functionMap.put("dom:toHtmlString", UelFunctions.class.getMethod("toHtmlString", Node.class, String.class, boolean.class, int.class));
@@ -451,21 +451,6 @@ public class UelFunctions {
         return label;
     }
 
-    public static boolean urlExists(String str) {
-        boolean result = false;
-        try {
-            URL url = FlexibleLocation.resolveLocation(str);
-            if (url != null) {
-                try (InputStream is = url.openStream();) {
-                result = true;
-                }
-            }
-        } catch (IOException e) {
-            Debug.log(e, module);
-        }
-        return result;
-    }
-
     public static Document readHtmlDocument(String str) {
         Document document = null;
         try {
@@ -541,7 +526,7 @@ public class UelFunctions {
             sb.append("/>\n<xsl:template match=\"@*|node()\">\n");
             sb.append("<xsl:copy><xsl:apply-templates select=\"@*|node()\"/></xsl:copy>\n");
             sb.append("</xsl:template>\n</xsl:stylesheet>\n");
-            ByteArrayInputStream bis = new ByteArrayInputStream(sb.toString().getBytes(UtilIO.getUtf8()));
+            ByteArrayInputStream bis = new ByteArrayInputStream(sb.toString().getBytes(StandardCharsets.UTF_8));
             TransformerFactory transformerFactory = TransformerFactory.newInstance();
             try (ByteArrayOutputStream os = new ByteArrayOutputStream();) {
                 UtilXml.transformDomDocument(transformerFactory.newTransformer(new StreamSource(bis)), node, os);
